@@ -1,4 +1,6 @@
-import Mathlib
+import Mathlib.Algebra.BigOperators.Group.Finset.Piecewise
+import Mathlib.Data.Fintype.Basic
+import Mathlib.Tactic.Ring.Basic
 
 namespace Mahjong
 
@@ -37,14 +39,30 @@ lemma size_zero : size (0 : Hand n) = 0 := by
 
 @[simp]
 lemma size_add (c d : Hand n) : size (c + d) = size c + size d := by
-  change (∑ i, (c i + d i)) = (∑ i, c i) + (∑ i, d i)
   exact Finset.sum_add_distrib
 
 @[simp]
 lemma size_nsmul (k : ℕ) (c : Hand n) : size (k • c) = k • size c := by
   induction k with
   | zero => simp
-  | succ k ih => simp [succ_nsmul, ih, Nat.add_mul]
+  | succ k ih => simp [succ_nsmul, ih, add_mul]
+
+def sum (c : Hand n) := ∑ i, i * c i
+
+@[simp]
+lemma sum_zero : sum (0 : Hand n) = 0 := by
+  simp [sum]
+
+@[simp]
+lemma sum_add (c d : Hand n) : sum (c + d) = sum c + sum d := by
+  simp only [sum, add_apply, ← Finset.sum_add_distrib]
+  congr; funext; ring
+
+@[simp]
+lemma sum_nsmul (k : ℕ) (c : Hand n) : sum (k • c) = k • sum c := by
+  induction k with
+  | zero => simp
+  | succ k ih => simp [succ_nsmul, ih, add_mul]
 
 def single (i : Fin (3 * n)) : Hand n :=
   fun j ↦ if j = i then 1 else 0
@@ -91,6 +109,21 @@ lemma Meldable.add {c d : Hand n} (hc : Meldable c) (hd : Meldable d) :
   rw [hc, hd]
   simp only [Pi.add_apply, add_nsmul, Finset.sum_add_distrib]
   ac_rfl
+
+def Winning (c : Hand n) : Prop :=
+  Valid c ∧ ∃ (d : Hand n) (i : Fin (3 * n)), Meldable d ∧ c = d + pair i
+
+def IsWinningTile (c : Hand n) (i : Fin (3 * n)) : Prop :=
+  Winning (c + single i)
+
+def IsWait (c : Hand n) : Prop := ∃ i, Winning (c + single i)
+
+lemma IsWait.Valid (c : Hand n) (hc : IsWait c) : Valid c := by
+  rcases hc with ⟨i, hi⟩
+  intro j
+  exact le_trans (Nat.le_add_right (c j) (single i j)) (hi.1 j)
+
+def IsFullWait (c : Hand n) : Prop := ∀ i, Winning (c + single i)
 
 end Hand
 

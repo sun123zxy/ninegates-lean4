@@ -1,1 +1,1 @@
-import NinegatesFormalization.Basic
+import NinegatesFormalization.Uniqueness
