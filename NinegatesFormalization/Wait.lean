@@ -8,6 +8,12 @@ namespace Hand
 
 variable {n : ℕ}
 
+def Winning (c : Hand n) : Prop :=
+  Valid c ∧ ∃ (d : Hand n) (i : Fin (3 * n)), Meldable d ∧ c = d + pair i
+
+def IsWinningTile (c : Hand n) (i : Fin (3 * n)) : Prop :=
+  Winning (c + single i)
+
 def IsWait (c : Hand n) : Prop := ∃ i, Winning (c + single i)
 
 lemma IsWait.Valid (c : Hand n) (hc : IsWait c) : Valid c := by

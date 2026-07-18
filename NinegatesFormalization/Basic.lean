@@ -92,12 +92,6 @@ lemma Meldable.add {c d : Hand n} (hc : Meldable c) (hd : Meldable d) :
   simp only [Pi.add_apply, add_nsmul, Finset.sum_add_distrib]
   ac_rfl
 
-def Winning (c : Hand n) : Prop :=
-  Valid c ∧ ∃ (d : Hand n) (i : Fin (3 * n)), Meldable d ∧ c = d + pair i
-
-def IsWinningTile (c : Hand n) (i : Fin (3 * n)) : Prop :=
-  Winning (c + single i)
-
 end Hand
 
 end Mahjong
