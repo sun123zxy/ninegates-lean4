@@ -2,59 +2,109 @@ import Mathlib
 
 namespace Mahjong
 
-abbrev Hand (n : ℕ) := Fin (3 * n) → ℕ
+/--
+Argurably we should consider `ℕ →₀ ℕ`, but its unfortunately uncomputable.
+-/
+def Hand (n : ℕ) := Fin (3 * n) → ℕ
+
+namespace Hand
 
 variable {n : ℕ}
 
-abbrev TripletAt (i : Fin (3 * n)) : Hand n :=
-  fun j ↦ if j = i then 3 else 0
+instance : AddCommMonoid (Hand n) :=
+  inferInstanceAs <| AddCommMonoid (Fin (3 * n) → ℕ)
 
-abbrev SequenceAt (i : Fin (3 * n - 2)) : Hand n :=
-  fun (j : Fin (3 * n)) ↦
-    if j.val = i.val ∨ j.val = i.val + 1 ∨ j.val = i.val + 2 then 1 else 0
+@[simp]
+lemma zero_apply (i : Fin (3 * n)) : (0 : Hand n) i = 0 := rfl
 
-abbrev PairAt (i : Fin (3 * n)) : Hand n :=
-  fun j ↦ if j = i then 2 else 0
+@[simp]
+lemma add_apply (c d : Hand n) (i : Fin (3 * n)) : (c + d) i = c i + d i := rfl
 
-namespace Hand
+@[simp]
+lemma nsmul_apply (k : ℕ) (c : Hand n) (i : Fin (3 * n)) :
+    (k • c) i = k • c i := rfl
+
+@[ext]
+lemma ext {c d : Hand n} (h : ∀ i, c i = d i) : c = d := by
+  funext i
+  exact h i
+
+def size (c : Hand n) := ∑ i, c i
+
+@[simp]
+lemma size_zero : size (0 : Hand n) = 0 := by
+  simp [size]
+
+@[simp]
+lemma size_add (c d : Hand n) : size (c + d) = size c + size d := by
+  change (∑ i, (c i + d i)) = (∑ i, c i) + (∑ i, d i)
+  exact Finset.sum_add_distrib
+
+@[simp]
+lemma size_nsmul (k : ℕ) (c : Hand n) : size (k • c) = k • size c := by
+  induction k with
+  | zero => simp
+  | succ k ih => simp [succ_nsmul, ih, Nat.add_mul]
+
+def single (i : Fin (3 * n)) : Hand n :=
+  fun j ↦ if j = i then 1 else 0
+
+@[simp]
+lemma single_apply (i : Fin (3 * n)) : single i i = 1 := by
+  simp [single]
+
+@[simp]
+lemma size_single (i : Fin (3 * n)) : size (single i) = 1 := by
+  simp [size, single]
+
+abbrev pair (i : Fin (3 * n)) : Hand n :=
+  2 • single i
+
+abbrev triplet (i : Fin (3 * n)) : Hand n :=
+  3 • single i
+
+abbrev sequence (i : Fin (3 * n - 2)) : Hand n :=
+  single ⟨i, by omega⟩ + single ⟨i + 1, by omega⟩ + single ⟨i + 2, by omega⟩
 
 def Valid (c : Hand n) : Prop := ∀ i, c i ≤ 4
 
 def Meldable (c : Hand n) : Prop :=
   ∃ (t : Fin (3 * n) → ℕ) (r : Fin (3 * n - 2) → ℕ),
-  c = ∑ i, t i • TripletAt i + ∑ j, r j • SequenceAt j
+  c = ∑ i, t i • triplet i + ∑ j, r j • sequence j
 
 @[simp]
-lemma Meldable.sequenceAt {i : Fin (3 * n - 2)} : Meldable (SequenceAt i) := by
+lemma Meldable.sequence {i : Fin (3 * n - 2)} : Meldable (sequence i) := by
   use 0, fun j ↦ if j = i then 1 else 0
-  simp
+  simp only [Pi.zero_apply, zero_nsmul, Finset.sum_const_zero, zero_add, ite_smul,
+    one_nsmul, Finset.sum_ite_eq', Finset.mem_univ, if_true]
 
 @[simp]
-lemma Meldable.tripletAt {i : Fin (3 * n)} : Meldable (TripletAt i) := by
+lemma Meldable.triplet {i : Fin (3 * n)} : Meldable (triplet i) := by
   use fun j ↦ if j = i then 1 else 0, 0
-  simp
+  simp only [ite_smul, one_nsmul, zero_nsmul, Finset.sum_ite_eq', Finset.mem_univ,
+    if_true, Pi.zero_apply, Finset.sum_const_zero, add_zero]
 
-@[simp]
-lemma Meldable.add (c d : Hand n) (hc : Meldable c) (hd : Meldable d) : Meldable (c + d) := by
+lemma Meldable.add {c d : Hand n} (hc : Meldable c) (hd : Meldable d) :
+    Meldable (c + d) := by
   obtain ⟨tc, rc, hc⟩ := hc
   obtain ⟨td, rd, hd⟩ := hd
   use tc + td, rc + rd
   rw [hc, hd]
-  simp only [Pi.add_apply, add_smul, Finset.sum_add_distrib]
-  ring
+  simp only [Pi.add_apply, add_nsmul, Finset.sum_add_distrib]
+  ac_rfl
 
 def Winning (c : Hand n) : Prop :=
-  Valid c ∧ ∃ (d : Hand n) (i : Fin (3 * n)), Meldable d ∧ c = d + PairAt i
+  Valid c ∧ ∃ (d : Hand n) (i : Fin (3 * n)), Meldable d ∧ c = d + pair i
 
 def IsWinningTile (c : Hand n) (i : Fin (3 * n)) : Prop :=
-  Winning (c + PairAt i)
+  Winning (c + single i)
 
-def IsWait (c : Hand n) : Prop := ∃ i, Winning (c + PairAt i)
+def IsWait (c : Hand n) : Prop := ∃ i, Winning (c + single i)
 
-def IsFullWait (c : Hand n) : Prop := ∀ i, Winning (c + PairAt i)
+lemma valid_isWait (c : Hand n) (hc : IsWait c) : Valid c := by
+  sorry
 
-def standardFullWait : Hand n :=
-  fun i ↦ if i.val = 0 ∨ i.val + 1 = 3 * n then 3 else 1
+def IsFullWait (c : Hand n) : Prop := ∀ i, Winning (c + single i)
 
 end Hand
 
