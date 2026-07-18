@@ -1,7 +1,7 @@
 import Mathlib
 import NinegatesFormalization.Basic
 import NinegatesFormalization.Wait
-import NinegatesFormalization.StandardFullWait
+import NinegatesFormalization.Standard
 
 namespace Mahjong
 
