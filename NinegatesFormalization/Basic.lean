@@ -50,12 +50,11 @@ def single (i : Fin (3 * n)) : Hand n :=
   fun j ↦ if j = i then 1 else 0
 
 @[simp]
-lemma single_apply (i : Fin (3 * n)) : single i i = 1 := by
-  simp [single]
+lemma single_apply (i j : Fin (3 * n)) : single i j = if j = i then 1 else 0 := rfl
 
 @[simp]
 lemma size_single (i : Fin (3 * n)) : size (single i) = 1 := by
-  simp [size, single]
+  simp [size]
 
 abbrev pair (i : Fin (3 * n)) : Hand n :=
   2 • single i
