@@ -4,46 +4,6 @@ namespace Mahjong.Hand
 
 variable {n : ℕ}
 
-private lemma restrictLT_pair_of_lt (k i : Fin (3 * n)) (hi : i < k) :
-    restrictLT k (pair i) = pair i := by
-  rw [pair, restrictLT_nsmul, restrictLT_single_of_lt _ _ hi]
-
-private lemma restrictLT_pair_of_not_lt (k i : Fin (3 * n)) (hi : ¬i < k) :
-    restrictLT k (pair i) = 0 := by
-  simp only [pair, restrictLT_nsmul, restrictLT_single_of_not_lt _ _ hi,
-    nsmul_zero]
-
-private lemma restrictGT_pair_of_gt (k i : Fin (3 * n)) (hi : k < i) :
-    restrictGT k (pair i) = pair i := by
-  rw [pair, restrictGT_nsmul, restrictGT_single_of_gt _ _ hi]
-
-private lemma restrictGT_pair_of_not_gt (k i : Fin (3 * n)) (hi : ¬k < i) :
-    restrictGT k (pair i) = 0 := by
-  simp only [pair, restrictGT_nsmul, restrictGT_single_of_not_gt _ _ hi,
-    nsmul_zero]
-
-private lemma restrictLT_add_single_of_lt (c : Hand n) (k i : Fin (3 * n))
-    (hi : i < k) :
-    restrictLT k (c + single i) = restrictLT k c + single i := by
-  rw [restrictLT_add, restrictLT_single_of_lt _ _ hi]
-
-private lemma restrictGT_add_single_of_lt (c : Hand n) (k i : Fin (3 * n))
-    (hi : i < k) :
-    restrictGT k (c + single i) = restrictGT k c := by
-  simp only [restrictGT_add,
-    restrictGT_single_of_not_gt _ _ (not_lt_of_ge (le_of_lt hi)), add_zero]
-
-private lemma restrictLT_add_single_of_gt (c : Hand n) (k i : Fin (3 * n))
-    (hi : k < i) :
-    restrictLT k (c + single i) = restrictLT k c := by
-  simp only [restrictLT_add,
-    restrictLT_single_of_not_lt _ _ (not_lt_of_ge (le_of_lt hi)), add_zero]
-
-private lemma restrictGT_add_single_of_gt (c : Hand n) (k i : Fin (3 * n))
-    (hi : k < i) :
-    restrictGT k (c + single i) = restrictGT k c + single i := by
-  rw [restrictGT_add, restrictGT_single_of_gt _ _ hi]
-
 private lemma winning_sides_at_zero {w : Hand n} (hw : Winning w)
     (k : Fin (3 * n)) (hk : w k = 0) :
     (size (restrictLT k w) % 3 = 2 ∧
@@ -62,22 +22,22 @@ private lemma winning_sides_at_zero {w : Hand n} (hw : Winning w)
   rcases lt_or_gt_of_ne hpk with hleft | hright
   · left
     have hLT : restrictLT k w = restrictLT k d + pair p := by
-      rw [hwd, restrictLT_add, restrictLT_pair_of_lt _ _ hleft]
+      rw [hwd, map_add, restrictLT_pair_of_lt _ _ hleft]
     have hGT : restrictGT k w = restrictGT k d := by
-      simp only [hwd, restrictGT_add,
+      simp only [hwd, map_add,
         restrictGT_pair_of_not_gt _ _ (not_lt_of_ge (le_of_lt hleft)), add_zero]
     rw [hLT, hGT]
     refine ⟨?_, hdGT.size_mod_three, hdGT⟩
-    simp [size_add, Nat.add_mod, hdLT.size_mod_three]
+    simp [Nat.add_mod, hdLT.size_mod_three]
   · right
     have hLT : restrictLT k w = restrictLT k d := by
-      simp only [hwd, restrictLT_add,
+      simp only [hwd, map_add,
         restrictLT_pair_of_not_lt _ _ (not_lt_of_ge (le_of_lt hright)), add_zero]
     have hGT : restrictGT k w = restrictGT k d + pair p := by
-      rw [hwd, restrictGT_add, restrictGT_pair_of_gt _ _ hright]
+      rw [hwd, map_add, restrictGT_pair_of_gt _ _ hright]
     rw [hLT, hGT]
     refine ⟨hdLT.size_mod_three, ?_, hdLT⟩
-    simp [size_add, Nat.add_mod, hdGT.size_mod_three]
+    simp [Nat.add_mod, hdGT.size_mod_three]
 
 theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
     ∀ i : Fin (3 * n), 0 < i.val ∧ i.val < 3 * n - 1 → 0 < c i := by
@@ -100,12 +60,10 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
     hzero last (ne_of_gt hlast)
   have hfirst_sides := winning_sides_at_zero (hc first) k hfirst_zero
   have hlast_sides := winning_sides_at_zero (hc last) k hlast_zero
-  rw [restrictLT_add_single_of_lt c k first hfirst,
-    restrictGT_add_single_of_lt c k first hfirst,
-    size_add, size_single] at hfirst_sides
-  rw [restrictLT_add_single_of_gt c k last hlast,
-    restrictGT_add_single_of_gt c k last hlast,
-    size_add, size_single] at hlast_sides
+  simp only [map_add, restrictLT_single_of_lt _ _ hfirst,
+    restrictGT_add_single_of_lt c k first hfirst, size_single] at hfirst_sides
+  simp only [restrictLT_add_single_of_gt c k last hlast, map_add,
+    restrictGT_single_of_gt _ _ hlast, size_single] at hlast_sides
   have hsizes :
       size (restrictLT k c) % 3 = 2 ∧ size (restrictGT k c) % 3 = 2 := by
     rcases hfirst_sides with hfirst_sides | hfirst_sides <;>
@@ -115,7 +73,7 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
     have hi_zero : (c + single i) k = 0 := hzero i (ne_of_lt hi)
     rcases winning_sides_at_zero (hc i) k hi_zero with hsides | hsides
     · have hsize := hsides.1
-      rw [restrictLT_add_single_of_lt c k i hi, size_add, size_single] at hsize
+      simp only [map_add, restrictLT_single_of_lt _ _ hi, size_single] at hsize
       omega
     · exact hsides.2.2
   have hright_meldable (i : Fin (3 * n)) (hi : k < i) :
@@ -124,7 +82,7 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
     rcases winning_sides_at_zero (hc i) k hi_zero with hsides | hsides
     · exact hsides.2.2
     · have hsize := hsides.2.1
-      rw [restrictGT_add_single_of_gt c k i hi, size_add, size_single] at hsize
+      simp only [map_add, restrictGT_single_of_gt _ _ hi, size_single] at hsize
       omega
   by_cases hkleft : 2 ≤ k.val
   · let i₀ : Fin (3 * n) := ⟨0, by omega⟩
@@ -136,11 +94,11 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
       change 1 < k.val
       omega
     have hsum₀ : (sum (restrictLT k c) + 0) % 3 = 0 := by
-      simpa only [restrictLT_add_single_of_lt c k i₀ hi₀, sum_add, sum_single,
-        i₀] using (hleft_meldable i₀ hi₀).sum_mod_three
+      simpa only [map_add, restrictLT_single_of_lt _ _ hi₀, sum_single, i₀] using
+        (hleft_meldable i₀ hi₀).sum_mod_three
     have hsum₁ : (sum (restrictLT k c) + 1) % 3 = 0 := by
-      simpa only [restrictLT_add_single_of_lt c k i₁ hi₁, sum_add, sum_single,
-        i₁] using (hleft_meldable i₁ hi₁).sum_mod_three
+      simpa only [map_add, restrictLT_single_of_lt _ _ hi₁, sum_single, i₁] using
+        (hleft_meldable i₁ hi₁).sum_mod_three
     omega
   · have hkval : k.val = 1 := by omega
     let i₂ : Fin (3 * n) :=
@@ -154,11 +112,11 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
       change k.val < 3
       omega
     have hsum₂ : (sum (restrictGT k c) + 2) % 3 = 0 := by
-      simpa only [restrictGT_add_single_of_gt c k i₂ hi₂, sum_add, sum_single,
-        i₂] using (hright_meldable i₂ hi₂).sum_mod_three
+      simpa only [map_add, restrictGT_single_of_gt _ _ hi₂, sum_single, i₂] using
+        (hright_meldable i₂ hi₂).sum_mod_three
     have hsum₃ : (sum (restrictGT k c) + 3) % 3 = 0 := by
-      simpa only [restrictGT_add_single_of_gt c k i₃ hi₃, sum_add, sum_single,
-        i₃] using (hright_meldable i₃ hi₃).sum_mod_three
+      simpa only [map_add, restrictGT_single_of_gt _ _ hi₃, sum_single, i₃] using
+        (hright_meldable i₃ hi₃).sum_mod_three
     omega
 
 end Mahjong.Hand

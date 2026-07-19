@@ -24,53 +24,29 @@ lemma add_apply (c d : Hand n) (i : Fin (3 * n)) : (c + d) i = c i + d i := rfl
 lemma nsmul_apply (k : ℕ) (c : Hand n) (i : Fin (3 * n)) :
     (k • c) i = k • c i := rfl
 
+def count (i : Fin (3 * n)) : Hand n →+ ℕ where
+  toFun c := c i
+  map_zero' := zero_apply i
+  map_add' c d := add_apply c d i
+
+@[simp]
+lemma count_apply (i : Fin (3 * n)) (c : Hand n) : count i c = c i := rfl
+
 @[ext]
 lemma ext {c d : Hand n} (h : ∀ i, c i = d i) : c = d := by
   funext i
   exact h i
 
-def size (c : Hand n) := ∑ i, c i
+def size : Hand n →+ ℕ where
+  toFun c := ∑ i, c i
+  map_zero' := by simp
+  map_add' c d := Finset.sum_add_distrib
 
-@[simp]
-lemma size_zero : size (0 : Hand n) = 0 := by
-  simp [size]
-
-lemma size_add (c d : Hand n) : size (c + d) = size c + size d := by
-  exact Finset.sum_add_distrib
-
-def sizeHom : Hand n →+ ℕ where
-  toFun := size
-  map_zero' := size_zero
-  map_add' := size_add
-
-@[simp]
-lemma sizeHom_apply (c : Hand n) : sizeHom c = size c := rfl
-
-lemma size_nsmul (k : ℕ) (c : Hand n) : size (k • c) = k • size c := by
-  repeat rw [← sizeHom_apply]
-  apply map_nsmul
-
-def sum (c : Hand n) := ∑ i, i * c i
-
-@[simp]
-lemma sum_zero : sum (0 : Hand n) = 0 := by
-  simp [sum]
-
-lemma sum_add (c d : Hand n) : sum (c + d) = sum c + sum d := by
-  simp only [sum, add_apply, ← Finset.sum_add_distrib]
-  congr; funext; rw [mul_add]
-
-def sumHom : Hand n →+ ℕ where
-  toFun := sum
-  map_zero' := sum_zero
-  map_add' := sum_add
-
-@[simp]
-lemma sumHom_apply (c : Hand n) : sumHom c = sum c := rfl
-
-lemma sum_nsmul (k : ℕ) (c : Hand n) : sum (k • c) = k • sum c := by
-  repeat rw [← sumHom_apply]
-  apply map_nsmul
+def sum : Hand n →+ ℕ where
+  toFun c := ∑ i, i * c i
+  map_zero' := by simp
+  map_add' c d := by
+    simp only [add_apply, mul_add, Finset.sum_add_distrib]
 
 def single (i : Fin (3 * n)) : Hand n :=
   fun j ↦ if j = i then 1 else 0
@@ -80,45 +56,47 @@ lemma single_apply (i j : Fin (3 * n)) : single i j = if j = i then 1 else 0 := 
 
 @[simp]
 lemma size_single (i : Fin (3 * n)) : size (single i) = 1 := by
-  simp [size]
+  change (∑ j, if j = i then 1 else 0) = 1
+  simp
 
 @[simp]
 lemma sum_single (i : Fin (3 * n)) : sum (single i) = i.val := by
-  simp [sum]
+  change (∑ j, j.val * if j = i then 1 else 0) = i.val
+  simp
 
 def pair (i : Fin (3 * n)) : Hand n :=
   2 • single i
 
 @[simp]
 lemma size_pair (i : Fin (3 * n)) : size (pair i) = 2 := by
-  simp [pair, size_nsmul]
+  simp [pair]
 
 @[simp]
 lemma sum_pair (i : Fin (3 * n)) : sum (pair i) = 2 * i.val := by
-  simp [pair, sum_nsmul]
+  simp [pair]
 
 def triplet (i : Fin (3 * n)) : Hand n :=
   3 • single i
 
 @[simp]
 lemma size_triplet (i : Fin (3 * n)) : size (triplet i) = 3 := by
-  simp [triplet, size_nsmul]
+  simp [triplet]
 
 @[simp]
 lemma sum_triplet (i : Fin (3 * n)) : sum (triplet i) = 3 * i.val := by
-  simp [triplet, sum_nsmul]
+  simp [triplet]
 
 def sequence (i : Fin (3 * n - 2)) : Hand n :=
   single ⟨i, by omega⟩ + single ⟨i + 1, by omega⟩ + single ⟨i + 2, by omega⟩
 
 @[simp]
 lemma size_sequence (i : Fin (3 * n - 2)) : size (sequence i) = 3 := by
-  simp [sequence, size_add]
+  simp [sequence]
 
 @[simp]
 lemma sum_sequence (i : Fin (3 * n - 2)) :
     sum (sequence i) = 3 * (i.val + 1) := by
-  simp only [sequence, sum_add, sum_single]
+  simp only [sequence, map_add, sum_single]
   omega
 
 @[simp]
@@ -176,15 +154,15 @@ lemma Meldable.finset_sum {ι : Type*} {s : Finset ι} {f : ι → Hand n}
 theorem Meldable.size_mod_three {c : Hand n} (hc : Meldable c) :
     size c % 3 = 0 := by
   obtain ⟨t, r, rfl⟩ := hc
-  rw [← sizeHom_apply, map_add, map_sum, map_sum]
-  simp only [map_nsmul, sizeHom_apply, size_triplet, size_sequence, smul_eq_mul]
+  rw [map_add, map_sum, map_sum]
+  simp only [map_nsmul, size_triplet, size_sequence, smul_eq_mul]
   rw [← Finset.sum_mul, ← Finset.sum_mul, ← add_mul, Nat.mul_mod_left]
 
 theorem Meldable.sum_mod_three {c : Hand n} (hc : Meldable c) :
     sum c % 3 = 0 := by
   obtain ⟨t, r, rfl⟩ := hc
-  rw [← sumHom_apply, map_add, map_sum, map_sum]
-  simp only [map_nsmul, sumHom_apply, sum_triplet, sum_sequence, smul_eq_mul]
+  rw [map_add, map_sum, map_sum]
+  simp only [map_nsmul, sum_triplet, sum_sequence, smul_eq_mul]
   simp_rw [mul_comm 3, ← mul_assoc]
   rw [← Finset.sum_mul, ← Finset.sum_mul, ← add_mul, Nat.mul_mod_left]
 
