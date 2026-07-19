@@ -1,6 +1,4 @@
-import Mathlib.Algebra.BigOperators.Group.Finset.Piecewise
-import Mathlib.Data.Fintype.Basic
-import Mathlib.Tactic.Ring.Basic
+import Mathlib
 
 namespace Mahjong
 
@@ -37,15 +35,20 @@ def size (c : Hand n) := ∑ i, c i
 lemma size_zero : size (0 : Hand n) = 0 := by
   simp [size]
 
-@[simp]
 lemma size_add (c d : Hand n) : size (c + d) = size c + size d := by
   exact Finset.sum_add_distrib
 
+def sizeHom : Hand n →+ ℕ where
+  toFun := size
+  map_zero' := size_zero
+  map_add' := size_add
+
 @[simp]
+lemma sizeHom_apply (c : Hand n) : sizeHom c = size c := rfl
+
 lemma size_nsmul (k : ℕ) (c : Hand n) : size (k • c) = k • size c := by
-  induction k with
-  | zero => simp
-  | succ k ih => simp [succ_nsmul, ih, add_mul]
+  repeat rw [← sizeHom_apply]
+  apply map_nsmul
 
 def sum (c : Hand n) := ∑ i, i * c i
 
@@ -53,16 +56,21 @@ def sum (c : Hand n) := ∑ i, i * c i
 lemma sum_zero : sum (0 : Hand n) = 0 := by
   simp [sum]
 
-@[simp]
 lemma sum_add (c d : Hand n) : sum (c + d) = sum c + sum d := by
   simp only [sum, add_apply, ← Finset.sum_add_distrib]
-  congr; funext; ring
+  congr; funext; rw [mul_add]
+
+def sumHom : Hand n →+ ℕ where
+  toFun := sum
+  map_zero' := sum_zero
+  map_add' := sum_add
 
 @[simp]
+lemma sumHom_apply (c : Hand n) : sumHom c = sum c := rfl
+
 lemma sum_nsmul (k : ℕ) (c : Hand n) : sum (k • c) = k • sum c := by
-  induction k with
-  | zero => simp
-  | succ k ih => simp [succ_nsmul, ih, add_mul]
+  repeat rw [← sumHom_apply]
+  apply map_nsmul
 
 def single (i : Fin (3 * n)) : Hand n :=
   fun j ↦ if j = i then 1 else 0
@@ -74,14 +82,49 @@ lemma single_apply (i j : Fin (3 * n)) : single i j = if j = i then 1 else 0 := 
 lemma size_single (i : Fin (3 * n)) : size (single i) = 1 := by
   simp [size]
 
-abbrev pair (i : Fin (3 * n)) : Hand n :=
+@[simp]
+lemma sum_single (i : Fin (3 * n)) : sum (single i) = i.val := by
+  simp [sum]
+
+def pair (i : Fin (3 * n)) : Hand n :=
   2 • single i
 
-abbrev triplet (i : Fin (3 * n)) : Hand n :=
+@[simp]
+lemma size_pair (i : Fin (3 * n)) : size (pair i) = 2 := by
+  simp [pair, size_nsmul]
+
+@[simp]
+lemma sum_pair (i : Fin (3 * n)) : sum (pair i) = 2 * i.val := by
+  simp [pair, sum_nsmul]
+
+def triplet (i : Fin (3 * n)) : Hand n :=
   3 • single i
 
-abbrev sequence (i : Fin (3 * n - 2)) : Hand n :=
+@[simp]
+lemma size_triplet (i : Fin (3 * n)) : size (triplet i) = 3 := by
+  simp [triplet, size_nsmul]
+
+@[simp]
+lemma sum_triplet (i : Fin (3 * n)) : sum (triplet i) = 3 * i.val := by
+  simp [triplet, sum_nsmul]
+
+def sequence (i : Fin (3 * n - 2)) : Hand n :=
   single ⟨i, by omega⟩ + single ⟨i + 1, by omega⟩ + single ⟨i + 2, by omega⟩
+
+@[simp]
+lemma size_sequence (i : Fin (3 * n - 2)) : size (sequence i) = 3 := by
+  simp [sequence, size_add]
+
+@[simp]
+lemma sum_sequence (i : Fin (3 * n - 2)) :
+    sum (sequence i) = 3 * (i.val + 1) := by
+  simp only [sequence, sum_add, sum_single]
+  omega
+
+@[simp]
+lemma sum_sequence_mod_three (i : Fin (3 * n - 2)) : sum (sequence i) % 3 = 0 := by
+  rw [sum_sequence]
+  exact Nat.mul_mod_right _ _
 
 def Valid (c : Hand n) : Prop := ∀ i, c i ≤ 4
 
@@ -103,12 +146,26 @@ lemma Meldable.triplet {i : Fin (3 * n)} : Meldable (triplet i) := by
 
 lemma Meldable.add {c d : Hand n} (hc : Meldable c) (hd : Meldable d) :
     Meldable (c + d) := by
-  obtain ⟨tc, rc, hc⟩ := hc
-  obtain ⟨td, rd, hd⟩ := hd
+  obtain ⟨tc, rc, rfl⟩ := hc
+  obtain ⟨td, rd, rfl⟩ := hd
   use tc + td, rc + rd
-  rw [hc, hd]
   simp only [Pi.add_apply, add_nsmul, Finset.sum_add_distrib]
   ac_rfl
+
+theorem Meldable.size_mod_three {c : Hand n} (hc : Meldable c) :
+    size c % 3 = 0 := by
+  obtain ⟨t, r, rfl⟩ := hc
+  rw [← sizeHom_apply, map_add, map_sum, map_sum]
+  simp only [map_nsmul, sizeHom_apply, size_triplet, size_sequence, smul_eq_mul]
+  rw [← Finset.sum_mul, ← Finset.sum_mul, ← add_mul, Nat.mul_mod_left]
+
+theorem Meldable.sum_mod_three {c : Hand n} (hc : Meldable c) :
+    sum c % 3 = 0 := by
+  obtain ⟨t, r, rfl⟩ := hc
+  rw [← sumHom_apply, map_add, map_sum, map_sum]
+  simp only [map_nsmul, sumHom_apply, sum_triplet, sum_sequence, smul_eq_mul]
+  simp_rw [mul_comm 3, ← mul_assoc]
+  rw [← Finset.sum_mul, ← Finset.sum_mul, ← add_mul, Nat.mul_mod_left]
 
 def Winning (c : Hand n) : Prop :=
   Valid c ∧ ∃ (d : Hand n) (i : Fin (3 * n)), Meldable d ∧ c = d + pair i
