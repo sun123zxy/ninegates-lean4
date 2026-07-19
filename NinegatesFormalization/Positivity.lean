@@ -37,77 +37,86 @@ private lemma restrictLTHom_apply (k : Fin (3 * n)) (c : Hand n) :
 private lemma restrictGTHom_apply (k : Fin (3 * n)) (c : Hand n) :
     restrictGTHom k c = restrictGT k c := rfl
 
+private lemma restrictLT_add (k : Fin (3 * n)) (c d : Hand n) :
+    restrictLT k (c + d) = restrictLT k c + restrictLT k d := by
+  rw [← restrictLTHom_apply, map_add, restrictLTHom_apply, restrictLTHom_apply]
+
+private lemma restrictGT_add (k : Fin (3 * n)) (c d : Hand n) :
+    restrictGT k (c + d) = restrictGT k c + restrictGT k d := by
+  rw [← restrictGTHom_apply, map_add, restrictGTHom_apply, restrictGTHom_apply]
+
+private lemma restrictLT_nsmul (k : Fin (3 * n)) (a : ℕ) (c : Hand n) :
+    restrictLT k (a • c) = a • restrictLT k c := by
+  rw [← restrictLTHom_apply, map_nsmul, restrictLTHom_apply]
+
+private lemma restrictGT_nsmul (k : Fin (3 * n)) (a : ℕ) (c : Hand n) :
+    restrictGT k (a • c) = a • restrictGT k c := by
+  rw [← restrictGTHom_apply, map_nsmul, restrictGTHom_apply]
+
+private lemma restrictLT_zero (k : Fin (3 * n)) :
+    restrictLT k (0 : Hand n) = 0 := by
+  rw [← restrictLTHom_apply, map_zero]
+
+private lemma restrictGT_zero (k : Fin (3 * n)) :
+    restrictGT k (0 : Hand n) = 0 := by
+  rw [← restrictGTHom_apply, map_zero]
+
 private lemma restrictLT_single_of_lt (k i : Fin (3 * n)) (hi : i < k) :
     restrictLT k (single i) = single i := by
   ext x
-  by_cases hx : x < k
-  · simp [hx]
-  · have hxi : x ≠ i := by
-      intro h
-      subst x
-      exact hx hi
-    simp [hx, hxi]
+  by_cases hxi : x = i
+  · subst x
+    simp [hi]
+  · simp [hxi]
 
 private lemma restrictLT_single_of_not_lt (k i : Fin (3 * n)) (hi : ¬i < k) :
     restrictLT k (single i) = 0 := by
   ext x
-  by_cases hx : x < k
-  · have hxi : x ≠ i := by
-      intro h
-      subst x
-      exact hi hx
-    simp [hx, hxi]
-  · simp [hx]
+  by_cases hxi : x = i
+  · subst x
+    simp [hi]
+  · simp [hxi]
 
 private lemma restrictGT_single_of_gt (k i : Fin (3 * n)) (hi : k < i) :
     restrictGT k (single i) = single i := by
   ext x
-  by_cases hx : k < x
-  · simp [hx]
-  · have hxi : x ≠ i := by
-      intro h
-      subst x
-      exact hx hi
-    simp [hx, hxi]
+  by_cases hxi : x = i
+  · subst x
+    simp [hi]
+  · simp [hxi]
 
 private lemma restrictGT_single_of_not_gt (k i : Fin (3 * n)) (hi : ¬k < i) :
     restrictGT k (single i) = 0 := by
   ext x
-  by_cases hx : k < x
-  · have hxi : x ≠ i := by
-      intro h
-      subst x
-      exact hi hx
-    simp [hx, hxi]
-  · simp [hx]
+  by_cases hxi : x = i
+  · subst x
+    simp [hi]
+  · simp [hxi]
 
 private lemma restrictLT_triplet_of_lt (k i : Fin (3 * n)) (a : ℕ) (hi : i < k) :
     restrictLT k (a • triplet i) = a • triplet i := by
-  rw [← restrictLTHom_apply, triplet, map_nsmul, map_nsmul,
-    restrictLTHom_apply, restrictLT_single_of_lt _ _ hi]
+  rw [restrictLT_nsmul, triplet, restrictLT_nsmul,
+    restrictLT_single_of_lt _ _ hi]
 
 private lemma restrictLT_triplet_of_not_lt (k i : Fin (3 * n)) (a : ℕ)
     (hi : ¬i < k) : restrictLT k (a • triplet i) = 0 := by
-  rw [← restrictLTHom_apply, triplet, map_nsmul, map_nsmul,
-    restrictLTHom_apply, restrictLT_single_of_not_lt _ _ hi]
-  simp
+  simp only [restrictLT_nsmul, triplet, restrictLT_single_of_not_lt _ _ hi,
+    nsmul_zero]
 
 private lemma restrictGT_triplet_of_gt (k i : Fin (3 * n)) (a : ℕ) (hi : k < i) :
     restrictGT k (a • triplet i) = a • triplet i := by
-  rw [← restrictGTHom_apply, triplet, map_nsmul, map_nsmul,
-    restrictGTHom_apply, restrictGT_single_of_gt _ _ hi]
+  rw [restrictGT_nsmul, triplet, restrictGT_nsmul,
+    restrictGT_single_of_gt _ _ hi]
 
 private lemma restrictGT_triplet_of_not_gt (k i : Fin (3 * n)) (a : ℕ)
     (hi : ¬k < i) : restrictGT k (a • triplet i) = 0 := by
-  rw [← restrictGTHom_apply, triplet, map_nsmul, map_nsmul,
-    restrictGTHom_apply, restrictGT_single_of_not_gt _ _ hi]
-  simp
+  simp only [restrictGT_nsmul, triplet, restrictGT_single_of_not_gt _ _ hi,
+    nsmul_zero]
 
 private lemma restrictLT_sequence_of_left (k : Fin (3 * n))
     (j : Fin (3 * n - 2)) (hj : j.val + 2 < k.val) :
     restrictLT k (sequence j) = sequence j := by
-  rw [← restrictLTHom_apply, sequence, map_add, map_add]
-  simp only [restrictLTHom_apply]
+  rw [sequence, restrictLT_add, restrictLT_add]
   have h₀ : (⟨j, by omega⟩ : Fin (3 * n)) < k := by
     change j.val < k.val
     omega
@@ -123,8 +132,7 @@ private lemma restrictLT_sequence_of_left (k : Fin (3 * n))
 private lemma restrictLT_sequence_of_right (k : Fin (3 * n))
     (j : Fin (3 * n - 2)) (hj : k.val < j.val) :
     restrictLT k (sequence j) = 0 := by
-  rw [← restrictLTHom_apply, sequence, map_add, map_add]
-  simp only [restrictLTHom_apply]
+  rw [sequence, restrictLT_add, restrictLT_add]
   have h₀ : ¬(⟨j, by omega⟩ : Fin (3 * n)) < k := by
     change ¬j.val < k.val
     omega
@@ -134,16 +142,14 @@ private lemma restrictLT_sequence_of_right (k : Fin (3 * n))
   have h₂ : ¬(⟨j + 2, by omega⟩ : Fin (3 * n)) < k := by
     change ¬j.val + 2 < k.val
     omega
-  rw [restrictLT_single_of_not_lt _ _ h₀,
+  simp only [restrictLT_single_of_not_lt _ _ h₀,
     restrictLT_single_of_not_lt _ _ h₁,
-    restrictLT_single_of_not_lt _ _ h₂]
-  simp
+    restrictLT_single_of_not_lt _ _ h₂, add_zero]
 
 private lemma restrictGT_sequence_of_right (k : Fin (3 * n))
     (j : Fin (3 * n - 2)) (hj : k.val < j.val) :
     restrictGT k (sequence j) = sequence j := by
-  rw [← restrictGTHom_apply, sequence, map_add, map_add]
-  simp only [restrictGTHom_apply]
+  rw [sequence, restrictGT_add, restrictGT_add]
   have h₀ : k < (⟨j, by omega⟩ : Fin (3 * n)) := by
     change k.val < j.val
     omega
@@ -159,8 +165,7 @@ private lemma restrictGT_sequence_of_right (k : Fin (3 * n))
 private lemma restrictGT_sequence_of_left (k : Fin (3 * n))
     (j : Fin (3 * n - 2)) (hj : j.val + 2 < k.val) :
     restrictGT k (sequence j) = 0 := by
-  rw [← restrictGTHom_apply, sequence, map_add, map_add]
-  simp only [restrictGTHom_apply]
+  rw [sequence, restrictGT_add, restrictGT_add]
   have h₀ : ¬k < (⟨j, by omega⟩ : Fin (3 * n)) := by
     change ¬k.val < j.val
     omega
@@ -170,10 +175,9 @@ private lemma restrictGT_sequence_of_left (k : Fin (3 * n))
   have h₂ : ¬k < (⟨j + 2, by omega⟩ : Fin (3 * n)) := by
     change ¬k.val < j.val + 2
     omega
-  rw [restrictGT_single_of_not_gt _ _ h₀,
+  simp only [restrictGT_single_of_not_gt _ _ h₀,
     restrictGT_single_of_not_gt _ _ h₁,
-    restrictGT_single_of_not_gt _ _ h₂]
-  simp
+    restrictGT_single_of_not_gt _ _ h₂, add_zero]
 
 private lemma meldable_zero : Meldable (0 : Hand n) := by
   use 0, 0
@@ -183,9 +187,7 @@ private lemma meldable_nsmul {c : Hand n} (hc : Meldable c) (a : ℕ) :
     Meldable (a • c) := by
   induction a with
   | zero => simpa using (meldable_zero : Meldable (0 : Hand n))
-  | succ a ih =>
-      rw [succ_nsmul]
-      exact Meldable.add ih hc
+  | succ a ih => simpa only [succ_nsmul] using Meldable.add ih hc
 
 private lemma meldable_sum {ι : Type*} {s : Finset ι} {f : ι → Hand n}
     (hf : ∀ i ∈ s, Meldable (f i)) : Meldable (∑ i ∈ s, f i) := by
@@ -193,9 +195,9 @@ private lemma meldable_sum {ι : Type*} {s : Finset ι} {f : ι → Hand n}
   induction s using Finset.induction_on with
   | empty => simpa using (meldable_zero : Meldable (0 : Hand n))
   | @insert i s hi ih =>
-      rw [Finset.sum_insert hi]
-      exact Meldable.add (hf i (Finset.mem_insert_self i s))
-        (ih fun j hj => hf j (Finset.mem_insert_of_mem hj))
+      simpa only [Finset.sum_insert hi] using
+        Meldable.add (hf i (Finset.mem_insert_self i s))
+          (ih fun j hj => hf j (Finset.mem_insert_of_mem hj))
 
 private def evalHom (k : Fin (3 * n)) : Hand n →+ ℕ where
   toFun c := c k
@@ -223,122 +225,104 @@ theorem Meldable.split_at_zero {c : Hand n} (hc : Meldable c)
         evalHom k
           (∑ i, t i • Mahjong.Hand.triplet i +
             ∑ x, r x • Mahjong.Hand.sequence x) = 0 := by
-      rw [← h]
-      exact hk
+      simpa only [evalHom_apply, ← h] using hk
     simp only [map_add, map_sum, map_nsmul, evalHom_apply] at htotal
     have hseqsum : ∑ x, r x • (show Hand n from Mahjong.Hand.sequence x) k = 0 :=
       Nat.eq_zero_of_add_eq_zero_left htotal
     have hj : r j • (show Hand n from Mahjong.Hand.sequence j) k = 0 :=
       (Finset.sum_eq_zero_iff.mp hseqsum) j (Finset.mem_univ j)
-    simp only [hseq, smul_eq_mul, mul_one] at hj
-    exact hj
+    simpa only [hseq, smul_eq_mul, mul_one] using hj
   have hleft_eq :
       restrictLT k c =
-        ∑ i, restrictLT k (t i • Mahjong.Hand.triplet i) +
+          ∑ i, restrictLT k (t i • Mahjong.Hand.triplet i) +
           ∑ j, restrictLT k (r j • Mahjong.Hand.sequence j) := by
-    rw [h, ← restrictLTHom_apply, map_add, map_sum, map_sum]
-    simp only [restrictLTHom_apply]
+    simpa only [restrictLTHom_apply, map_add, map_sum] using
+      congrArg (restrictLTHom k) h
   have hright_eq :
       restrictGT k c =
-        ∑ i, restrictGT k (t i • Mahjong.Hand.triplet i) +
+          ∑ i, restrictGT k (t i • Mahjong.Hand.triplet i) +
           ∑ j, restrictGT k (r j • Mahjong.Hand.sequence j) := by
-    rw [h, ← restrictGTHom_apply, map_add, map_sum, map_sum]
-    simp only [restrictGTHom_apply]
+    simpa only [restrictGTHom_apply, map_add, map_sum] using
+      congrArg (restrictGTHom k) h
   constructor
   · rw [hleft_eq]
     apply Meldable.add
     · apply meldable_sum
       intro i _
       by_cases hi : i < k
-      · rw [restrictLT_triplet_of_lt _ _ _ hi]
-        exact meldable_nsmul Meldable.triplet _
-      · rw [restrictLT_triplet_of_not_lt _ _ _ hi]
-        exact meldable_zero
+      · simpa only [restrictLT_triplet_of_lt _ _ _ hi] using
+          meldable_nsmul Meldable.triplet (t i)
+      · simpa only [restrictLT_triplet_of_not_lt _ _ _ hi] using
+          (meldable_zero : Meldable (0 : Hand n))
     · apply meldable_sum
       intro j _
       by_cases hj : j.val + 2 < k.val
-      · rw [← restrictLTHom_apply, map_nsmul, restrictLTHom_apply,
-          restrictLT_sequence_of_left _ _ hj]
-        exact meldable_nsmul Meldable.sequence _
+      · simpa only [restrictLT_nsmul, restrictLT_sequence_of_left _ _ hj] using
+          meldable_nsmul Meldable.sequence (r j)
       · by_cases hj' : k.val < j.val
-        · rw [← restrictLTHom_apply, map_nsmul, restrictLTHom_apply,
-            restrictLT_sequence_of_right _ _ hj']
-          exact meldable_zero
-        · rw [hcross j hj hj']
-          simp only [zero_nsmul]
-          rw [← restrictLTHom_apply, map_zero]
-          exact meldable_zero
+        · simpa only [restrictLT_nsmul, restrictLT_sequence_of_right _ _ hj',
+            nsmul_zero] using (meldable_zero : Meldable (0 : Hand n))
+        · simpa only [hcross j hj hj', zero_nsmul, restrictLT_zero] using
+            (meldable_zero : Meldable (0 : Hand n))
   · rw [hright_eq]
     apply Meldable.add
     · apply meldable_sum
       intro i _
       by_cases hi : k < i
-      · rw [restrictGT_triplet_of_gt _ _ _ hi]
-        exact meldable_nsmul Meldable.triplet _
-      · rw [restrictGT_triplet_of_not_gt _ _ _ hi]
-        exact meldable_zero
+      · simpa only [restrictGT_triplet_of_gt _ _ _ hi] using
+          meldable_nsmul Meldable.triplet (t i)
+      · simpa only [restrictGT_triplet_of_not_gt _ _ _ hi] using
+          (meldable_zero : Meldable (0 : Hand n))
     · apply meldable_sum
       intro j _
       by_cases hj : j.val + 2 < k.val
-      · rw [← restrictGTHom_apply, map_nsmul, restrictGTHom_apply,
-          restrictGT_sequence_of_left _ _ hj]
-        exact meldable_zero
+      · simpa only [restrictGT_nsmul, restrictGT_sequence_of_left _ _ hj,
+          nsmul_zero] using (meldable_zero : Meldable (0 : Hand n))
       · by_cases hj' : k.val < j.val
-        · rw [← restrictGTHom_apply, map_nsmul, restrictGTHom_apply,
-            restrictGT_sequence_of_right _ _ hj']
-          exact meldable_nsmul Meldable.sequence _
-        · rw [hcross j hj hj']
-          simp only [zero_nsmul]
-          rw [← restrictGTHom_apply, map_zero]
-          exact meldable_zero
+        · simpa only [restrictGT_nsmul, restrictGT_sequence_of_right _ _ hj'] using
+            meldable_nsmul Meldable.sequence (r j)
+        · simpa only [hcross j hj hj', zero_nsmul, restrictGT_zero] using
+            (meldable_zero : Meldable (0 : Hand n))
 
 private lemma restrictLT_pair_of_lt (k i : Fin (3 * n)) (hi : i < k) :
     restrictLT k (pair i) = pair i := by
-  rw [← restrictLTHom_apply, pair, map_nsmul, restrictLTHom_apply,
-    restrictLT_single_of_lt _ _ hi]
+  rw [pair, restrictLT_nsmul, restrictLT_single_of_lt _ _ hi]
 
 private lemma restrictLT_pair_of_not_lt (k i : Fin (3 * n)) (hi : ¬i < k) :
     restrictLT k (pair i) = 0 := by
-  rw [← restrictLTHom_apply, pair, map_nsmul, restrictLTHom_apply,
-    restrictLT_single_of_not_lt _ _ hi]
-  simp
+  simp only [pair, restrictLT_nsmul, restrictLT_single_of_not_lt _ _ hi,
+    nsmul_zero]
 
 private lemma restrictGT_pair_of_gt (k i : Fin (3 * n)) (hi : k < i) :
     restrictGT k (pair i) = pair i := by
-  rw [← restrictGTHom_apply, pair, map_nsmul, restrictGTHom_apply,
-    restrictGT_single_of_gt _ _ hi]
+  rw [pair, restrictGT_nsmul, restrictGT_single_of_gt _ _ hi]
 
 private lemma restrictGT_pair_of_not_gt (k i : Fin (3 * n)) (hi : ¬k < i) :
     restrictGT k (pair i) = 0 := by
-  rw [← restrictGTHom_apply, pair, map_nsmul, restrictGTHom_apply,
-    restrictGT_single_of_not_gt _ _ hi]
-  simp
+  simp only [pair, restrictGT_nsmul, restrictGT_single_of_not_gt _ _ hi,
+    nsmul_zero]
 
 private lemma restrictLT_add_single_of_lt (c : Hand n) (k i : Fin (3 * n))
     (hi : i < k) :
     restrictLT k (c + single i) = restrictLT k c + single i := by
-  rw [← restrictLTHom_apply, map_add, restrictLTHom_apply, restrictLTHom_apply,
-    restrictLT_single_of_lt _ _ hi]
+  rw [restrictLT_add, restrictLT_single_of_lt _ _ hi]
 
 private lemma restrictGT_add_single_of_lt (c : Hand n) (k i : Fin (3 * n))
     (hi : i < k) :
     restrictGT k (c + single i) = restrictGT k c := by
-  rw [← restrictGTHom_apply, map_add, restrictGTHom_apply, restrictGTHom_apply,
-    restrictGT_single_of_not_gt _ _ (not_lt_of_ge (le_of_lt hi))]
-  simp
+  simp only [restrictGT_add,
+    restrictGT_single_of_not_gt _ _ (not_lt_of_ge (le_of_lt hi)), add_zero]
 
 private lemma restrictLT_add_single_of_gt (c : Hand n) (k i : Fin (3 * n))
     (hi : k < i) :
     restrictLT k (c + single i) = restrictLT k c := by
-  rw [← restrictLTHom_apply, map_add, restrictLTHom_apply, restrictLTHom_apply,
-    restrictLT_single_of_not_lt _ _ (not_lt_of_ge (le_of_lt hi))]
-  simp
+  simp only [restrictLT_add,
+    restrictLT_single_of_not_lt _ _ (not_lt_of_ge (le_of_lt hi)), add_zero]
 
 private lemma restrictGT_add_single_of_gt (c : Hand n) (k i : Fin (3 * n))
     (hi : k < i) :
     restrictGT k (c + single i) = restrictGT k c + single i := by
-  rw [← restrictGTHom_apply, map_add, restrictGTHom_apply, restrictGTHom_apply,
-    restrictGT_single_of_gt _ _ hi]
+  rw [restrictGT_add, restrictGT_single_of_gt _ _ hi]
 
 private lemma winning_sides_at_zero {w : Hand n} (hw : Winning w)
     (k : Fin (3 * n)) (hk : w k = 0) :
@@ -348,46 +332,32 @@ private lemma winning_sides_at_zero {w : Hand n} (hw : Winning w)
       size (restrictGT k w) % 3 = 2 ∧ Meldable (restrictLT k w)) := by
   obtain ⟨_, d, p, hd, hwd⟩ := hw
   have hzero : d k + pair p k = 0 := by
-    rw [hwd] at hk
-    exact hk
+    simpa only [hwd, add_apply] using hk
   have hdk : d k = 0 := Nat.eq_zero_of_add_eq_zero_right hzero
   have hpair : pair p k = 0 := Nat.eq_zero_of_add_eq_zero_left hzero
   have hpk : p ≠ k := by
-    intro h
-    subst p
+    rintro rfl
     simp [pair] at hpair
   obtain ⟨hdLT, hdGT⟩ := hd.split_at_zero k hdk
   rcases lt_or_gt_of_ne hpk with hleft | hright
   · left
     have hLT : restrictLT k w = restrictLT k d + pair p := by
-      rw [hwd]
-      rw [← restrictLTHom_apply, map_add, restrictLTHom_apply,
-        restrictLTHom_apply, restrictLT_pair_of_lt _ _ hleft]
+      rw [hwd, restrictLT_add, restrictLT_pair_of_lt _ _ hleft]
     have hGT : restrictGT k w = restrictGT k d := by
-      rw [hwd]
-      rw [← restrictGTHom_apply, map_add, restrictGTHom_apply,
-        restrictGTHom_apply,
-        restrictGT_pair_of_not_gt _ _ (not_lt_of_ge (le_of_lt hleft))]
-      simp
+      simp only [hwd, restrictGT_add,
+        restrictGT_pair_of_not_gt _ _ (not_lt_of_ge (le_of_lt hleft)), add_zero]
     rw [hLT, hGT]
     refine ⟨?_, hdGT.size_mod_three, hdGT⟩
-    rw [size_add, size_pair]
-    rw [Nat.add_mod, hdLT.size_mod_three]
+    simp [size_add, Nat.add_mod, hdLT.size_mod_three]
   · right
     have hLT : restrictLT k w = restrictLT k d := by
-      rw [hwd]
-      rw [← restrictLTHom_apply, map_add, restrictLTHom_apply,
-        restrictLTHom_apply,
-        restrictLT_pair_of_not_lt _ _ (not_lt_of_ge (le_of_lt hright))]
-      simp
+      simp only [hwd, restrictLT_add,
+        restrictLT_pair_of_not_lt _ _ (not_lt_of_ge (le_of_lt hright)), add_zero]
     have hGT : restrictGT k w = restrictGT k d + pair p := by
-      rw [hwd]
-      rw [← restrictGTHom_apply, map_add, restrictGTHom_apply,
-        restrictGTHom_apply, restrictGT_pair_of_gt _ _ hright]
+      rw [hwd, restrictGT_add, restrictGT_pair_of_gt _ _ hright]
     rw [hLT, hGT]
     refine ⟨hdLT.size_mod_three, ?_, hdLT⟩
-    rw [size_add, size_pair]
-    rw [Nat.add_mod, hdGT.size_mod_three]
+    simp [size_add, Nat.add_mod, hdGT.size_mod_three]
 
 variable (hn : 2 ≤ n)
 
@@ -426,23 +396,19 @@ theorem interior_positive (c : Hand n) (hc : IsFullWait c) :
   have hleft_meldable (i : Fin (3 * n)) (hi : i < k) :
       Meldable (restrictLT k (c + single i)) := by
     have hi_zero : (c + single i) k = 0 := hzero i (ne_of_lt hi)
-    have hsides := winning_sides_at_zero (hc i) k hi_zero
-    rw [restrictLT_add_single_of_lt c k i hi,
-      restrictGT_add_single_of_lt c k i hi,
-      size_add, size_single] at hsides
-    rcases hsides with hsides | hsides
-    · omega
-    · simpa only [restrictLT_add_single_of_lt c k i hi] using hsides.2.2
+    rcases winning_sides_at_zero (hc i) k hi_zero with hsides | hsides
+    · have hsize := hsides.1
+      rw [restrictLT_add_single_of_lt c k i hi, size_add, size_single] at hsize
+      omega
+    · exact hsides.2.2
   have hright_meldable (i : Fin (3 * n)) (hi : k < i) :
       Meldable (restrictGT k (c + single i)) := by
     have hi_zero : (c + single i) k = 0 := hzero i (ne_of_gt hi)
-    have hsides := winning_sides_at_zero (hc i) k hi_zero
-    rw [restrictLT_add_single_of_gt c k i hi,
-      restrictGT_add_single_of_gt c k i hi,
-      size_add, size_single] at hsides
-    rcases hsides with hsides | hsides
-    · simpa only [restrictGT_add_single_of_gt c k i hi] using hsides.2.2
-    · omega
+    rcases winning_sides_at_zero (hc i) k hi_zero with hsides | hsides
+    · exact hsides.2.2
+    · have hsize := hsides.2.1
+      rw [restrictGT_add_single_of_gt c k i hi, size_add, size_single] at hsize
+      omega
   by_cases hkleft : 2 ≤ k.val
   · let i₀ : Fin (3 * n) := ⟨0, by omega⟩
     let i₁ : Fin (3 * n) := ⟨1, by omega⟩
@@ -452,12 +418,12 @@ theorem interior_positive (c : Hand n) (hc : IsFullWait c) :
     have hi₁ : i₁ < k := by
       change 1 < k.val
       omega
-    have hsum₀ := (hleft_meldable i₀ hi₀).sum_mod_three
-    have hsum₁ := (hleft_meldable i₁ hi₁).sum_mod_three
-    rw [restrictLT_add_single_of_lt c k i₀ hi₀, sum_add, sum_single] at hsum₀
-    rw [restrictLT_add_single_of_lt c k i₁ hi₁, sum_add, sum_single] at hsum₁
-    change (sum (restrictLT k c) + 0) % 3 = 0 at hsum₀
-    change (sum (restrictLT k c) + 1) % 3 = 0 at hsum₁
+    have hsum₀ : (sum (restrictLT k c) + 0) % 3 = 0 := by
+      simpa only [restrictLT_add_single_of_lt c k i₀ hi₀, sum_add, sum_single,
+        i₀] using (hleft_meldable i₀ hi₀).sum_mod_three
+    have hsum₁ : (sum (restrictLT k c) + 1) % 3 = 0 := by
+      simpa only [restrictLT_add_single_of_lt c k i₁ hi₁, sum_add, sum_single,
+        i₁] using (hleft_meldable i₁ hi₁).sum_mod_three
     omega
   · have hkval : k.val = 1 := by omega
     let i₂ : Fin (3 * n) :=
@@ -470,12 +436,12 @@ theorem interior_positive (c : Hand n) (hc : IsFullWait c) :
     have hi₃ : k < i₃ := by
       change k.val < 3
       omega
-    have hsum₂ := (hright_meldable i₂ hi₂).sum_mod_three
-    have hsum₃ := (hright_meldable i₃ hi₃).sum_mod_three
-    rw [restrictGT_add_single_of_gt c k i₂ hi₂, sum_add, sum_single] at hsum₂
-    rw [restrictGT_add_single_of_gt c k i₃ hi₃, sum_add, sum_single] at hsum₃
-    change (sum (restrictGT k c) + 2) % 3 = 0 at hsum₂
-    change (sum (restrictGT k c) + 3) % 3 = 0 at hsum₃
+    have hsum₂ : (sum (restrictGT k c) + 2) % 3 = 0 := by
+      simpa only [restrictGT_add_single_of_gt c k i₂ hi₂, sum_add, sum_single,
+        i₂] using (hright_meldable i₂ hi₂).sum_mod_three
+    have hsum₃ : (sum (restrictGT k c) + 3) % 3 = 0 := by
+      simpa only [restrictGT_add_single_of_gt c k i₃ hi₃, sum_add, sum_single,
+        i₃] using (hright_meldable i₃ hi₃).sum_mod_three
     omega
 
 end Mahjong.Hand
