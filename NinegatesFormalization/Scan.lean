@@ -4,6 +4,8 @@ namespace Mahjong.Hand
 
 namespace Meldable
 
+section Basics
+
 structure StepPlacement where
   tripNum : ℕ
   seqNum : ℕ
@@ -32,6 +34,8 @@ def scanList (xs : List ℕ) : ScanM Unit := do
 variable {n : ℕ}
 
 def scanHand (c : Hand n) := scanList (List.ofFn c) (0, 0)
+
+end Basics
 
 theorem iff_scan (c : Hand n) : Meldable c ↔ (scanHand c).isOk := by
   sorry
