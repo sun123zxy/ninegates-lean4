@@ -152,6 +152,27 @@ lemma Meldable.add {c d : Hand n} (hc : Meldable c) (hd : Meldable d) :
   simp only [Pi.add_apply, add_nsmul, Finset.sum_add_distrib]
   ac_rfl
 
+@[simp]
+lemma Meldable.zero : Meldable (0 : Hand n) := by
+  use 0, 0
+  simp
+
+lemma Meldable.nsmul {c : Hand n} (hc : Meldable c) (a : ℕ) :
+    Meldable (a • c) := by
+  induction a with
+  | zero => simp
+  | succ a ih => simpa only [succ_nsmul] using Meldable.add ih hc
+
+lemma Meldable.finset_sum {ι : Type*} {s : Finset ι} {f : ι → Hand n}
+    (hf : ∀ i ∈ s, Meldable (f i)) : Meldable (∑ i ∈ s, f i) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp
+  | @insert i s hi ih =>
+      simpa only [Finset.sum_insert hi] using
+        Meldable.add (hf i (Finset.mem_insert_self i s))
+          (ih fun j hj => hf j (Finset.mem_insert_of_mem hj))
+
 theorem Meldable.size_mod_three {c : Hand n} (hc : Meldable c) :
     size c % 3 = 0 := by
   obtain ⟨t, r, rfl⟩ := hc
