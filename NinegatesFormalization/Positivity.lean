@@ -359,10 +359,7 @@ private lemma winning_sides_at_zero {w : Hand n} (hw : Winning w)
     refine ⟨hdLT.size_mod_three, ?_, hdLT⟩
     simp [size_add, Nat.add_mod, hdGT.size_mod_three]
 
-variable (hn : 2 ≤ n)
-
-include hn in
-theorem interior_positive (c : Hand n) (hc : IsFullWait c) :
+theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
     ∀ i : Fin (3 * n), 0 < i.val ∧ i.val < 3 * n - 1 → 0 < c i := by
   intro k hk
   by_contra hpositive
