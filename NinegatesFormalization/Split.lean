@@ -178,39 +178,28 @@ theorem Meldable.split_at_zero {c : Hand n} (hc : Meldable c)
     (k : Fin (3 * n)) (hk : c k = 0) :
     Meldable (restrictLT k c) ∧ Meldable (restrictGT k c) := by
   obtain ⟨t, r, h⟩ := hc
-  have hcross (j : Fin (3 * n - 2)) (hleft : ¬j.val + 2 < k.val)
-      (hright : ¬k.val < j.val) : r j = 0 := by
-    have hseq : (show Hand n from Mahjong.Hand.sequence j) k = 1 := by
-      change
-        (show Hand n from
-          single ⟨j, by omega⟩ + single ⟨j + 1, by omega⟩ +
-            single ⟨j + 2, by omega⟩) k = 1
-      simp only [add_apply, single_apply]
+  have htotal :
+      count k
+        (∑ i, t i • Mahjong.Hand.triplet i +
+          ∑ x, r x • Mahjong.Hand.sequence x) = 0 := by
+    simpa only [count_apply, ← h] using hk
+  simp only [map_add, map_sum, map_nsmul] at htotal
+  have hseqsum : ∑ x, r x • count k (Mahjong.Hand.sequence x) = 0 :=
+    Nat.eq_zero_of_add_eq_zero_left htotal
+  have hcross (j : Fin (3 * n - 2)) (hnotLeft : ¬j.val + 2 < k.val)
+      (hnotRight : ¬k.val < j.val) : r j = 0 := by
+    have hseq : count k (Mahjong.Hand.sequence j) = 1 := by
+      change count k
+        (single ⟨j, by omega⟩ + single ⟨j + 1, by omega⟩ +
+          single ⟨j + 2, by omega⟩) = 1
+      simp only [map_add, count_apply, single_apply]
       split_ifs with h₀ h₁ h₂ <;> simp_all only [Fin.ext_iff]
       all_goals omega
-    have htotal :
-        count k
-          (∑ i, t i • Mahjong.Hand.triplet i +
-            ∑ x, r x • Mahjong.Hand.sequence x) = 0 := by
-      simpa only [count_apply, ← h] using hk
-    simp only [map_add, map_sum, map_nsmul, count_apply] at htotal
-    have hseqsum : ∑ x, r x • (show Hand n from Mahjong.Hand.sequence x) k = 0 :=
-      Nat.eq_zero_of_add_eq_zero_left htotal
-    have hj : r j • (show Hand n from Mahjong.Hand.sequence j) k = 0 :=
+    have hj : r j • count k (Mahjong.Hand.sequence j) = 0 :=
       (Finset.sum_eq_zero_iff.mp hseqsum) j (Finset.mem_univ j)
     simpa only [hseq, smul_eq_mul, mul_one] using hj
-  have hleft_eq :
-      restrictLT k c =
-          ∑ i, restrictLT k (t i • Mahjong.Hand.triplet i) +
-          ∑ j, restrictLT k (r j • Mahjong.Hand.sequence j) := by
-    simpa only [map_add, map_sum] using congrArg (restrictLT k) h
-  have hright_eq :
-      restrictGT k c =
-          ∑ i, restrictGT k (t i • Mahjong.Hand.triplet i) +
-          ∑ j, restrictGT k (r j • Mahjong.Hand.sequence j) := by
-    simpa only [map_add, map_sum] using congrArg (restrictGT k) h
   constructor
-  · rw [hleft_eq]
+  · rw [h, map_add, map_sum, map_sum]
     apply Meldable.add
     · apply Meldable.finset_sum
       intro i _
@@ -230,7 +219,7 @@ theorem Meldable.split_at_zero {c : Hand n} (hc : Meldable c)
             nsmul_zero] using (Meldable.zero : Meldable (0 : Hand n))
         · simpa only [hcross j hj hj', zero_nsmul, map_zero] using
             (Meldable.zero : Meldable (0 : Hand n))
-  · rw [hright_eq]
+  · rw [h, map_add, map_sum, map_sum]
     apply Meldable.add
     · apply Meldable.finset_sum
       intro i _
