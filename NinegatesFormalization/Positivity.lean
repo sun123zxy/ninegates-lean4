@@ -47,11 +47,9 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
   let first : Fin (3 * n) := ⟨0, by omega⟩
   let last : Fin (3 * n) := ⟨3 * n - 1, by omega⟩
   have hfirst : first < k := by
-    change 0 < k.val
-    exact hk.1
+    exact Fin.mk_lt_mk.mpr hk.1
   have hlast : k < last := by
-    change k.val < 3 * n - 1
-    exact hk.2
+    exact Fin.mk_lt_mk.mpr hk.2
   have hzero (i : Fin (3 * n)) (hi : i ≠ k) : (c + single i) k = 0 := by
     simp [hck, Ne.symm hi]
   have hfirst_zero : (c + single first) k = 0 :=
@@ -88,10 +86,10 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
   · let i₀ : Fin (3 * n) := ⟨0, by omega⟩
     let i₁ : Fin (3 * n) := ⟨1, by omega⟩
     have hi₀ : i₀ < k := by
-      change 0 < k.val
+      apply Fin.mk_lt_mk.mpr
       omega
     have hi₁ : i₁ < k := by
-      change 1 < k.val
+      apply Fin.mk_lt_mk.mpr
       omega
     have hsum₀ : (sum (restrictLT k c) + 0) % 3 = 0 := by
       simpa only [map_add, restrictLT_single_of_lt _ _ hi₀, sum_single, i₀] using
@@ -106,10 +104,10 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
     let i₃ : Fin (3 * n) :=
       ⟨3, lt_of_lt_of_le (by norm_num) (Nat.mul_le_mul_left 3 hn)⟩
     have hi₂ : k < i₂ := by
-      change k.val < 2
+      apply Fin.mk_lt_mk.mpr
       omega
     have hi₃ : k < i₃ := by
-      change k.val < 3
+      apply Fin.mk_lt_mk.mpr
       omega
     have hsum₂ : (sum (restrictGT k c) + 2) % 3 = 0 := by
       simpa only [map_add, restrictGT_single_of_gt _ _ hi₂, sum_single, i₂] using

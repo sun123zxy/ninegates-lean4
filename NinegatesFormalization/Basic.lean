@@ -162,6 +162,18 @@ def toHand : Placement n →+ Hand n where
     simp only [tripNum_add, seqNum_add, add_nsmul, Finset.sum_add_distrib]
     ac_rfl
 
+lemma toHand_eq_sum (p : Placement n) :
+    p.toHand =
+      ∑ i, p.tripNum i • Hand.triplet i +
+        ∑ j, p.seqNum j • Hand.sequence j := rfl
+
+lemma count_toHand (p : Placement n) (k : Fin (3 * n)) :
+    count k p.toHand =
+      ∑ i, p.tripNum i • count k (Hand.triplet i) +
+        ∑ j, p.seqNum j • count k (Hand.sequence j) := by
+  rw [toHand_eq_sum, map_add, map_sum, map_sum]
+  simp only [map_nsmul]
+
 end Placement
 
 def IsWitness (p : Meldable.Placement n) (c : Hand n) : Prop :=
@@ -226,18 +238,14 @@ lemma finset_sum {ι : Type*} {s : Finset ι} {f : ι → Hand n}
 theorem size_mod_three {c : Hand n} (hc : Meldable c) :
     size c % 3 = 0 := by
   obtain ⟨p, rfl⟩ := hc
-  change size (∑ i, p.tripNum i • Hand.triplet i +
-    ∑ j, p.seqNum j • Hand.sequence j) % 3 = 0
-  rw [map_add, map_sum, map_sum]
+  rw [Meldable.Placement.toHand_eq_sum, map_add, map_sum, map_sum]
   simp only [map_nsmul, size_triplet, size_sequence, smul_eq_mul]
   rw [← Finset.sum_mul, ← Finset.sum_mul, ← add_mul, Nat.mul_mod_left]
 
 theorem sum_mod_three {c : Hand n} (hc : Meldable c) :
     sum c % 3 = 0 := by
   obtain ⟨p, rfl⟩ := hc
-  change sum (∑ i, p.tripNum i • Hand.triplet i +
-    ∑ j, p.seqNum j • Hand.sequence j) % 3 = 0
-  rw [map_add, map_sum, map_sum]
+  rw [Meldable.Placement.toHand_eq_sum, map_add, map_sum, map_sum]
   simp only [map_nsmul, sum_triplet, sum_sequence, smul_eq_mul]
   simp_rw [mul_comm 3, ← mul_assoc]
   rw [← Finset.sum_mul, ← Finset.sum_mul, ← add_mul, Nat.mul_mod_left]
