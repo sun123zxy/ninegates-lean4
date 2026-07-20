@@ -10,7 +10,7 @@ private lemma winning_sides_at_zero {w : Hand n} (hw : Winning w)
       size (restrictGT k w) % 3 = 0 ∧ Meldable (restrictGT k w)) ∨
     (size (restrictLT k w) % 3 = 0 ∧
       size (restrictGT k w) % 3 = 2 ∧ Meldable (restrictLT k w)) := by
-  obtain ⟨_, d, p, hd, hwd⟩ := hw
+  obtain ⟨_, _, d, p, hd, hwd⟩ := hw
   have hzero : d k + pair p k = 0 := by
     simpa only [hwd, add_apply] using hk
   have hdk : d k = 0 := Nat.eq_zero_of_add_eq_zero_right hzero

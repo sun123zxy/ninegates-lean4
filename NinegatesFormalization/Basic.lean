@@ -253,7 +253,11 @@ theorem sum_mod_three {c : Hand n} (hc : Meldable c) :
 end Meldable
 
 def Winning (c : Hand n) : Prop :=
-  Valid c ∧ ∃ (d : Hand n) (i : Fin (3 * n)), Meldable d ∧ c = d + pair i
+  Valid c ∧ size c = 3 * n + 5 ∧
+    ∃ (d : Hand n) (i : Fin (3 * n)), Meldable d ∧ c = d + pair i
+
+lemma Winning.size {c : Hand n} (hc : Winning c) : size c = 3 * n + 5 :=
+  hc.2.1
 
 def IsWinningTile (c : Hand n) (i : Fin (3 * n)) : Prop :=
   Winning (c + single i)
@@ -266,6 +270,13 @@ lemma IsWait.Valid (c : Hand n) (hc : IsWait c) : Valid c := by
   exact le_trans (Nat.le_add_right (c j) (single i j)) (hi.1 j)
 
 def IsFullWait (c : Hand n) : Prop := ∀ i, Winning (c + single i)
+
+lemma IsFullWait.size (hn : 0 < n) {c : Hand n} (hc : IsFullWait c) :
+    size c = 3 * n + 4 := by
+  let i : Fin (3 * n) := ⟨0, by omega⟩
+  have hsize := (hc i).size
+  simp only [map_add, size_single] at hsize
+  omega
 
 end Hand
 
