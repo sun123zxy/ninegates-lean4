@@ -56,12 +56,15 @@ def scanHand (c : Hand n) := scanList (List.ofFn fun i ↦ count i c) (0, 0)
 private lemma pure_run (a : α) (s : ScanState) :
     ((pure a : ScanM α) s).run = .ok ((a, s), []) := rfl
 
+@[local grind =]
 private lemma get_run (s : ScanState) :
     ((get : ScanM ScanState) s).run = .ok ((s, s), []) := rfl
 
+@[local grind =]
 private lemma throw_run (e : ScanFailure) (s : ScanState) :
     ((throw e : ScanM Unit) s).run = .error e := rfl
 
+@[local grind =]
 private lemma tell_run (w : List StepPlacement) (s : ScanState) :
     ((tell w : ScanM Unit) s).run = .ok (((), s), w) := by
   change (StateT.lift
@@ -69,9 +72,11 @@ private lemma tell_run (w : List StepPlacement) (s : ScanState) :
   simp [StateT.lift]
   rfl
 
+@[local grind =]
 private lemma set_run (s s' : ScanState) :
     ((set s' : ScanM Unit) s).run = .ok (((), s'), []) := rfl
 
+@[local grind =]
 private lemma bind_run (x : ScanM α) (f : α → ScanM β) (s : ScanState) :
     ((x >>= f) s).run =
       match (x s).run with
@@ -95,25 +100,13 @@ private lemma scanStep_eq (x : ℕ) (s : ScanState) :
       else
         .error .failEarly := by
   unfold scanStep
-  rw [bind_run, get_run]
-  simp only
-  by_cases h : s.1 + s.2 ≤ x
-  · simp only [if_pos h]
-    rw [bind_run, tell_run]
-    simp only
-    rw [set_run]
-    rfl
-  · simp only [if_neg h]
-    rw [bind_run, throw_run]
+  grind
 
 private lemma finish_run (s : ScanState) :
     (finish s).run =
       if s = (0, 0) then Except.ok (((), s), []) else Except.error .failFinally := by
   unfold finish
-  rw [bind_run, get_run]
-  by_cases hs : s = (0, 0)
-  · simp [hs, pure_run]
-  · simp [hs, throw_run]
+  grind [pure_run]
 
 private def stepAt (steps : List StepPlacement) (i : ℕ) : StepPlacement :=
   steps.getD i ⟨0, 0⟩
