@@ -181,24 +181,26 @@ private theorem facts_of_scanSteps_eq_ok (xs : List ℕ) (s s' : ScanState)
                     tailSteps tailSteps.length).symm
           · simp [bind_run, scanStep_eq, hle] at h
 
-private def seqAt (p : Placement n) (i : ℕ) : ℕ :=
+namespace Placement
+
+private def seqNumAt (p : Placement n) (i : ℕ) : ℕ :=
   if h : i < 3 * n - 2 then p.seqNum ⟨i, h⟩ else 0
 
-private def previousSeqs (p : Placement n) (i : ℕ) : ScanState :=
-  (if 0 < i then seqAt p (i - 1) else 0,
-    if 1 < i then seqAt p (i - 2) else 0)
+private def pendingSeqs (p : Placement n) (i : ℕ) : ScanState :=
+  (if 0 < i then p.seqNumAt (i - 1) else 0,
+    if 1 < i then p.seqNumAt (i - 2) else 0)
 
-private def witnessState (p : Placement n) (i : ℕ) : ScanState :=
-  ((previousSeqs p i).1 % 3, (previousSeqs p i).2 % 3)
+private def scanStateBefore (p : Placement n) (i : ℕ) : ScanState :=
+  ((p.pendingSeqs i).1 % 3, (p.pendingSeqs i).2 % 3)
 
 private lemma sum_seq_offset (p : Placement n) (k : Fin (3 * n))
     (d : ℕ) (hd : d ≤ 2) :
     (∑ j, p.seqNum j *
       (if k = (⟨j.val + d, by omega⟩ : Fin (3 * n)) then 1 else 0)) =
-      if d ≤ k.val then seqAt p (k.val - d) else 0 := by
+      if d ≤ k.val then p.seqNumAt (k.val - d) else 0 := by
   by_cases hdk : d ≤ k.val
   · rw [if_pos hdk]
-    unfold seqAt
+    unfold seqNumAt
     split
     next hbound =>
       rw [Finset.sum_eq_single ⟨k.val - d, hbound⟩]
@@ -244,18 +246,18 @@ private lemma sum_seq_offset (p : Placement n) (k : Fin (3 * n))
 
 private lemma count_toHand_local (p : Placement n) (k : Fin (3 * n)) :
     count k p.toHand =
-      (previousSeqs p k.val).1 + (previousSeqs p k.val).2 +
-        3 * p.tripNum k + seqAt p k.val := by
+      (p.pendingSeqs k.val).1 + (p.pendingSeqs k.val).2 +
+        3 * p.tripNum k + p.seqNumAt k.val := by
   have htrip :
       (∑ i, p.tripNum i • count k (Hand.triplet i)) = 3 * p.tripNum k := by
     simp [Hand.triplet, Hand.single, mul_comm]
   have h0 :
       (∑ j, if k = (⟨j.val, by omega⟩ : Fin (3 * n)) then p.seqNum j else 0) =
-        seqAt p k.val := by
+        p.seqNumAt k.val := by
     simpa using sum_seq_offset p k 0 (by omega)
   have h1 :
       (∑ j, if k = (⟨j.val + 1, by omega⟩ : Fin (3 * n)) then p.seqNum j else 0) =
-        if 0 < k.val then seqAt p (k.val - 1) else 0 := by
+        if 0 < k.val then p.seqNumAt (k.val - 1) else 0 := by
     have h := sum_seq_offset p k 1 (by omega)
     by_cases hk : 1 ≤ k.val
     · have hk' : 0 < k.val := by omega
@@ -264,7 +266,7 @@ private lemma count_toHand_local (p : Placement n) (k : Fin (3 * n)) :
       simpa [hk, hk'] using h
   have h2 :
       (∑ j, if k = (⟨j.val + 2, by omega⟩ : Fin (3 * n)) then p.seqNum j else 0) =
-        if 1 < k.val then seqAt p (k.val - 2) else 0 := by
+        if 1 < k.val then p.seqNumAt (k.val - 2) else 0 := by
     have h := sum_seq_offset p k 2 (by omega)
     by_cases hk : 2 ≤ k.val
     · have hk' : 1 < k.val := by omega
@@ -275,34 +277,36 @@ private lemma count_toHand_local (p : Placement n) (k : Fin (3 * n)) :
   simp only [Hand.sequence, Hand.single, count_apply, add_apply,
     smul_eq_mul, mul_add, Finset.sum_add_distrib, mul_ite, mul_one, mul_zero]
   rw [h0, h1, h2]
-  simp only [previousSeqs]
+  simp only [pendingSeqs]
   omega
 
-private lemma witnessState_succ (p : Placement n) (i : ℕ) :
-    witnessState p (i + 1) = (seqAt p i % 3, (witnessState p i).1) := by
-  cases i <;> simp [witnessState, previousSeqs]
+private lemma scanStateBefore_succ (p : Placement n) (i : ℕ) :
+    p.scanStateBefore (i + 1) = (p.seqNumAt i % 3, (p.scanStateBefore i).1) := by
+  cases i <;> simp [scanStateBefore, pendingSeqs]
 
-private lemma witnessState_zero (p : Placement n) :
-    witnessState p 0 = (0, 0) := by
-  simp [witnessState, previousSeqs]
+private lemma scanStateBefore_zero (p : Placement n) :
+    p.scanStateBefore 0 = (0, 0) := by
+  simp [scanStateBefore, pendingSeqs]
 
-private lemma witnessState_end (p : Placement n) :
-    witnessState p (3 * n) = (0, 0) := by
+private lemma scanStateBefore_end (p : Placement n) :
+    p.scanStateBefore (3 * n) = (0, 0) := by
   by_cases hn : n = 0
   · subst n
-    simp [witnessState, previousSeqs]
+    simp [scanStateBefore, pendingSeqs]
   · have hnpos : 0 < n := by omega
     have hlast : ¬3 * n - 1 < 3 * n - 2 := by omega
-    simp [witnessState, previousSeqs, seqAt, hnpos, hlast]
+    simp [scanStateBefore, pendingSeqs, seqNumAt, hnpos, hlast]
+
+end Placement
 
 private lemma scanStep_witness (p : Placement n) (i : ℕ) (hi : i < 3 * n) :
-    ∃ q, (scanStep (count ⟨i, hi⟩ p.toHand) (witnessState p i)).run =
-      .ok (((), witnessState p (i + 1)), [q]) := by
-  let a := (previousSeqs p i).1
-  let b := (previousSeqs p i).2
-  let z := seqAt p i
+    ∃ q, (scanStep (p.toHand.count ⟨i, hi⟩) (p.scanStateBefore i)).run =
+      .ok (((), p.scanStateBefore (i + 1)), [q]) := by
+  let a := (p.pendingSeqs i).1
+  let b := (p.pendingSeqs i).2
+  let z := p.seqNumAt i
   let t := p.tripNum ⟨i, hi⟩
-  have hcount := count_toHand_local p (⟨i, hi⟩ : Fin (3 * n))
+  have hcount := p.count_toHand_local (⟨i, hi⟩ : Fin (3 * n))
   change count ⟨i, hi⟩ p.toHand = a + b + 3 * t + z at hcount
   have ha := Nat.mod_add_div a 3
   have hb := Nat.mod_add_div b 3
@@ -323,23 +327,23 @@ private lemma scanStep_witness (p : Placement n) (i : ℕ) (hi : i < 3 * n) :
       hrmod]
   refine ⟨q, ?_⟩
   rw [scanStep_eq, if_pos]
-  · rw [show witnessState p i = (a % 3, b % 3) by rfl,
+  · rw [show p.scanStateBefore i = (a % 3, b % 3) by rfl,
       show count ⟨i, hi⟩ p.toHand - (a % 3 + b % 3) = rem by rfl, hrem,
       show 3 * (a / 3 + b / 3 + t + z / 3) + z % 3 = r by rfl,
-      hrmod, witnessState_succ, hq]
-    simp [z, a, witnessState]
-  · simpa [witnessState, a, b] using hle
+      hrmod, Placement.scanStateBefore_succ, hq]
+    simp [z, a, Placement.scanStateBefore]
+  · simpa [Placement.scanStateBefore, a, b] using hle
 
 private theorem scan_from_witness (p : Placement n) (i : ℕ) (hi : i ≤ 3 * n) :
     ∃ steps,
       ((((List.ofFn fun k ↦ count k p.toHand).drop i).forM scanStep)
-          (witnessState p i)).run =
-        .ok (((), witnessState p (3 * n)), steps) := by
+          (p.scanStateBefore i)).run =
+        .ok (((), p.scanStateBefore (3 * n)), steps) := by
   induction hi using Nat.decreasingInduction with
   | self =>
       refine ⟨[], ?_⟩
       rw [List.drop_of_length_le (by simp)]
-      change ((pure () : ScanM Unit) (witnessState p (3 * n))).run = _
+      change ((pure () : ScanM Unit) (p.scanStateBefore (3 * n))).run = _
       exact pure_run () _
   | of_succ i hi ih =>
       have hlen : (List.ofFn fun k ↦ count k p.toHand).length = 3 * n := by simp
@@ -364,8 +368,8 @@ private theorem scanHand_isOk_of_isWitness {p : Placement n} {c : Hand n}
   subst c
   rcases scan_from_witness p 0 (by omega) with ⟨steps, hsteps⟩
   simp only [List.drop_zero] at hsteps
-  rw [witnessState_end] at hsteps
-  rw [witnessState_zero] at hsteps
+  rw [Placement.scanStateBefore_end] at hsteps
+  rw [Placement.scanStateBefore_zero] at hsteps
   unfold scanHand
   change (scanList (List.ofFn fun i ↦ count i p.toHand) (0, 0)).run.isOk
   unfold scanList
@@ -375,7 +379,7 @@ private theorem scanHand_isOk_of_isWitness {p : Placement n} {c : Hand n}
   rfl
 
 private theorem isWitness_of_scanHand_eq_ok (c : Hand n)
-    (s : ScanState) (steps : List StepPlacement)
+    {s : ScanState} (steps : List StepPlacement)
     (h : scanHand c = .ok (((), s), steps)) :
     IsWitness (Placement.ofSteps steps) c := by
   unfold scanHand at h
@@ -405,10 +409,10 @@ private theorem isWitness_of_scanHand_eq_ok (c : Hand n)
         rcases facts_of_scanSteps_eq_ok _ _ _ _ hrun with
           ⟨hlen, hlocal, hstate⟩
         have hseq : ∀ i, i < 3 * n →
-            seqAt (Placement.ofSteps scannedSteps : Placement n) i =
+            (Placement.ofSteps scannedSteps : Placement n).seqNumAt i =
               (stepAt scannedSteps i).seqNum := by
           intro i hi
-          unfold seqAt
+          unfold Placement.seqNumAt
           split
           next hibound => simp [stepAt]
           next hibound =>
@@ -432,20 +436,20 @@ private theorem isWitness_of_scanHand_eq_ok (c : Hand n)
         apply Hand.ext
         intro k
         have hprev :
-            previousSeqs (Placement.ofSteps scannedSteps : Placement n) k.val =
+            (Placement.ofSteps scannedSteps : Placement n).pendingSeqs k.val =
               stateBefore (0, 0) scannedSteps k.val := by
           by_cases hk0 : k.val = 0
-          · simp [hk0, previousSeqs, stateBefore]
+          · simp [hk0, Placement.pendingSeqs, stateBefore]
           by_cases hk1 : k.val = 1
           · have hs0 := hseq 0 (by omega)
-            simp [hk1, previousSeqs, stateBefore, hs0]
+            simp [hk1, Placement.pendingSeqs, stateBefore, hs0]
           · have hkgt : 1 < k.val := by omega
             have hs1 := hseq (k.val - 1) (by omega)
             have hs2 := hseq (k.val - 2) (by omega)
-            simp [previousSeqs, stateBefore, hk0, hk1, hkgt, hs1, hs2]
+            simp [Placement.pendingSeqs, stateBefore, hk0, hk1, hkgt, hs1, hs2]
         change count k (Placement.ofSteps scannedSteps : Placement n).toHand =
           count k c
-        rw [count_toHand_local, hprev, hseq k.val k.isLt]
+        rw [Placement.count_toHand_local, hprev, hseq k.val k.isLt]
         have hkLocal := hlocal k.val (by simp)
         simpa [stepAt] using hkLocal.symm
       · simp [hfinal] at h
@@ -464,7 +468,7 @@ theorem iff_scan {n : ℕ} (c : Hand n) : Meldable c ↔ (scanHand c).isOk := by
         rcases out with ⟨⟨u, s⟩, steps⟩
         cases u
         exact ⟨Placement.ofSteps steps,
-          isWitness_of_scanHand_eq_ok c s steps hscan⟩
+          isWitness_of_scanHand_eq_ok c steps hscan⟩
 
 end Meldable
 
