@@ -177,12 +177,15 @@ private lemma restrictGT_sequence_of_left (k : Fin (3 * n))
 theorem Meldable.split_at_zero {c : Hand n} (hc : Meldable c)
     (k : Fin (3 * n)) (hk : c k = 0) :
     Meldable (restrictLT k c) ∧ Meldable (restrictGT k c) := by
-  obtain ⟨t, r, h⟩ := hc
+  obtain ⟨⟨t, r⟩, h⟩ := hc
+  have hc_eq :
+      c = ∑ i, t i • Mahjong.Hand.triplet i +
+        ∑ x, r x • Mahjong.Hand.sequence x := h.symm
   have htotal :
       count k
         (∑ i, t i • Mahjong.Hand.triplet i +
           ∑ x, r x • Mahjong.Hand.sequence x) = 0 := by
-    simpa only [count_apply, ← h] using hk
+    simpa only [count_apply, ← hc_eq] using hk
   simp only [map_add, map_sum, map_nsmul] at htotal
   have hseqsum : ∑ x, r x • count k (Mahjong.Hand.sequence x) = 0 :=
     Nat.eq_zero_of_add_eq_zero_left htotal
@@ -199,7 +202,7 @@ theorem Meldable.split_at_zero {c : Hand n} (hc : Meldable c)
       (Finset.sum_eq_zero_iff.mp hseqsum) j (Finset.mem_univ j)
     simpa only [hseq, smul_eq_mul, mul_one] using hj
   constructor
-  · rw [h, map_add, map_sum, map_sum]
+  · rw [hc_eq, map_add, map_sum, map_sum]
     apply Meldable.add
     · apply Meldable.finset_sum
       intro i _
@@ -219,7 +222,7 @@ theorem Meldable.split_at_zero {c : Hand n} (hc : Meldable c)
             nsmul_zero] using (Meldable.zero : Meldable (0 : Hand n))
         · simpa only [hcross j hj hj', zero_nsmul, map_zero] using
             (Meldable.zero : Meldable (0 : Hand n))
-  · rw [h, map_add, map_sum, map_sum]
+  · rw [hc_eq, map_add, map_sum, map_sum]
     apply Meldable.add
     · apply Meldable.finset_sum
       intro i _

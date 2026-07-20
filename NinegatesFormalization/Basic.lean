@@ -106,42 +106,114 @@ lemma sum_sequence_mod_three (i : Fin (3 * n - 2)) : sum (sequence i) % 3 = 0 :=
 
 def Valid (c : Hand n) : Prop := ∀ i, c i ≤ 4
 
+namespace Meldable
+
+@[ext]
+structure Placement (n : ℕ) where
+  tripNum : Fin (3 * n) → ℕ
+  seqNum : Fin (3 * n - 2) → ℕ
+
+namespace Placement
+
+instance : AddCommMonoid (Placement n) where
+  zero := ⟨0, 0⟩
+  add p q := ⟨p.tripNum + q.tripNum, p.seqNum + q.seqNum⟩
+  nsmul k p := ⟨k • p.tripNum, k • p.seqNum⟩
+  add_assoc p q r := by
+    ext i <;> exact add_assoc _ _ _
+  zero_add p := by
+    ext i <;> exact zero_add _
+  add_zero p := by
+    ext i <;> exact add_zero _
+  add_comm p q := by
+    ext i <;> exact add_comm _ _
+  nsmul_zero p := by
+    ext i <;> exact zero_nsmul _
+  nsmul_succ k p := by
+    ext i <;> exact succ_nsmul _ _
+
+@[simp]
+lemma tripNum_zero (i : Fin (3 * n)) : (0 : Placement n).tripNum i = 0 := rfl
+
+@[simp]
+lemma seqNum_zero (i : Fin (3 * n - 2)) : (0 : Placement n).seqNum i = 0 := rfl
+
+@[simp]
+lemma tripNum_add (p q : Placement n) (i : Fin (3 * n)) :
+    (p + q).tripNum i = p.tripNum i + q.tripNum i := rfl
+
+@[simp]
+lemma seqNum_add (p q : Placement n) (i : Fin (3 * n - 2)) :
+    (p + q).seqNum i = p.seqNum i + q.seqNum i := rfl
+
+@[simp]
+lemma tripNum_nsmul (k : ℕ) (p : Placement n) (i : Fin (3 * n)) :
+    (k • p).tripNum i = k • p.tripNum i := rfl
+
+@[simp]
+lemma seqNum_nsmul (k : ℕ) (p : Placement n) (i : Fin (3 * n - 2)) :
+    (k • p).seqNum i = k • p.seqNum i := rfl
+
+def toHand : Placement n →+ Hand n where
+  toFun p :=
+    ∑ i, p.tripNum i • triplet i + ∑ j, p.seqNum j • sequence j
+  map_zero' := by simp
+  map_add' p q := by
+    simp only [tripNum_add, seqNum_add, add_nsmul, Finset.sum_add_distrib]
+    ac_rfl
+
+end Placement
+
+def IsWitness (p : Meldable.Placement n) (c : Hand n) : Prop :=
+  p.toHand = c
+
+lemma IsWitness.add {p q : Meldable.Placement n} {c d : Hand n}
+    (hp : IsWitness p c) (hq : IsWitness q d) :
+    IsWitness (p + q) (c + d) := by
+  simpa only [IsWitness, map_add] using congrArg₂ (· + ·) hp hq
+
+@[simp]
+lemma IsWitness.zero :
+    IsWitness (0 : Meldable.Placement n) (0 : Hand n) := by
+  simp [IsWitness]
+
+lemma IsWitness.nsmul {p : Meldable.Placement n} {c : Hand n}
+    (hp : IsWitness p c) (k : ℕ) : IsWitness (k • p) (k • c) := by
+  simpa only [IsWitness, map_nsmul] using congrArg (k • ·) hp
+
+end Meldable
+
 def Meldable (c : Hand n) : Prop :=
-  ∃ (t : Fin (3 * n) → ℕ) (r : Fin (3 * n - 2) → ℕ),
-  c = ∑ i, t i • triplet i + ∑ j, r j • sequence j
+  ∃ p : Meldable.Placement n, Meldable.IsWitness p c
+
+namespace Meldable
 
 @[simp]
-lemma Meldable.sequence {i : Fin (3 * n - 2)} : Meldable (sequence i) := by
-  use 0, fun j ↦ if j = i then 1 else 0
-  simp only [Pi.zero_apply, zero_nsmul, Finset.sum_const_zero, zero_add, ite_smul,
-    one_nsmul, Finset.sum_ite_eq', Finset.mem_univ, if_true]
+lemma sequence {i : Fin (3 * n - 2)} : Meldable (sequence i) := by
+  refine ⟨⟨0, fun j ↦ if j = i then 1 else 0⟩, ?_⟩
+  simp [IsWitness, Meldable.Placement.toHand]
 
 @[simp]
-lemma Meldable.triplet {i : Fin (3 * n)} : Meldable (triplet i) := by
-  use fun j ↦ if j = i then 1 else 0, 0
-  simp only [ite_smul, one_nsmul, zero_nsmul, Finset.sum_ite_eq', Finset.mem_univ,
-    if_true, Pi.zero_apply, Finset.sum_const_zero, add_zero]
+lemma triplet {i : Fin (3 * n)} : Meldable (triplet i) := by
+  refine ⟨⟨fun j ↦ if j = i then 1 else 0, 0⟩, ?_⟩
+  simp [IsWitness, Meldable.Placement.toHand]
 
-lemma Meldable.add {c d : Hand n} (hc : Meldable c) (hd : Meldable d) :
+lemma add {c d : Hand n} (hc : Meldable c) (hd : Meldable d) :
     Meldable (c + d) := by
-  obtain ⟨tc, rc, rfl⟩ := hc
-  obtain ⟨td, rd, rfl⟩ := hd
-  use tc + td, rc + rd
-  simp only [Pi.add_apply, add_nsmul, Finset.sum_add_distrib]
-  ac_rfl
+  obtain ⟨p, hp⟩ := hc
+  obtain ⟨q, hq⟩ := hd
+  exact ⟨p + q, hp.add hq⟩
 
 @[simp]
-lemma Meldable.zero : Meldable (0 : Hand n) := by
-  use 0, 0
-  simp
+lemma zero : Meldable (0 : Hand n) := by
+  exact ⟨0, IsWitness.zero⟩
 
-lemma Meldable.nsmul {c : Hand n} (hc : Meldable c) (a : ℕ) :
+lemma nsmul {c : Hand n} (hc : Meldable c) (a : ℕ) :
     Meldable (a • c) := by
-  induction a with
-  | zero => simp
-  | succ a ih => simpa only [succ_nsmul] using Meldable.add ih hc
+  obtain ⟨p, hp⟩ := hc
+  exact ⟨a • p, hp.nsmul a⟩
 
-lemma Meldable.finset_sum {ι : Type*} {s : Finset ι} {f : ι → Hand n}
+lemma finset_sum {ι : Type*} {s : Finset ι} {f : ι → Hand n}
     (hf : ∀ i ∈ s, Meldable (f i)) : Meldable (∑ i ∈ s, f i) := by
   classical
   induction s using Finset.induction_on with
@@ -151,20 +223,26 @@ lemma Meldable.finset_sum {ι : Type*} {s : Finset ι} {f : ι → Hand n}
         Meldable.add (hf i (Finset.mem_insert_self i s))
           (ih fun j hj => hf j (Finset.mem_insert_of_mem hj))
 
-theorem Meldable.size_mod_three {c : Hand n} (hc : Meldable c) :
+theorem size_mod_three {c : Hand n} (hc : Meldable c) :
     size c % 3 = 0 := by
-  obtain ⟨t, r, rfl⟩ := hc
+  obtain ⟨p, rfl⟩ := hc
+  change size (∑ i, p.tripNum i • Hand.triplet i +
+    ∑ j, p.seqNum j • Hand.sequence j) % 3 = 0
   rw [map_add, map_sum, map_sum]
   simp only [map_nsmul, size_triplet, size_sequence, smul_eq_mul]
   rw [← Finset.sum_mul, ← Finset.sum_mul, ← add_mul, Nat.mul_mod_left]
 
-theorem Meldable.sum_mod_three {c : Hand n} (hc : Meldable c) :
+theorem sum_mod_three {c : Hand n} (hc : Meldable c) :
     sum c % 3 = 0 := by
-  obtain ⟨t, r, rfl⟩ := hc
+  obtain ⟨p, rfl⟩ := hc
+  change sum (∑ i, p.tripNum i • Hand.triplet i +
+    ∑ j, p.seqNum j • Hand.sequence j) % 3 = 0
   rw [map_add, map_sum, map_sum]
   simp only [map_nsmul, sum_triplet, sum_sequence, smul_eq_mul]
   simp_rw [mul_comm 3, ← mul_assoc]
   rw [← Finset.sum_mul, ← Finset.sum_mul, ← add_mul, Nat.mul_mod_left]
+
+end Meldable
 
 def Winning (c : Hand n) : Prop :=
   Valid c ∧ ∃ (d : Hand n) (i : Fin (3 * n)), Meldable d ∧ c = d + pair i
