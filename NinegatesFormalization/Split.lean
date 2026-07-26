@@ -32,22 +32,8 @@ def filter
   toFun p :=
     ⟨fun i ↦ if tripKeep i then p.tripNum i else 0,
       fun j ↦ if seqKeep j then p.seqNum j else 0⟩
-  map_zero' := by
-    ext i
-    · change (if tripKeep i then 0 else 0) = 0
-      split <;> rfl
-    · change (if seqKeep i then 0 else 0) = 0
-      split <;> rfl
-  map_add' p q := by
-    ext i
-    · change (if tripKeep i then p.tripNum i + q.tripNum i else 0) =
-        (if tripKeep i then p.tripNum i else 0) +
-          (if tripKeep i then q.tripNum i else 0)
-      split <;> rfl
-    · change (if seqKeep i then p.seqNum i + q.seqNum i else 0) =
-        (if seqKeep i then p.seqNum i else 0) +
-          (if seqKeep i then q.seqNum i else 0)
-      split <;> rfl
+  map_zero' := by ext i <;> grind
+  map_add' _ _ := by ext i <;> grind
 
 def restrictLT (k : Fin (3 * n)) : Placement n →+ Placement n :=
   filter (· < k) (fun j ↦ j.val + 2 < k.val)
@@ -121,28 +107,24 @@ private lemma restrictGT_triplet_of_not_gt (k i : Fin (3 * n)) (hi : ¬k < i) :
 private lemma restrictLT_sequence_of_left (k : Fin (3 * n))
     (j : Fin (3 * n - 2)) (hj : j.val + 2 < k.val) :
     restrictLT k (sequence j) = sequence j := by
-  simp only [sequence, map_add]
   grind
 
 @[local grind =]
 private lemma restrictLT_sequence_of_right (k : Fin (3 * n))
     (j : Fin (3 * n - 2)) (hj : k.val < j.val) :
     restrictLT k (sequence j) = 0 := by
-  simp only [sequence, map_add]
   grind
 
 @[local grind =]
 private lemma restrictGT_sequence_of_right (k : Fin (3 * n))
     (j : Fin (3 * n - 2)) (hj : k.val < j.val) :
     restrictGT k (sequence j) = sequence j := by
-  simp only [sequence, map_add]
   grind
 
 @[local grind =]
 private lemma restrictGT_sequence_of_left (k : Fin (3 * n))
     (j : Fin (3 * n - 2)) (hj : j.val + 2 < k.val) :
     restrictGT k (sequence j) = 0 := by
-  simp only [sequence, map_add]
   grind
 
 @[grind →]
@@ -205,8 +187,6 @@ theorem Meldable.IsWitness.split_at_zero {p : Meldable.Placement n} {c : Hand n}
 theorem Meldable.split_at_zero {c : Hand n} (hc : Meldable c)
     (k : Fin (3 * n)) (hk : c k = 0) :
     Meldable (restrictLT k c) ∧ Meldable (restrictGT k c) := by
-  obtain ⟨p, hp⟩ := hc
-  obtain ⟨hLT, hGT⟩ := hp.split_at_zero k hk
-  exact ⟨⟨_, hLT⟩, ⟨_, hGT⟩⟩
+  grind [Meldable]
 
 end Mahjong.Hand

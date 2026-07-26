@@ -201,7 +201,7 @@ def IsWitness (p : Meldable.Placement n) (c : Hand n) : Prop :=
 lemma IsWitness.add {p q : Meldable.Placement n} {c d : Hand n}
     (hp : IsWitness p c) (hq : IsWitness q d) :
     IsWitness (p + q) (c + d) := by
-  simpa only [IsWitness, map_add] using congrArg₂ (· + ·) hp hq
+  grind [IsWitness]
 
 @[simp]
 lemma IsWitness.zero :
@@ -211,7 +211,7 @@ lemma IsWitness.zero :
 @[grind ←]
 lemma IsWitness.nsmul {p : Meldable.Placement n} {c : Hand n}
     (hp : IsWitness p c) (k : ℕ) : IsWitness (k • p) (k • c) := by
-  simpa only [IsWitness, map_nsmul] using congrArg (k • ·) hp
+  grind [IsWitness]
 
 end Meldable
 
