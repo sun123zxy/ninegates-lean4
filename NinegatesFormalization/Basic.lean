@@ -5,65 +5,83 @@ namespace Mahjong
 /--
 Argurably we should consider `ℕ →₀ ℕ`, but its unfortunately uncomputable.
 -/
-def Hand (n : ℕ) := Fin (3 * n) → ℕ
+structure Hand (n : ℕ) where
+  toFun : Fin (3 * n) → ℕ
 
 namespace Hand
 
 variable {n : ℕ}
 
-instance : AddCommMonoid (Hand n) :=
-  inferInstanceAs <| AddCommMonoid (Fin (3 * n) → ℕ)
-
-@[simp, grind =]
-lemma zero_apply (i : Fin (3 * n)) : (0 : Hand n) i = 0 := rfl
-
-@[simp, grind =]
-lemma add_apply (c d : Hand n) (i : Fin (3 * n)) : (c + d) i = c i + d i := rfl
-
-@[simp, grind =]
-lemma nsmul_apply (k : ℕ) (c : Hand n) (i : Fin (3 * n)) :
-    (k • c) i = k • c i := rfl
-
-def count (i : Fin (3 * n)) : Hand n →+ ℕ where
-  toFun c := c i
-  map_zero' := zero_apply i
-  map_add' c d := add_apply c d i
-
-@[simp, grind =]
-lemma count_apply (i : Fin (3 * n)) (c : Hand n) : count i c = c i := rfl
+instance : FunLike (Hand n) (Fin (3 * n)) ℕ where
+  coe := Hand.toFun
+  coe_injective := by
+    intro c d h
+    cases c
+    cases d
+    congr
 
 @[ext, grind ext]
-lemma ext {c d : Hand n} (h : ∀ i, c i = d i) : c = d := by
-  funext i
-  exact h i
+lemma ext {c d : Hand n} (h : ∀ i, c i = d i) : c = d :=
+  DFunLike.ext c d h
+
+@[simp, grind =]
+lemma mk_apply (f : Fin (3 * n) → ℕ) (i : Fin (3 * n)) :
+    Hand.mk f i = f i := rfl
+
+instance : Zero (Hand n) := ⟨⟨0⟩⟩
+
+instance : Add (Hand n) :=
+  ⟨fun c d ↦ ⟨fun i ↦ c i + d i⟩⟩
+
+instance : SMul ℕ (Hand n) :=
+  ⟨fun k c ↦ ⟨fun i ↦ k • c i⟩⟩
+
+instance : IsZeroApply (Hand n) (Fin (3 * n)) ℕ where
+  zero_apply _ := rfl
+
+instance : IsAddApply (Hand n) (Fin (3 * n)) ℕ where
+  add_apply _ _ _ := rfl
+
+instance : IsSMulApply ℕ (Hand n) (Fin (3 * n)) ℕ where
+  smul_apply _ _ _ := rfl
+
+instance : AddCommMonoid (Hand n) where
+  zero := 0
+  add := (· + ·)
+  nsmul := (· • ·)
+  add_assoc := by intros; grind
+  zero_add := by intros; grind
+  add_zero := by intros; grind
+  add_comm := by intros; grind
+  nsmul_zero := by intros; grind
+  nsmul_succ := by intros; grind
 
 def size : Hand n →+ ℕ where
   toFun c := ∑ i, c i
   map_zero' := by simp
-  map_add' c d := Finset.sum_add_distrib
+  map_add' c d := by
+    simpa only [add_apply] using
+      Finset.sum_add_distrib (f := fun i ↦ c i) (g := fun i ↦ d i)
 
 def sum : Hand n →+ ℕ where
   toFun c := ∑ i, i * c i
   map_zero' := by simp
-  map_add' c d := by
+  map_add' _ _ := by
     simp only [add_apply, mul_add, Finset.sum_add_distrib]
 
+@[grind =]
 def single (i : Fin (3 * n)) : Hand n :=
-  fun j ↦ if j = i then 1 else 0
-
-@[simp, grind =]
-lemma single_apply (i j : Fin (3 * n)) : single i j = if j = i then 1 else 0 := rfl
+  ⟨fun j ↦ if j = i then 1 else 0⟩
 
 @[simp, grind =]
 lemma size_single (i : Fin (3 * n)) : size (single i) = 1 := by
-  change (∑ j, if j = i then 1 else 0) = 1
-  simp
+  simp [size, single]
 
 @[simp, grind =]
 lemma sum_single (i : Fin (3 * n)) : sum (single i) = i.val := by
-  change (∑ j, j.val * if j = i then 1 else 0) = i.val
-  simp
+  simp [sum, single]
 
+@[grind =]
 def pair (i : Fin (3 * n)) : Hand n :=
   2 • single i
 
@@ -75,6 +93,7 @@ lemma size_pair (i : Fin (3 * n)) : size (pair i) = 2 := by
 lemma sum_pair (i : Fin (3 * n)) : sum (pair i) = 2 * i.val := by
   simp [pair]
 
+@[grind =]
 def triplet (i : Fin (3 * n)) : Hand n :=
   3 • single i
 
@@ -86,6 +105,7 @@ lemma size_triplet (i : Fin (3 * n)) : size (triplet i) = 3 := by
 lemma sum_triplet (i : Fin (3 * n)) : sum (triplet i) = 3 * i.val := by
   simp [triplet]
 
+@[grind =]
 def sequence (i : Fin (3 * n - 2)) : Hand n :=
   single ⟨i, by omega⟩ + single ⟨i + 1, by omega⟩ + single ⟨i + 2, by omega⟩
 
@@ -150,6 +170,7 @@ lemma tripNum_nsmul (k : ℕ) (p : Placement n) (i : Fin (3 * n)) :
 lemma seqNum_nsmul (k : ℕ) (p : Placement n) (i : Fin (3 * n - 2)) :
     (k • p).seqNum i = k • p.seqNum i := rfl
 
+@[grind =]
 def toHand : Placement n →+ Hand n where
   toFun p :=
     ∑ i, p.tripNum i • triplet i + ∑ j, p.seqNum j • sequence j
@@ -165,12 +186,11 @@ lemma toHand_eq_sum (p : Placement n) :
         ∑ j, p.seqNum j • Hand.sequence j := rfl
 
 @[grind =]
-lemma count_toHand (p : Placement n) (k : Fin (3 * n)) :
-    count k p.toHand =
-      ∑ i, p.tripNum i • count k (Hand.triplet i) +
-        ∑ j, p.seqNum j • count k (Hand.sequence j) := by
-  rw [toHand_eq_sum, map_add, map_sum, map_sum]
-  simp only [map_nsmul]
+lemma toHand_apply (p : Placement n) (k : Fin (3 * n)) :
+    p.toHand k =
+      ∑ i, (p.tripNum i • Hand.triplet i) k +
+        ∑ j, (p.seqNum j • Hand.sequence j) k := by
+  simp [toHand_eq_sum]
 
 end Placement
 

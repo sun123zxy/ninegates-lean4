@@ -6,9 +6,9 @@ namespace Mahjong.Hand
 variable {n : ℕ}
 
 def insertSeqAt (c : Hand n) (k : Fin (3 * n + 1)) : Hand (n + 1) :=
-  Fin.insertNth k.castSucc.castSucc 1 <|
+  ⟨Fin.insertNth k.castSucc.castSucc 1 <|
     Fin.insertNth k.castSucc 1 <|
-      Fin.insertNth k 1 c
+      Fin.insertNth k 1 c⟩
 
 @[simp]
 lemma insertSeqAt_apply_zero (c : Hand n) (k : Fin (3 * n + 1)) :
@@ -19,6 +19,7 @@ lemma insertSeqAt_apply_zero (c : Hand n) (k : Fin (3 * n + 1)) :
 lemma insertSeqAt_apply_one (c : Hand n) (k : Fin (3 * n + 1)) :
     c.insertSeqAt k k.succ.castSucc = 1 := by
   unfold insertSeqAt
+  rw [Hand.mk_apply]
   have hpos : k.succ.castSucc =
       k.castSucc.castSucc.succAbove k.castSucc := by
     ext
@@ -29,6 +30,7 @@ lemma insertSeqAt_apply_one (c : Hand n) (k : Fin (3 * n + 1)) :
 lemma insertSeqAt_apply_two (c : Hand n) (k : Fin (3 * n + 1)) :
     c.insertSeqAt k k.succ.succ = 1 := by
   unfold insertSeqAt
+  rw [Hand.mk_apply]
   have hnot : ¬k.castSucc.succ < k.castSucc.castSucc := by
     change ¬k.val + 1 < k.val
     omega
@@ -54,7 +56,8 @@ theorem IsFullWait.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
 private theorem insertSeqAt_standardFullWait
     (k : Fin (3 * n + 1)) (hk₀ : 0 < k.val) (hk₁ : k.val < 3 * n) :
     (standardFullWait n).insertSeqAt k = standardFullWait (n + 1) := by
-  unfold insertSeqAt Hand standardFullWait
+  unfold insertSeqAt standardFullWait
+  apply congrArg Hand.mk
   rw [Fin.insertNth_eq_iff]
   constructor
   · change 1 = if k.val = 0 ∨ k.val + 1 = 3 * (n + 1) then 3 else 1
@@ -284,12 +287,13 @@ private theorem exists_insertSeqAt_of_large
     rw [heq]
     omega
   let d : Hand n :=
-    Fin.removeNth k <|
+    ⟨Fin.removeNth k <|
       Fin.removeNth k.castSucc <|
-        Fin.removeNth k.castSucc.castSucc c
+        Fin.removeNth k.castSucc.castSucc c⟩
   refine ⟨d, k, hk₀, hk₁, ?_⟩
   symm
-  unfold insertSeqAt d Hand
+  unfold insertSeqAt d
+  apply congrArg Hand.mk
   apply Fin.insertNth_eq_iff.mpr
   constructor
   · exact hc₀.symm

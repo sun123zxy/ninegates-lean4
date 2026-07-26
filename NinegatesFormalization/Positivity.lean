@@ -5,18 +5,18 @@ namespace Mahjong.Hand
 variable {n : ℕ}
 
 private lemma winning_sides_at_zero {w : Hand n} (hw : Winning w)
-    (k : Fin (3 * n)) (hk : count k w = 0) :
+    (k : Fin (3 * n)) (hk : w k = 0) :
     (size (restrictLT k w) % 3 = 2 ∧
       size (restrictGT k w) % 3 = 0 ∧ Meldable (restrictGT k w)) ∨
     (size (restrictLT k w) % 3 = 0 ∧
       size (restrictGT k w) % 3 = 2 ∧ Meldable (restrictLT k w)) := by
   obtain ⟨_, _, d, p, hd, hwd⟩ := hw
-  have hzero : count k d + count k (pair p) = 0 := by grind
-  have hdk : count k d = 0 := by omega
-  have hpair : count k (pair p) = 0 := by omega
+  have hzero : d k + pair p k = 0 := by grind
+  have hdk : d k = 0 := by omega
+  have hpair : pair p k = 0 := by omega
   have hpk : p ≠ k := by
     rintro rfl
-    simp [pair] at hpair
+    simp [pair, single] at hpair
   have ⟨hdLT, hdGT⟩ := hd.split_at_zero k hdk
   rcases lt_or_gt_of_ne hpk with hleft | hright
   · left
@@ -41,7 +41,7 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
     ∀ i : Fin (3 * n), 0 < i.val ∧ i.val < 3 * n - 1 → 0 < c i := by
   intro k hk
   by_contra hpositive
-  have hck : count k c = 0 := by grind
+  have hck : c k = 0 := by grind
   let first : Fin (3 * n) := ⟨0, by omega⟩
   let last : Fin (3 * n) := ⟨3 * n - 1, by omega⟩
   have hfirst : first < k := by
@@ -49,11 +49,11 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
   have hlast : k < last := by
     exact Fin.mk_lt_mk.mpr hk.2
   have hzero (i : Fin (3 * n)) (hi : i ≠ k) :
-      count k (c + single i) = 0 := by
+      (c + single i) k = 0 := by
     grind
-  have hfirst_zero : count k (c + single first) = 0 :=
+  have hfirst_zero : (c + single first) k = 0 :=
     hzero first (ne_of_lt hfirst)
-  have hlast_zero : count k (c + single last) = 0 :=
+  have hlast_zero : (c + single last) k = 0 :=
     hzero last (ne_of_gt hlast)
   have hfirst_sides := winning_sides_at_zero (hc first) k hfirst_zero
   have hlast_sides := winning_sides_at_zero (hc last) k hlast_zero
@@ -69,7 +69,7 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
     grind
   have hleft_meldable (i : Fin (3 * n)) (hi : i < k) :
       Meldable (restrictLT k (c + single i)) := by
-    have hi_zero : count k (c + single i) = 0 := hzero i (ne_of_lt hi)
+    have hi_zero : (c + single i) k = 0 := hzero i (ne_of_lt hi)
     rcases winning_sides_at_zero (hc i) k hi_zero with hsides | hsides
     · have hsize := hsides.1
       simp only [map_add, restrictLT_single_of_lt _ _ hi, size_single] at hsize
@@ -77,7 +77,7 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
     · exact hsides.2.2
   have hright_meldable (i : Fin (3 * n)) (hi : k < i) :
       Meldable (restrictGT k (c + single i)) := by
-    have hi_zero : count k (c + single i) = 0 := hzero i (ne_of_gt hi)
+    have hi_zero : (c + single i) k = 0 := hzero i (ne_of_gt hi)
     rcases winning_sides_at_zero (hc i) k hi_zero with hsides | hsides
     · exact hsides.2.2
     · have hsize := hsides.2.1

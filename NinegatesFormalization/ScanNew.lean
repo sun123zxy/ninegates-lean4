@@ -60,7 +60,7 @@ def scanList (xs : List ℕ) : ScanResult :=
   (scan xs).run ⟨(0, 0), []⟩
 
 def scanHand (c : Hand n) : ScanResult :=
-  scanList (List.ofFn fun i ↦ count i c)
+  scanList (List.ofFn fun i ↦ c i)
 
 def realizeFrom : ScanState → List StepPlacement → List ℕ × ScanState
   | s, [] => ([], s)
@@ -311,12 +311,12 @@ private lemma sum_seq_offset (p : Placement n) (k : Fin (3 * n))
       omega
     simp [hne]
 
-private lemma count_toHand_local (p : Placement n) (k : Fin (3 * n)) :
-    count k p.toHand =
+private lemma toHand_apply_local (p : Placement n) (k : Fin (3 * n)) :
+    p.toHand k =
       (pending p k.val).1 + (pending p k.val).2 +
         3 * p.tripNum k + seqAt p k.val := by
   have htrip :
-      (∑ i, p.tripNum i • count k (Hand.triplet i)) = 3 * p.tripNum k := by
+      (∑ i, (p.tripNum i • Hand.triplet i) k) = 3 * p.tripNum k := by
     simp [Hand.triplet, Hand.single, mul_comm]
   have h0 :
       (∑ j, if k = (⟨j.val, by omega⟩ : Fin (3 * n)) then p.seqNum j else 0) =
@@ -340,8 +340,8 @@ private lemma count_toHand_local (p : Placement n) (k : Fin (3 * n)) :
       simpa [hk, hk'] using h
     · have hk' : ¬1 < k.val := by omega
       simpa [hk, hk'] using h
-  rw [Placement.count_toHand, htrip]
-  simp only [Hand.sequence, Hand.single, count_apply, Hand.add_apply,
+  rw [Placement.toHand_apply, htrip]
+  simp only [Hand.sequence, Hand.single, Hand.mk_apply, smul_apply, add_apply,
     smul_eq_mul, mul_add, Finset.sum_add_distrib, mul_ite, mul_one, mul_zero]
   rw [h0, h1, h2]
   simp only [pending]
@@ -374,7 +374,7 @@ private lemma getElem_steps (p : Placement n) (i : ℕ)
 private theorem realizeFrom_steps_drop (p : Placement n) (i : ℕ)
     (hi : i ≤ 3 * n) :
     realizeFrom (pending p i) ((steps p).drop i) =
-      ((List.ofFn fun k => count k p.toHand).drop i, (0, 0)) := by
+      ((List.ofFn fun k => p.toHand k).drop i, (0, 0)) := by
   induction hi using Nat.decreasingInduction with
   | self =>
       rw [List.drop_of_length_le (by simp [steps]),
@@ -382,17 +382,17 @@ private theorem realizeFrom_steps_drop (p : Placement n) (i : ℕ)
       simp [realizeFrom, pending_end]
   | of_succ i hi ih =>
       have histeps : i < (steps p).length := by simp [steps]; omega
-      have hicounts : i < (List.ofFn fun k => count k p.toHand).length := by
+      have hicounts : i < (List.ofFn fun k => p.toHand k).length := by
         simp
         omega
       rw [List.drop_eq_getElem_cons histeps,
         List.drop_eq_getElem_cons hicounts]
       rw [getElem_steps, List.getElem_ofFn]
       simp only [realizeFrom]
-      rw [← pending_succ, ih, count_toHand_local]
+      rw [← pending_succ, ih, toHand_apply_local]
 
 private theorem toListWitness (p : Placement n) :
-    IsListWitness (steps p) (List.ofFn fun k => count k p.toHand) := by
+    IsListWitness (steps p) (List.ofFn fun k => p.toHand k) := by
   unfold IsListWitness
   simpa [pending_zero] using realizeFrom_steps_drop p 0 (by omega)
 
@@ -460,7 +460,7 @@ private theorem steps_ofSteps_eq (ss : List StepPlacement)
 end Placement
 
 private theorem meldable_iff_listMeldable (c : Hand n) :
-    Meldable c ↔ ListMeldable (List.ofFn fun i => count i c) := by
+    Meldable c ↔ ListMeldable (List.ofFn fun i => c i) := by
   constructor
   · rintro ⟨p, hp⟩
     unfold IsWitness at hp
@@ -479,8 +479,8 @@ private theorem meldable_iff_listMeldable (c : Hand n) :
     have hp := Placement.toListWitness p
     unfold IsListWitness at hp hss
     rw [hround] at hp
-    have hlists : List.ofFn (fun i => count i p.toHand) =
-        List.ofFn (fun i => count i c) := congrArg Prod.fst (hp.symm.trans hss)
+    have hlists : List.ofFn (fun i => p.toHand i) =
+        List.ofFn (fun i => c i) := congrArg Prod.fst (hp.symm.trans hss)
     refine ⟨p, ?_⟩
     unfold IsWitness
     apply Hand.ext
