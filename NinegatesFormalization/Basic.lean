@@ -14,13 +14,13 @@ variable {n : ℕ}
 instance : AddCommMonoid (Hand n) :=
   inferInstanceAs <| AddCommMonoid (Fin (3 * n) → ℕ)
 
-@[simp]
+@[simp, grind =]
 lemma zero_apply (i : Fin (3 * n)) : (0 : Hand n) i = 0 := rfl
 
-@[simp]
+@[simp, grind =]
 lemma add_apply (c d : Hand n) (i : Fin (3 * n)) : (c + d) i = c i + d i := rfl
 
-@[simp]
+@[simp, grind =]
 lemma nsmul_apply (k : ℕ) (c : Hand n) (i : Fin (3 * n)) :
     (k • c) i = k • c i := rfl
 
@@ -29,10 +29,10 @@ def count (i : Fin (3 * n)) : Hand n →+ ℕ where
   map_zero' := zero_apply i
   map_add' c d := add_apply c d i
 
-@[simp]
+@[simp, grind =]
 lemma count_apply (i : Fin (3 * n)) (c : Hand n) : count i c = c i := rfl
 
-@[ext]
+@[ext, grind ext]
 lemma ext {c d : Hand n} (h : ∀ i, c i = d i) : c = d := by
   funext i
   exact h i
@@ -51,15 +51,15 @@ def sum : Hand n →+ ℕ where
 def single (i : Fin (3 * n)) : Hand n :=
   fun j ↦ if j = i then 1 else 0
 
-@[simp]
+@[simp, grind =]
 lemma single_apply (i j : Fin (3 * n)) : single i j = if j = i then 1 else 0 := rfl
 
-@[simp]
+@[simp, grind =]
 lemma size_single (i : Fin (3 * n)) : size (single i) = 1 := by
   change (∑ j, if j = i then 1 else 0) = 1
   simp
 
-@[simp]
+@[simp, grind =]
 lemma sum_single (i : Fin (3 * n)) : sum (single i) = i.val := by
   change (∑ j, j.val * if j = i then 1 else 0) = i.val
   simp
@@ -67,42 +67,36 @@ lemma sum_single (i : Fin (3 * n)) : sum (single i) = i.val := by
 def pair (i : Fin (3 * n)) : Hand n :=
   2 • single i
 
-@[simp]
+@[simp, grind =]
 lemma size_pair (i : Fin (3 * n)) : size (pair i) = 2 := by
   simp [pair]
 
-@[simp]
+@[simp, grind =]
 lemma sum_pair (i : Fin (3 * n)) : sum (pair i) = 2 * i.val := by
   simp [pair]
 
 def triplet (i : Fin (3 * n)) : Hand n :=
   3 • single i
 
-@[simp]
+@[simp, grind =]
 lemma size_triplet (i : Fin (3 * n)) : size (triplet i) = 3 := by
   simp [triplet]
 
-@[simp]
+@[simp, grind =]
 lemma sum_triplet (i : Fin (3 * n)) : sum (triplet i) = 3 * i.val := by
   simp [triplet]
 
 def sequence (i : Fin (3 * n - 2)) : Hand n :=
   single ⟨i, by omega⟩ + single ⟨i + 1, by omega⟩ + single ⟨i + 2, by omega⟩
 
-@[simp]
+@[simp, grind =]
 lemma size_sequence (i : Fin (3 * n - 2)) : size (sequence i) = 3 := by
-  simp [sequence]
+  grind [sequence]
 
-@[simp]
+@[simp, grind =]
 lemma sum_sequence (i : Fin (3 * n - 2)) :
     sum (sequence i) = 3 * (i.val + 1) := by
-  simp only [sequence, map_add, sum_single]
-  omega
-
-@[simp]
-lemma sum_sequence_mod_three (i : Fin (3 * n - 2)) : sum (sequence i) % 3 = 0 := by
-  rw [sum_sequence]
-  exact Nat.mul_mod_right _ _
+  grind [sequence]
 
 def Valid (c : Hand n) : Prop := ∀ i, c i ≤ 4
 
@@ -112,6 +106,8 @@ namespace Meldable
 structure Placement (n : ℕ) where
   tripNum : Fin (3 * n) → ℕ
   seqNum : Fin (3 * n - 2) → ℕ
+
+attribute [grind ext] Placement.ext
 
 namespace Placement
 
@@ -132,25 +128,25 @@ instance : AddCommMonoid (Placement n) where
   nsmul_succ k p := by
     ext i <;> exact succ_nsmul _ _
 
-@[simp]
+@[simp, grind =]
 lemma tripNum_zero (i : Fin (3 * n)) : (0 : Placement n).tripNum i = 0 := rfl
 
-@[simp]
+@[simp, grind =]
 lemma seqNum_zero (i : Fin (3 * n - 2)) : (0 : Placement n).seqNum i = 0 := rfl
 
-@[simp]
+@[simp, grind =]
 lemma tripNum_add (p q : Placement n) (i : Fin (3 * n)) :
     (p + q).tripNum i = p.tripNum i + q.tripNum i := rfl
 
-@[simp]
+@[simp, grind =]
 lemma seqNum_add (p q : Placement n) (i : Fin (3 * n - 2)) :
     (p + q).seqNum i = p.seqNum i + q.seqNum i := rfl
 
-@[simp]
+@[simp, grind =]
 lemma tripNum_nsmul (k : ℕ) (p : Placement n) (i : Fin (3 * n)) :
     (k • p).tripNum i = k • p.tripNum i := rfl
 
-@[simp]
+@[simp, grind =]
 lemma seqNum_nsmul (k : ℕ) (p : Placement n) (i : Fin (3 * n - 2)) :
     (k • p).seqNum i = k • p.seqNum i := rfl
 
@@ -162,11 +158,13 @@ def toHand : Placement n →+ Hand n where
     simp only [tripNum_add, seqNum_add, add_nsmul, Finset.sum_add_distrib]
     ac_rfl
 
+@[grind =]
 lemma toHand_eq_sum (p : Placement n) :
     p.toHand =
       ∑ i, p.tripNum i • Hand.triplet i +
         ∑ j, p.seqNum j • Hand.sequence j := rfl
 
+@[grind =]
 lemma count_toHand (p : Placement n) (k : Fin (3 * n)) :
     count k p.toHand =
       ∑ i, p.tripNum i • count k (Hand.triplet i) +
@@ -179,6 +177,7 @@ end Placement
 def IsWitness (p : Meldable.Placement n) (c : Hand n) : Prop :=
   p.toHand = c
 
+@[grind ←]
 lemma IsWitness.add {p q : Meldable.Placement n} {c d : Hand n}
     (hp : IsWitness p c) (hq : IsWitness q d) :
     IsWitness (p + q) (c + d) := by
@@ -189,6 +188,7 @@ lemma IsWitness.zero :
     IsWitness (0 : Meldable.Placement n) (0 : Hand n) := by
   simp [IsWitness]
 
+@[grind ←]
 lemma IsWitness.nsmul {p : Meldable.Placement n} {c : Hand n}
     (hp : IsWitness p c) (k : ℕ) : IsWitness (k • p) (k • c) := by
   simpa only [IsWitness, map_nsmul] using congrArg (k • ·) hp
@@ -210,6 +210,7 @@ lemma triplet {i : Fin (3 * n)} : Meldable (triplet i) := by
   refine ⟨⟨fun j ↦ if j = i then 1 else 0, 0⟩, ?_⟩
   simp [IsWitness, Meldable.Placement.toHand]
 
+@[grind ←]
 lemma add {c d : Hand n} (hc : Meldable c) (hd : Meldable d) :
     Meldable (c + d) := by
   obtain ⟨p, hp⟩ := hc
@@ -220,6 +221,7 @@ lemma add {c d : Hand n} (hc : Meldable c) (hd : Meldable d) :
 lemma zero : Meldable (0 : Hand n) := by
   exact ⟨0, IsWitness.zero⟩
 
+@[grind ←]
 lemma nsmul {c : Hand n} (hc : Meldable c) (a : ℕ) :
     Meldable (a • c) := by
   obtain ⟨p, hp⟩ := hc
@@ -235,6 +237,7 @@ lemma finset_sum {ι : Type*} {s : Finset ι} {f : ι → Hand n}
         Meldable.add (hf i (Finset.mem_insert_self i s))
           (ih fun j hj => hf j (Finset.mem_insert_of_mem hj))
 
+@[grind →]
 theorem size_mod_three {c : Hand n} (hc : Meldable c) :
     size c % 3 = 0 := by
   obtain ⟨p, rfl⟩ := hc
@@ -242,6 +245,7 @@ theorem size_mod_three {c : Hand n} (hc : Meldable c) :
   simp only [map_nsmul, size_triplet, size_sequence, smul_eq_mul]
   rw [← Finset.sum_mul, ← Finset.sum_mul, ← add_mul, Nat.mul_mod_left]
 
+@[grind →]
 theorem sum_mod_three {c : Hand n} (hc : Meldable c) :
     sum c % 3 = 0 := by
   obtain ⟨p, rfl⟩ := hc
@@ -256,6 +260,7 @@ def Winning (c : Hand n) : Prop :=
   Valid c ∧ size c = 3 * n + 5 ∧
     ∃ (d : Hand n) (i : Fin (3 * n)), Meldable d ∧ c = d + pair i
 
+@[grind →]
 lemma Winning.size {c : Hand n} (hc : Winning c) : size c = 3 * n + 5 :=
   hc.2.1
 
@@ -264,6 +269,7 @@ def IsWinningTile (c : Hand n) (i : Fin (3 * n)) : Prop :=
 
 def IsWait (c : Hand n) : Prop := ∃ i, Winning (c + single i)
 
+@[grind →]
 lemma IsWait.Valid (c : Hand n) (hc : IsWait c) : Valid c := by
   rcases hc with ⟨i, hi⟩
   intro j
@@ -271,6 +277,7 @@ lemma IsWait.Valid (c : Hand n) (hc : IsWait c) : Valid c := by
 
 def IsFullWait (c : Hand n) : Prop := ∀ i, Winning (c + single i)
 
+@[grind →]
 lemma IsFullWait.size (hn : 0 < n) {c : Hand n} (hc : IsFullWait c) :
     size c = 3 * n + 4 := by
   let i : Fin (3 * n) := ⟨0, by omega⟩
