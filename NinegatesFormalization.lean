@@ -1,2 +1,1 @@
 import NinegatesFormalization.Uniqueness
-import NinegatesFormalization.Scan
