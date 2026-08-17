@@ -5,22 +5,36 @@ namespace Mahjong.Hand
 
 variable {n : ℕ}
 
+private def insertSeqAt' (c : Hand n) (k : Fin (3 * n + 1)) :
+    Fin (3 * n + 3) → ℕ :=
+  Fin.insertNth k.castSucc.castSucc 1 <|
+    Fin.insertNth k.castSucc 1 <| Fin.insertNth k 1 fun i ↦ c i.val
+
 def insertSeqAt (c : Hand n) (k : Fin (3 * n + 1)) : Hand (n + 1) :=
-  Hand.ofFn <| Fin.insertNth k.castSucc.castSucc 1 <|
-    Fin.insertNth k.castSucc 1 <|
-      Fin.insertNth k 1 fun i ↦ c i.val
+  Hand.ofFn (insertSeqAt' c k)
+
+@[simp]
+private lemma insertSeqAt_apply (c : Hand n) (k : Fin (3 * n + 1))
+    (i : Fin (3 * n + 3)) : c.insertSeqAt k i.val = insertSeqAt' c k i := by
+  simp only [insertSeqAt, Hand.ofFn_apply]
+  split
+  · simp only [Int.toNat_natCast]
+    congr
+  · omega
 
 @[simp]
 lemma insertSeqAt_apply_zero (c : Hand n) (k : Fin (3 * n + 1)) :
     c.insertSeqAt k k.castSucc.castSucc.val = 1 := by
-  unfold insertSeqAt
-  simp only [Hand.ofFn_apply, Fin.insertNth_apply_same]
+  calc
+    c.insertSeqAt k k.castSucc.castSucc.val =
+        insertSeqAt' c k k.castSucc.castSucc := insertSeqAt_apply c k _
+    _ = 1 := by simp [insertSeqAt']
 
 @[simp]
 lemma insertSeqAt_apply_one (c : Hand n) (k : Fin (3 * n + 1)) :
     c.insertSeqAt k k.succ.castSucc.val = 1 := by
-  unfold insertSeqAt
-  simp only [Hand.ofFn_apply]
+  simp only [insertSeqAt_apply]
+  unfold insertSeqAt'
   have hpos : k.succ.castSucc =
       k.castSucc.castSucc.succAbove k.castSucc := by
     grind [Fin.succAbove]
@@ -29,8 +43,8 @@ lemma insertSeqAt_apply_one (c : Hand n) (k : Fin (3 * n + 1)) :
 @[simp]
 lemma insertSeqAt_apply_two (c : Hand n) (k : Fin (3 * n + 1)) :
     c.insertSeqAt k k.succ.succ.val = 1 := by
-  unfold insertSeqAt
-  simp only [Hand.ofFn_apply]
+  simp only [insertSeqAt_apply]
+  unfold insertSeqAt'
   have hnot : ¬k.castSucc.succ < k.castSucc.castSucc := by grind
   have hpos₂ : k.succ.succ =
       k.castSucc.castSucc.succAbove k.succ := by
@@ -52,7 +66,7 @@ theorem IsFullWait.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
 private theorem insertSeqAt_standardFullWait
     (k : Fin (3 * n + 1)) (hk₀ : 0 < k.val) (hk₁ : k.val < 3 * n) :
     (standardFullWait n).insertSeqAt k = standardFullWait (n + 1) := by
-  unfold insertSeqAt standardFullWait
+  unfold insertSeqAt insertSeqAt' standardFullWait
   apply congrArg Hand.ofFn
   rw [Fin.insertNth_eq_iff]
   constructor
@@ -229,15 +243,9 @@ private theorem exists_insertSeqAt_of_large
           simp
           rfl
   · apply Hand.ext
-    intro i
-    by_cases hneg : i < 0
-    · simp [hneg]
-    by_cases hge : 3 * (n + 1) ≤ i
-    · simp [hge]
-    have hnonneg : 0 ≤ i := le_of_not_gt hneg
-    let j : Fin (3 * (n + 1)) := ⟨i.toNat, by omega⟩
-    have hj : (j.val : ℤ) = i := by simp [j, Int.toNat_of_nonneg hnonneg]
-    simpa only [hj] using Hand.ofFn_apply (fun j ↦ c j.val) j
+    intro i hi₀ hi₁
+    simp only [Hand.ofFn_apply]
+    split <;> grind
 
 abbrev IsCounterexample (c : Hand n) : Prop :=
   IsFullWait c ∧ c ≠ standardFullWait n

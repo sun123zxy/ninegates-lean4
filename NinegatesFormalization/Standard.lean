@@ -1,4 +1,3 @@
-import Mathlib
 import NinegatesFormalization.Basic
 
 namespace Mahjong.Hand

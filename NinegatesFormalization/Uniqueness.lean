@@ -1,4 +1,3 @@
-import Mathlib
 import NinegatesFormalization.Basic
 import NinegatesFormalization.Positivity
 import NinegatesFormalization.Standard

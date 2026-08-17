@@ -4,6 +4,29 @@ namespace Mahjong.Hand
 
 variable {n : ℕ}
 
+private def filterFn {m : ℕ} (keep : ℤ → Prop) [DecidablePred keep] :
+    (Fin m → ℕ) →+ (Fin m → ℕ) where
+  toFun f i := if keep i.val then f i else 0
+  map_zero' := by ext i; simp
+  map_add' _ _ := by ext i; split <;> simp_all
+
+def filter (keep : ℤ → Prop) [DecidablePred keep] : Hand n →+ Hand n where
+  toFun c := Hand.ofFn (filterFn keep fun i ↦ c i.val)
+  map_zero' := by
+    ext i
+    simp [filterFn]
+  map_add' _ _ := by
+    ext i
+    simp [filterFn]
+    all_goals grind
+
+@[simp, grind =]
+theorem filter_apply (keep : ℤ → Prop) [DecidablePred keep]
+    (c : Hand n) (i : ℤ) :
+    filter keep c i = if keep i then c i else 0 := by
+  simp [filter, filterFn, Hand.ofFn_apply]
+  all_goals grind
+
 def restrictLT (k : ℤ) : Hand n →+ Hand n := filter (· < k)
 
 def restrictGT (k : ℤ) : Hand n →+ Hand n := filter (k < ·)
@@ -19,6 +42,34 @@ theorem restrictGT_apply (k : ℤ) (c : Hand n) (i : ℤ) :
   simp [restrictGT]
 
 namespace Meldable.Placement
+
+def filter
+    (tripKeep seqKeep : ℤ → Prop) [DecidablePred tripKeep] [DecidablePred seqKeep] :
+    Placement n →+ Placement n where
+  toFun p := Placement.ofFn
+    (filterFn tripKeep fun i ↦ p.tripNum i.val)
+    (filterFn seqKeep fun i ↦ p.seqNum i.val)
+  map_zero' := by congr 1 <;> funext i <;> simp [filterFn]
+  map_add' _ _ := by
+    congr 1 <;> funext i <;> simp [filterFn, Placement.ofFn] <;> split <;> simp_all
+
+@[simp, grind =]
+theorem tripNum_filter (tripKeep seqKeep : ℤ → Prop)
+    [DecidablePred tripKeep] [DecidablePred seqKeep]
+    (p : Placement n) (i : ℤ) :
+    (filter tripKeep seqKeep p).tripNum i =
+      if tripKeep i then p.tripNum i else 0 := by
+  simp [filter, filterFn, Placement.tripNum_ofFn]
+  all_goals grind
+
+@[simp, grind =]
+theorem seqNum_filter (tripKeep seqKeep : ℤ → Prop)
+    [DecidablePred tripKeep] [DecidablePred seqKeep]
+    (p : Placement n) (i : ℤ) :
+    (filter tripKeep seqKeep p).seqNum i =
+      if seqKeep i then p.seqNum i else 0 := by
+  simp [filter, filterFn, Placement.seqNum_ofFn]
+  all_goals grind
 
 def restrictLT (k : ℤ) : Placement n →+ Placement n :=
   filter (· < k) (fun i ↦ i + 2 < k)
@@ -97,12 +148,9 @@ theorem Meldable.IsWitness.split_at_zero {p : Meldable.Placement n} {c : Hand n}
     (hp : IsWitness p c) (k : ℤ) (hk : c k = 0) :
     IsWitness (Meldable.Placement.restrictLT k p) (restrictLT k c) ∧
       IsWitness (Meldable.Placement.restrictGT k p) (restrictGT k c) := by
-  constructor <;> unfold IsWitness <;> apply Hand.ext <;> intro i
-  all_goals
-    grind only [IsWitness, Meldable.Placement.toHand_apply,
-      Meldable.Placement.tripNum_restrictLT, Meldable.Placement.seqNum_restrictLT,
-      Meldable.Placement.tripNum_restrictGT, Meldable.Placement.seqNum_restrictGT,
-      restrictLT_apply, restrictGT_apply]
+  grind only [IsWitness, Placement.toHand_apply, restrictLT_apply, Placement.tripNum_restrictLT,
+    Placement.seqNum_restrictLT, restrictGT_apply, Placement.tripNum_restrictGT,
+    Placement.seqNum_restrictGT]
 
 @[grind →]
 theorem Meldable.split_at_zero {c : Hand n} (hc : Meldable c)
