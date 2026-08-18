@@ -152,13 +152,13 @@ def toHand : Placement n →+ Hand n where
   map_zero' := by simp
   map_add' _ _ := by simp [add_nsmul, Finset.sum_add_distrib]; ac_rfl
 
-theorem toHand_eq_sum (p : Placement n) :
+lemma toHand_eq_sum (p : Placement n) :
     p.toHand =
       ∑ i, p.tripNum i.val • Hand.triplet i +
         ∑ j, p.seqNum j.val • Hand.sequence j := rfl
 
 @[simp, grind =]
-theorem toHand_apply (p : Placement n) (i : ℤ) :
+lemma toHand_apply (p : Placement n) (i : ℤ) :
     p.toHand i =
       3 * p.tripNum i + p.seqNum i + p.seqNum (i - 1) + p.seqNum (i - 2) := by
   have htrip :

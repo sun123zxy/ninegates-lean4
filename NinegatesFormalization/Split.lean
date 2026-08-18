@@ -21,7 +21,7 @@ def filter (keep : ℤ → Prop) [DecidablePred keep] : Hand n →+ Hand n where
     all_goals grind
 
 @[grind =]
-theorem filter_apply (keep : ℤ → Prop) [DecidablePred keep]
+lemma filter_apply (keep : ℤ → Prop) [DecidablePred keep]
     (c : Hand n) (i : ℤ) :
     filter keep c i = if keep i then c i else 0 := by
   simp [filter, filterFn, Hand.ofFn_apply]
@@ -32,12 +32,12 @@ def restrictLT (k : ℤ) : Hand n →+ Hand n := filter (· < k)
 def restrictGT (k : ℤ) : Hand n →+ Hand n := filter (k < ·)
 
 @[grind =]
-theorem restrictLT_apply (k : ℤ) (c : Hand n) (i : ℤ) :
+lemma restrictLT_apply (k : ℤ) (c : Hand n) (i : ℤ) :
     restrictLT k c i = if i < k then c i else 0 := by
   grind [restrictLT]
 
 @[grind =]
-theorem restrictGT_apply (k : ℤ) (c : Hand n) (i : ℤ) :
+lemma restrictGT_apply (k : ℤ) (c : Hand n) (i : ℤ) :
     restrictGT k c i = if k < i then c i else 0 := by
   grind [restrictGT]
 
@@ -54,7 +54,7 @@ def filter
     congr 1 <;> funext i <;> simp [filterFn, Placement.ofFn] <;> split <;> simp_all
 
 @[grind =]
-theorem tripNum_filter (tripKeep seqKeep : ℤ → Prop)
+lemma tripNum_filter (tripKeep seqKeep : ℤ → Prop)
     [DecidablePred tripKeep] [DecidablePred seqKeep]
     (p : Placement n) (i : ℤ) :
     (filter tripKeep seqKeep p).tripNum i =
@@ -63,7 +63,7 @@ theorem tripNum_filter (tripKeep seqKeep : ℤ → Prop)
   all_goals grind
 
 @[grind =]
-theorem seqNum_filter (tripKeep seqKeep : ℤ → Prop)
+lemma seqNum_filter (tripKeep seqKeep : ℤ → Prop)
     [DecidablePred tripKeep] [DecidablePred seqKeep]
     (p : Placement n) (i : ℤ) :
     (filter tripKeep seqKeep p).seqNum i =
@@ -78,60 +78,60 @@ def restrictGT (k : ℤ) : Placement n →+ Placement n :=
   filter (k < ·) (k < ·)
 
 @[grind =]
-theorem tripNum_restrictLT (k : ℤ) (p : Placement n) (i : ℤ) :
+lemma tripNum_restrictLT (k : ℤ) (p : Placement n) (i : ℤ) :
     (restrictLT k p).tripNum i = if i < k then p.tripNum i else 0 := by
   grind [restrictLT]
 
 @[grind =]
-theorem seqNum_restrictLT (k : ℤ) (p : Placement n) (i : ℤ) :
+lemma seqNum_restrictLT (k : ℤ) (p : Placement n) (i : ℤ) :
     (restrictLT k p).seqNum i = if i + 2 < k then p.seqNum i else 0 := by
   grind [restrictLT]
 
 @[grind =]
-theorem tripNum_restrictGT (k : ℤ) (p : Placement n) (i : ℤ) :
+lemma tripNum_restrictGT (k : ℤ) (p : Placement n) (i : ℤ) :
     (restrictGT k p).tripNum i = if k < i then p.tripNum i else 0 := by
   grind [restrictGT]
 
 @[grind =]
-theorem seqNum_restrictGT (k : ℤ) (p : Placement n) (i : ℤ) :
+lemma seqNum_restrictGT (k : ℤ) (p : Placement n) (i : ℤ) :
     (restrictGT k p).seqNum i = if k < i then p.seqNum i else 0 := by
   grind [restrictGT]
 
 end Meldable.Placement
 
 @[simp, grind =]
-theorem restrictLT_single_of_lt (k : ℤ) (i : Fin (3 * n)) (hi : i.val < k) :
+lemma restrictLT_single_of_lt (k : ℤ) (i : Fin (3 * n)) (hi : i.val < k) :
     restrictLT k (single i) = single i := by ext j; grind
 
 @[simp, grind =]
-theorem restrictLT_single_of_not_lt
+lemma restrictLT_single_of_not_lt
     (k : ℤ) (i : Fin (3 * n)) (hi : ¬(i.val : ℤ) < k) :
     restrictLT k (single i) = 0 := by ext j; grind
 
 @[simp, grind =]
-theorem restrictGT_single_of_gt (k : ℤ) (i : Fin (3 * n)) (hi : k < i.val) :
+lemma restrictGT_single_of_gt (k : ℤ) (i : Fin (3 * n)) (hi : k < i.val) :
     restrictGT k (single i) = single i := by ext j; grind
 
 @[simp, grind =]
-theorem restrictGT_single_of_not_gt
+lemma restrictGT_single_of_not_gt
     (k : ℤ) (i : Fin (3 * n)) (hi : ¬k < (i.val : ℤ)) :
     restrictGT k (single i) = 0 := by ext j; grind
 
 @[simp, grind =]
-theorem restrictLT_pair_of_lt (k : ℤ) (i : Fin (3 * n)) (hi : i.val < k) :
+lemma restrictLT_pair_of_lt (k : ℤ) (i : Fin (3 * n)) (hi : i.val < k) :
     restrictLT k (pair i) = pair i := by simp [pair, hi]
 
 @[simp, grind =]
-theorem restrictLT_pair_of_not_lt
+lemma restrictLT_pair_of_not_lt
     (k : ℤ) (i : Fin (3 * n)) (hi : ¬(i.val : ℤ) < k) :
     restrictLT k (pair i) = 0 := by simp [pair, hi]
 
 @[simp, grind =]
-theorem restrictGT_pair_of_gt (k : ℤ) (i : Fin (3 * n)) (hi : k < i.val) :
+lemma restrictGT_pair_of_gt (k : ℤ) (i : Fin (3 * n)) (hi : k < i.val) :
     restrictGT k (pair i) = pair i := by simp [pair, hi]
 
 @[simp, grind =]
-theorem restrictGT_pair_of_not_gt
+lemma restrictGT_pair_of_not_gt
     (k : ℤ) (i : Fin (3 * n)) (hi : ¬k < (i.val : ℤ)) :
     restrictGT k (pair i) = 0 := by simp [pair, hi]
 
