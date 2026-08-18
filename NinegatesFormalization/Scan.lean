@@ -31,20 +31,19 @@ private lemma stateAt_toHand (p : Placement n) (i : ℕ) :
   induction i with
   | zero => simp [stateAt]
   | succ i ih =>
-      simp only [stateAt, ih, Placement.toHand_apply]
+      simp only [stateAt, ih]
       have h₁ : ((i + 1 : ℕ) : ℤ) - 1 = i := by omega
       have h₂ : ((i + 1 : ℕ) : ℤ) - 2 = (i : ℤ) - 1 := by omega
       simp only [h₁, h₂]
       congr 1
-      omega
+      grind
 
 private lemma residual_toHand (p : Placement n) (i : ℕ) :
     p.toHand.residual i =
       3 * (p.tripNum i + p.seqNum i / 3 +
         p.seqNum ((i : ℤ) - 1) / 3 + p.seqNum ((i : ℤ) - 2) / 3) +
           p.seqNum i % 3 := by
-  simp only [residual, stateAt_toHand, Placement.toHand_apply]
-  omega
+  grind [residual, stateAt_toHand]
 
 @[local grind =]
 private lemma canonical_tripNum (p : Placement n) (i : ℤ) :
