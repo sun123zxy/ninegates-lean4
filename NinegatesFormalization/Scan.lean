@@ -6,11 +6,12 @@ variable {n : ℕ}
 
 private abbrev ScanState := ℕ × ℕ
 
+private def nextState (input : ℕ) : ScanState → ScanState
+  | (a, b) => ((input - a - b) % 3, a)
+
 private def stateAt (c : Hand n) : ℕ → ScanState
   | 0 => (0, 0)
-  | i + 1 =>
-      let s := c.stateAt i
-      ((c i - (s.1 + s.2)) % 3, s.1)
+  | i + 1 => nextState (c i) (stateAt c i)
 
 private def residual (c : Hand n) (i : ℕ) : ℕ :=
   let s := c.stateAt i
@@ -35,8 +36,8 @@ private lemma stateAt_toHand (p : Placement n) (i : ℕ) :
       have h₁ : ((i + 1 : ℕ) : ℤ) - 1 = i := by omega
       have h₂ : ((i + 1 : ℕ) : ℤ) - 2 = (i : ℤ) - 1 := by omega
       simp only [h₁, h₂]
-      congr 1
-      grind
+      simp only [nextState, toHand_apply, Prod.mk.injEq, and_true]
+      omega
 
 private lemma residual_toHand (p : Placement n) (i : ℕ) :
     p.toHand.residual i =
