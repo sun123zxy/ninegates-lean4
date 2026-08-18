@@ -1,4 +1,5 @@
 import NinegatesFormalization.Split
+import NinegatesFormalization.Winning
 
 namespace Mahjong.Hand
 

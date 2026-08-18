@@ -1,42 +1,85 @@
 import Mathlib
 
+/-!
+# Mahjong hands
+
+## Representation
+
+A `Hand n` records the multiplicities of `3 * n` consecutive tile values.  Its
+private representation is a function on `Fin (3 * n)`.  Its public `FunLike`
+interface extends that function by zero to integer coordinates, so expressions such
+as `c (i - 1)` remain meaningful at the boundary without carrying `Fin` proofs.
+
+## Main definitions
+
+* `Hand.ofFn` constructs a hand from its finite representation.
+* `single`, `pair`, `triplet`, and `sequence` are the elementary tile patterns.
+* `size` counts tiles, while `sum` is their value-weighted sum.
+* `Valid c` requires every legal multiplicity of `c` to be at most four.
+
+Hands form an additive commutative monoid, and `size` and `sum` are additive
+homomorphisms.  Meld decompositions and winning hands are deliberately absent from
+this foundational module.
+-/
+
 namespace Mahjong
 
-private def extend {m : ℕ} (f : Fin m → ℕ) (i : ℤ) : ℕ :=
+namespace Internal
+
+def extend {m : ℕ} (f : Fin m → ℕ) (i : ℤ) : ℕ :=
   if h : 0 ≤ i ∧ i < m then f ⟨i.toNat, by omega⟩ else 0
 
 @[simp, grind =]
-private lemma extend_coe {m : ℕ} (f : Fin m → ℕ) (i : Fin m) :
+lemma extend_coe {m : ℕ} (f : Fin m → ℕ) (i : Fin m) :
     extend f i.val = f i := by
   grind [extend]
 
 @[simp, grind =]
-private lemma extend_of_lt_zero {m : ℕ} (f : Fin m → ℕ) (i : ℤ) (hi : i < 0) :
+lemma extend_of_lt_zero {m : ℕ} (f : Fin m → ℕ) (i : ℤ) (hi : i < 0) :
     extend f i = 0 := by simp [extend, hi]
 
 @[simp, grind =]
-private lemma extend_of_ge {m : ℕ} (f : Fin m → ℕ) (i : ℤ) (hi : m ≤ i) :
+lemma extend_of_ge {m : ℕ} (f : Fin m → ℕ) (i : ℤ) (hi : m ≤ i) :
     extend f i = 0 := by simp [extend, show ¬(0 ≤ i ∧ i < m) by omega]
 
 @[simp, grind =]
-private lemma extend_zero {m : ℕ} (i : ℤ) :
+lemma extend_zero {m : ℕ} (i : ℤ) :
     extend (0 : Fin m → ℕ) i = 0 := by simp [extend]
 
 @[grind =]
-private lemma extend_add {m : ℕ} (f g : Fin m → ℕ) (i : ℤ) :
+lemma extend_add {m : ℕ} (f g : Fin m → ℕ) (i : ℤ) :
     extend (f + g) i = extend f i + extend g i := by
   by_cases h : 0 ≤ i ∧ i < m <;> simp [extend, h]
 
 @[simp, grind =]
-private lemma extend_nsmul {m : ℕ} (k : ℕ) (f : Fin m → ℕ) (i : ℤ) :
+lemma extend_nsmul {m : ℕ} (k : ℕ) (f : Fin m → ℕ) (i : ℤ) :
     extend (k • f) i = k * extend f i := by
   by_cases h : 0 ≤ i ∧ i < m <;> simp [extend, h]
 
 @[simp]
-private lemma extend_single {m : ℕ} (a : ℕ) (i : Fin m) (j : ℤ) :
+lemma extend_single {m : ℕ} (a : ℕ) (i : Fin m) (j : ℤ) :
     extend (fun k ↦ if k = i then a else 0) j =
       if j = i.val then a else 0 := by
   grind [extend]
+
+@[simp]
+lemma sum_ite_eq_extend {m : ℕ} (a : ℕ) (f : Fin m → ℕ) (i : ℤ) (d : ℕ) :
+    (∑ j, if i = j.val + d then a * f j else 0) = a * extend f (i - d) := by
+  simp only [extend]
+  split
+  next h =>
+    let j : Fin m := ⟨(i - d).toNat, by omega⟩
+    have hj : (j.val : ℤ) = i - d := Int.toNat_of_nonneg h.1
+    have heq (k : Fin m) : (i = k.val + d) ↔ k = j := by grind
+    simp only [heq]
+    simp [j]
+  next h =>
+    have hout (j : Fin m) : i ≠ j.val + d := by omega
+    simp [hout]
+
+end Internal
+
+open Internal
 
 structure Hand (n : ℕ) where
   private mk ::
@@ -187,281 +230,6 @@ lemma sum_sequence (i : Fin (3 * n - 2)) :
   omega
 
 def Valid (c : Hand n) : Prop := ∀ i : Fin (3 * n), c i.val ≤ 4
-
-namespace Meldable
-
-structure Placement (n : ℕ) where
-  private mk ::
-  private tripNum' : Fin (3 * n) → ℕ
-  private seqNum' : Fin (3 * n - 2) → ℕ
-
-namespace Placement
-
-def ofFn (tripNum : Fin (3 * n) → ℕ) (seqNum : Fin (3 * n - 2) → ℕ) :
-    Placement n := .mk tripNum seqNum
-
-private lemma ext_raw {p q : Placement n}
-    (htrip : ∀ i, p.tripNum' i = q.tripNum' i)
-    (hseq : ∀ i, p.seqNum' i = q.seqNum' i) : p = q := by
-  cases p; cases q
-  congr <;> grind
-
-instance : Zero (Placement n) := ⟨ofFn 0 0⟩
-
-instance : Add (Placement n) :=
-  ⟨fun p q ↦ ofFn (p.tripNum' + q.tripNum') (p.seqNum' + q.seqNum')⟩
-
-instance : SMul ℕ (Placement n) :=
-  ⟨fun k p ↦ ofFn (k • p.tripNum') (k • p.seqNum')⟩
-
-instance : AddCommMonoid (Placement n) where
-  zero := 0
-  add := (· + ·)
-  nsmul := (· • ·)
-  add_assoc p q r := by apply ext_raw <;> intro i <;> exact add_assoc _ _ _
-  zero_add p := by apply ext_raw <;> intro i <;> exact zero_add _
-  add_zero p := by apply ext_raw <;> intro i <;> exact add_zero _
-  add_comm p q := by apply ext_raw <;> intro i <;> exact add_comm _ _
-  nsmul_zero k := by apply ext_raw <;> intro i <;> exact Nat.zero_mul _
-  nsmul_succ k p := by apply ext_raw <;> intro i <;> exact Nat.succ_mul k _
-
-def tripNum : Placement n →+ (ℤ → ℕ) where
-  toFun p := extend p.tripNum'
-  map_zero' := by
-    funext i
-    change extend (0 : Fin (3 * n) → ℕ) i = 0
-    exact extend_zero i
-  map_add' p q := by
-    funext i
-    change extend (p.tripNum' + q.tripNum') i =
-      extend p.tripNum' i + extend q.tripNum' i
-    exact extend_add _ _ _
-
-def seqNum : Placement n →+ (ℤ → ℕ) where
-  toFun p := extend p.seqNum'
-  map_zero' := by
-    funext i
-    change extend (0 : Fin (3 * n - 2) → ℕ) i = 0
-    exact extend_zero i
-  map_add' p q := by
-    funext i
-    change extend (p.seqNum' + q.seqNum') i =
-      extend p.seqNum' i + extend q.seqNum' i
-    exact extend_add _ _ _
-
-@[simp]
-lemma tripNum_ofFn (trip : Fin (3 * n) → ℕ) (seq : Fin (3 * n - 2) → ℕ)
-    (i : ℤ) :
-    (ofFn trip seq).tripNum i =
-      if h : 0 ≤ i ∧ i < 3 * n then trip ⟨i.toNat, by omega⟩ else 0 := by
-  rfl
-
-@[simp 1100, grind =]
-private lemma tripNum_ofFn_fin
-    (trip : Fin (3 * n) → ℕ) (seq : Fin (3 * n - 2) → ℕ)
-    (i : Fin (3 * n)) : (ofFn trip seq).tripNum i.val = trip i :=
-  extend_coe _ _
-
-@[simp]
-lemma seqNum_ofFn (trip : Fin (3 * n) → ℕ) (seq : Fin (3 * n - 2) → ℕ)
-    (i : ℤ) :
-    (ofFn trip seq).seqNum i =
-      if h : 0 ≤ i ∧ i < ((3 * n - 2 : ℕ) : ℤ) then
-        seq ⟨i.toNat, by omega⟩ else 0 := by
-  rfl
-
-@[simp 1100, grind =]
-private lemma seqNum_ofFn_fin
-    (trip : Fin (3 * n) → ℕ) (seq : Fin (3 * n - 2) → ℕ)
-    (i : Fin (3 * n - 2)) : (ofFn trip seq).seqNum i.val = seq i :=
-  extend_coe _ _
-
-@[simp, grind =]
-lemma tripNum_of_lt_zero (p : Placement n) (i : ℤ) (hi : i < 0) :
-    p.tripNum i = 0 :=
-  extend_of_lt_zero _ _ hi
-
-@[simp, grind =]
-lemma tripNum_of_ge (p : Placement n) (i : ℤ) (hi : 3 * n ≤ i) :
-    p.tripNum i = 0 :=
-  extend_of_ge _ _ hi
-
-@[simp, grind =]
-lemma seqNum_of_lt_zero (p : Placement n) (i : ℤ) (hi : i < 0) :
-    p.seqNum i = 0 :=
-  extend_of_lt_zero _ _ hi
-
-@[simp, grind =]
-lemma seqNum_of_ge (p : Placement n) (i : ℤ) (hi : (3 * n - 2 : ℕ) ≤ i) :
-    p.seqNum i = 0 :=
-  extend_of_ge _ _ hi
-
-@[ext, grind ext]
-lemma ext {p q : Placement n}
-    (htrip : ∀ i : ℤ, 0 ≤ i → i < 3 * n → p.tripNum i = q.tripNum i)
-    (hseq : ∀ i : ℤ, 0 ≤ i → i < (3 * n - 2 : ℕ) → p.seqNum i = q.seqNum i) : p = q := by
-  apply ext_raw
-  · intro i
-    simpa [tripNum] using htrip i.val (by omega) (by omega)
-  · intro i
-    simpa [seqNum] using hseq i.val (by omega) (by omega)
-
-@[grind =]
-def toHand : Placement n →+ Hand n where
-  toFun p := Hand.ofFn fun i ↦
-    3 * p.tripNum i.val + p.seqNum i.val +
-      p.seqNum ((i.val : ℤ) - 1) + p.seqNum ((i.val : ℤ) - 2)
-  map_zero' := by
-    change Hand.ofFn _ = Hand.ofFn _
-    congr 1
-    funext i
-    simp
-  map_add' _ _ := by
-    change Hand.ofFn _ = Hand.ofFn _
-    congr 1
-    funext i
-    simp [Hand.ofFn]
-    omega
-
-@[simp, grind =]
-theorem toHand_apply (p : Placement n) (i : ℤ) :
-    p.toHand i =
-      3 * p.tripNum i + p.seqNum i + p.seqNum (i - 1) + p.seqNum (i - 2) := by
-  simp only [toHand, AddMonoidHom.coe_mk, ZeroHom.coe_mk, ofFn_apply, Int.ofNat_toNat, dite_eq_ite]
-  grind
-
-@[grind =]
-theorem toHand_eq_sum (p : Placement n) :
-    p.toHand =
-      ∑ i, p.tripNum i.val • Hand.triplet i +
-        ∑ j, p.seqNum j.val • Hand.sequence j := by
-  let tripPiece (i : Fin (3 * n)) :=
-    ofFn (fun j ↦ if j = i then 1 else 0) 0
-  let seqPiece (i : Fin (3 * n - 2)) :=
-    ofFn 0 (fun j ↦ if j = i then 1 else 0)
-  have hdecomp :
-      p = ∑ i, p.tripNum i.val • tripPiece i +
-        ∑ j, p.seqNum j.val • seqPiece j := by
-    apply ext <;> intro i <;> simp [tripPiece, seqPiece] <;> grind
-  have htrip (i : Fin (3 * n)) : (tripPiece i).toHand = Hand.triplet i := by
-    ext k
-    simp [toHand_apply, Hand.triplet_apply, tripPiece, tripNum, seqNum, ofFn]
-  have hseq (i : Fin (3 * n - 2)) : (seqPiece i).toHand = Hand.sequence i := by
-    ext k
-    simp [toHand_apply, Hand.sequence_apply, seqPiece, tripNum, seqNum, ofFn]
-    split_ifs <;> omega
-  calc
-    p.toHand =
-        (∑ i, p.tripNum i.val • tripPiece i +
-          ∑ j, p.seqNum j.val • seqPiece j).toHand := congrArg toHand hdecomp
-    _ = _ := by simp [htrip, hseq]
-
-end Placement
-
-def IsWitness (p : Meldable.Placement n) (c : Hand n) : Prop := p.toHand = c
-
-@[grind ←]
-lemma IsWitness.add {p q : Meldable.Placement n} {c d : Hand n}
-    (hp : IsWitness p c) (hq : IsWitness q d) :
-    IsWitness (p + q) (c + d) := by
-  grind [IsWitness]
-
-@[simp]
-lemma IsWitness.zero : IsWitness (0 : Meldable.Placement n) (0 : Hand n) := by simp [IsWitness]
-
-@[grind ←]
-lemma IsWitness.nsmul {p : Meldable.Placement n} {c : Hand n}
-    (hp : IsWitness p c) (k : ℕ) : IsWitness (k • p) (k • c) := by
-  grind [IsWitness]
-
-end Meldable
-
-def Meldable (c : Hand n) : Prop := ∃ p : Meldable.Placement n, Meldable.IsWitness p c
-
-namespace Meldable
-
-@[simp]
-lemma sequence {i : Fin (3 * n - 2)} : Meldable (sequence i) := by
-  refine ⟨Placement.ofFn 0 (fun j ↦ if j = i then 1 else 0), ?_⟩
-  unfold IsWitness
-  rw [Placement.toHand_eq_sum]
-  simp
-
-@[simp]
-lemma triplet {i : Fin (3 * n)} : Meldable (triplet i) := by
-  refine ⟨Placement.ofFn (fun j ↦ if j = i then 1 else 0) 0, ?_⟩
-  unfold IsWitness
-  rw [Placement.toHand_eq_sum]
-  simp
-
-@[grind ←]
-lemma add {c d : Hand n} (hc : Meldable c) (hd : Meldable d) :
-    Meldable (c + d) := by
-  obtain ⟨p, hp⟩ := hc
-  obtain ⟨q, hq⟩ := hd
-  exact ⟨p + q, hp.add hq⟩
-
-@[simp]
-lemma zero : Meldable (0 : Hand n) := ⟨0, IsWitness.zero⟩
-
-@[grind ←]
-lemma nsmul {c : Hand n} (hc : Meldable c) (a : ℕ) :
-    Meldable (a • c) := by
-  obtain ⟨p, hp⟩ := hc
-  exact ⟨a • p, hp.nsmul a⟩
-
-lemma finset_sum {ι : Type*} {s : Finset ι} {f : ι → Hand n}
-    (hf : ∀ i ∈ s, Meldable (f i)) : Meldable (∑ i ∈ s, f i) := by
-  classical
-  induction s using Finset.induction_on with
-  | empty => simp
-  | @insert i s hi ih =>
-      simpa only [Finset.sum_insert hi] using
-        Meldable.add (hf i (Finset.mem_insert_self i s))
-          (ih fun j hj => hf j (Finset.mem_insert_of_mem hj))
-
-@[grind →]
-theorem size_mod_three {c : Hand n} (hc : Meldable c) :
-    size c % 3 = 0 := by
-  obtain ⟨p, rfl⟩ := hc
-  rw [Placement.toHand_eq_sum, map_add, map_sum, map_sum]
-  simp only [map_nsmul, size_triplet, size_sequence, smul_eq_mul]
-  rw [← Finset.sum_mul, ← Finset.sum_mul, ← add_mul, Nat.mul_mod_left]
-
-@[grind →]
-theorem sum_mod_three {c : Hand n} (hc : Meldable c) :
-    sum c % 3 = 0 := by
-  obtain ⟨p, rfl⟩ := hc
-  rw [Placement.toHand_eq_sum, map_add, map_sum, map_sum]
-  simp only [map_nsmul, sum_triplet, sum_sequence, smul_eq_mul]
-  simp_rw [mul_comm 3, ← mul_assoc]
-  rw [← Finset.sum_mul, ← Finset.sum_mul, ← add_mul, Nat.mul_mod_left]
-
-end Meldable
-
-def Winning (c : Hand n) : Prop :=
-  Valid c ∧ size c = 3 * n + 5 ∧
-    ∃ (d : Hand n) (i : Fin (3 * n)), Meldable d ∧ c = d + pair i
-
-@[grind →]
-lemma Winning.size {c : Hand n} (hc : Winning c) : size c = 3 * n + 5 := hc.2.1
-
-def IsWinningTile (c : Hand n) (i : Fin (3 * n)) : Prop := Winning (c + single i)
-
-def IsWait (c : Hand n) : Prop := ∃ i, Winning (c + single i)
-
-@[grind →]
-lemma IsWait.Valid (c : Hand n) (hc : IsWait c) : Valid c := by
-  grind [IsWait, Winning, Valid]
-
-def IsFullWait (c : Hand n) : Prop := ∀ i, Winning (c + single i)
-
-@[grind →]
-lemma IsFullWait.size (hn : 0 < n) {c : Hand n} (hc : IsFullWait c) :
-    size c = 3 * n + 4 := by
-  let i : Fin (3 * n) := ⟨0, by omega⟩
-  have hsize := (hc i).size
-  grind
 
 end Hand
 

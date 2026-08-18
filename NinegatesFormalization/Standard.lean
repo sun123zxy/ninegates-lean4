@@ -1,4 +1,4 @@
-import NinegatesFormalization.Basic
+import NinegatesFormalization.Winning
 
 namespace Mahjong.Hand
 
