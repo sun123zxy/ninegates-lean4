@@ -101,7 +101,7 @@ instance : FunLike (Hand n) ℤ ℕ where
     funext i
     simpa using congrFun h i.val
 
-@[simp]
+@[grind =]
 lemma ofFn_apply (f : Fin (3 * n) → ℕ) (i : ℤ) :
     ofFn f i =
       if h : 0 ≤ i ∧ i < 3 * n then f ⟨i.toNat, by omega⟩ else 0 := by
@@ -172,7 +172,7 @@ def sum : Hand n →+ ℕ where
 @[grind =]
 def single (i : Fin (3 * n)) : Hand n := ofFn fun j ↦ if j = i then 1 else 0
 
-@[simp, grind =]
+@[grind =]
 lemma single_apply (i : Fin (3 * n)) (j : ℤ) :
     single i j = if j = i.val then 1 else 0 :=
   extend_single 1 i j
@@ -186,9 +186,9 @@ lemma sum_single (i : Fin (3 * n)) : sum (single i) = i.val := by simp [sum, sin
 @[grind =]
 def pair (i : Fin (3 * n)) : Hand n := 2 • single i
 
-@[simp, grind =]
+@[grind =]
 lemma pair_apply (i : Fin (3 * n)) (j : ℤ) :
-    pair i j = if j = i.val then 2 else 0 := by simp [pair]
+    pair i j = if j = i.val then 2 else 0 := by grind [pair]
 
 @[simp, grind =]
 lemma size_pair (i : Fin (3 * n)) : size (pair i) = 2 := by simp [pair]
@@ -199,9 +199,9 @@ lemma sum_pair (i : Fin (3 * n)) : sum (pair i) = 2 * i.val := by simp [pair]
 @[grind =]
 def triplet (i : Fin (3 * n)) : Hand n := 3 • single i
 
-@[simp, grind =]
+@[grind =]
 lemma triplet_apply (i : Fin (3 * n)) (j : ℤ) :
-    triplet i j = if j = i.val then 3 else 0 := by simp [triplet]
+    triplet i j = if j = i.val then 3 else 0 := by grind [triplet]
 
 @[simp, grind =]
 lemma size_triplet (i : Fin (3 * n)) : size (triplet i) = 3 := by simp [triplet]
@@ -213,7 +213,7 @@ lemma sum_triplet (i : Fin (3 * n)) : sum (triplet i) = 3 * i.val := by simp [tr
 def sequence (i : Fin (3 * n - 2)) : Hand n :=
   single ⟨i, by omega⟩ + single ⟨i + 1, by omega⟩ + single ⟨i + 2, by omega⟩
 
-@[simp, grind =]
+@[grind =]
 lemma sequence_apply (i : Fin (3 * n - 2)) (j : ℤ) :
     sequence i j =
       if j = i.val ∨ j = i.val + 1 ∨ j = i.val + 2 then 1 else 0 := by

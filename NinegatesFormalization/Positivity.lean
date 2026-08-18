@@ -11,7 +11,7 @@ private lemma winning_sides_at_zero {w : Hand n} (hw : Winning w)
       size (restrictGT k.val w) % 3 = 0 ∧ Meldable (restrictGT k.val w)) ∨
     (size (restrictLT k.val w) % 3 = 0 ∧
       size (restrictGT k.val w) % 3 = 2 ∧ Meldable (restrictLT k.val w)) := by
-  grind [Winning]
+  grind [Winning, → Meldable.split_at_zero, → Meldable.size_mod_three]
 
 theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
     ∀ i : Fin (3 * n), 0 < i.val ∧ i.val < 3 * n - 1 → 0 < c i.val := by
@@ -45,16 +45,20 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
     let i₁ : Fin (3 * n) := ⟨1, by omega⟩
     have hi₀ : i₀ < k := by grind
     have hi₁ : i₁ < k := by grind
-    have hsum₀ : (sum (restrictLT k.val c) + 0) % 3 = 0 := by grind
-    have hsum₁ : (sum (restrictLT k.val c) + 1) % 3 = 0 := by grind
+    have hsum₀ : (sum (restrictLT k.val c) + 0) % 3 = 0 := by
+      grind [→ Meldable.sum_mod_three]
+    have hsum₁ : (sum (restrictLT k.val c) + 1) % 3 = 0 := by
+      grind [→ Meldable.sum_mod_three]
     grind
   · have hkval : k.val = 1 := by omega
     let i₂ : Fin (3 * n) := ⟨2, lt_of_lt_of_le (by norm_num) (Nat.mul_le_mul_left 3 hn)⟩
     let i₃ : Fin (3 * n) := ⟨3, lt_of_lt_of_le (by norm_num) (Nat.mul_le_mul_left 3 hn)⟩
     have hi₂ : k < i₂ := by grind
     have hi₃ : k < i₃ := by grind
-    have hsum₂ : (sum (restrictGT k.val c) + 2) % 3 = 0 := by grind
-    have hsum₃ : (sum (restrictGT k.val c) + 3) % 3 = 0 := by grind
+    have hsum₂ : (sum (restrictGT k.val c) + 2) % 3 = 0 := by
+      grind [→ Meldable.sum_mod_three]
+    have hsum₃ : (sum (restrictGT k.val c) + 3) % 3 = 0 := by
+      grind [→ Meldable.sum_mod_three]
     grind
 
 end Mahjong.Hand

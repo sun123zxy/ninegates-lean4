@@ -13,7 +13,7 @@ private def insertSeqAt' (c : Hand n) (k : Fin (3 * n + 1)) :
 def insertSeqAt (c : Hand n) (k : Fin (3 * n + 1)) : Hand (n + 1) :=
   Hand.ofFn (insertSeqAt' c k)
 
-@[simp]
+@[simp, grind =]
 private lemma insertSeqAt_apply (c : Hand n) (k : Fin (3 * n + 1))
     (i : Fin (3 * n + 3)) : c.insertSeqAt k i.val = insertSeqAt' c k i := by
   simp only [insertSeqAt, Hand.ofFn_apply]
@@ -22,7 +22,7 @@ private lemma insertSeqAt_apply (c : Hand n) (k : Fin (3 * n + 1))
     congr
   · omega
 
-@[simp]
+@[simp, grind =]
 lemma insertSeqAt_apply_zero (c : Hand n) (k : Fin (3 * n + 1)) :
     c.insertSeqAt k k.castSucc.castSucc.val = 1 := by
   calc
@@ -30,7 +30,7 @@ lemma insertSeqAt_apply_zero (c : Hand n) (k : Fin (3 * n + 1)) :
         insertSeqAt' c k k.castSucc.castSucc := insertSeqAt_apply c k _
     _ = 1 := by simp [insertSeqAt']
 
-@[simp]
+@[simp, grind =]
 lemma insertSeqAt_apply_one (c : Hand n) (k : Fin (3 * n + 1)) :
     c.insertSeqAt k k.succ.castSucc.val = 1 := by
   simp only [insertSeqAt_apply]
@@ -40,7 +40,7 @@ lemma insertSeqAt_apply_one (c : Hand n) (k : Fin (3 * n + 1)) :
     grind [Fin.succAbove]
   rw [hpos, Fin.insertNth_apply_succAbove, Fin.insertNth_apply_same]
 
-@[simp]
+@[simp, grind =]
 lemma insertSeqAt_apply_two (c : Hand n) (k : Fin (3 * n + 1)) :
     c.insertSeqAt k k.succ.succ.val = 1 := by
   simp only [insertSeqAt_apply]

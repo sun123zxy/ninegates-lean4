@@ -43,54 +43,33 @@ lemma tripNum_canonicalize (p : Placement n) (i : ℤ) :
     p.canonicalize.tripNum i =
       p.tripNum i + p.seqNum i / 3 +
         p.seqNum (i - 1) / 3 + p.seqNum (i - 2) / 3 := by
-  simp [canonicalize]
-  grind
+  grind [= canonicalize]
 
 @[simp, grind =]
 lemma seqNum_canonicalize (p : Placement n) (i : ℤ) :
     p.canonicalize.seqNum i = p.seqNum i % 3 := by
-  simp [canonicalize]
-  grind
+  grind [= canonicalize]
 
 @[simp]
 lemma Canonical.canonicalize (p : Placement n) : p.canonicalize.Canonical := by
-  intro i
-  simp only [seqNum_canonicalize]
-  exact Nat.mod_lt _ (by omega)
+  grind [= Canonical]
 
-@[simp, grind =]
+@[simp]
 theorem toHand_canonicalize (p : Placement n) :
     p.canonicalize.toHand = p.toHand := by
   ext i
-  simp only [toHand_apply, tripNum_canonicalize, seqNum_canonicalize]
-  omega
+  grind
 
-@[grind =]
 theorem Canonical.iff_canonicalize_eq_self (p : Placement n) :
     p.Canonical ↔ p.canonicalize = p := by
-  constructor
-  · intro hp
-    apply ext <;> intro i _ _
-    · simp only [tripNum_canonicalize]
-      have hi := hp i
-      have hi₁ := hp (i - 1)
-      have hi₂ := hp (i - 2)
-      omega
-    · simp only [seqNum_canonicalize]
-      have hi := hp i
-      omega
-  · intro h i
-    have hi := congrArg (fun q : Placement n ↦ q.seqNum i) h
-    simp only [seqNum_canonicalize] at hi
-    omega
+  grind [= Canonical]
 
-@[simp, grind =]
+@[simp]
 theorem canonicalize_idem (p : Placement n) :
     p.canonicalize.canonicalize = p.canonicalize := by
   exact (Canonical.iff_canonicalize_eq_self p.canonicalize).mp
     (Canonical.canonicalize p)
 
-@[grind →]
 theorem Canonical.unique {p q : Placement n}
     (hp : p.Canonical) (hq : q.Canonical) (h : p.toHand = q.toHand) :
     p = q := by

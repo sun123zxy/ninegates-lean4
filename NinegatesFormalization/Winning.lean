@@ -27,20 +27,17 @@ def Winning (c : Hand n) : Prop :=
   Valid c ∧ size c = 3 * n + 5 ∧
     ∃ (d : Hand n) (i : Fin (3 * n)), Meldable d ∧ c = d + pair i
 
-@[grind →]
 lemma Winning.size {c : Hand n} (hc : Winning c) : size c = 3 * n + 5 := hc.2.1
 
 def IsWinningTile (c : Hand n) (i : Fin (3 * n)) : Prop := Winning (c + single i)
 
 def IsWait (c : Hand n) : Prop := ∃ i, Winning (c + single i)
 
-@[grind →]
 lemma IsWait.Valid (c : Hand n) (hc : IsWait c) : Valid c := by
   grind [IsWait, Winning, Valid]
 
 def IsFullWait (c : Hand n) : Prop := ∀ i, Winning (c + single i)
 
-@[grind →]
 lemma IsFullWait.size (hn : 0 < n) {c : Hand n} (hc : IsFullWait c) :
     size c = 3 * n + 4 := by
   let i : Fin (3 * n) := ⟨0, by omega⟩

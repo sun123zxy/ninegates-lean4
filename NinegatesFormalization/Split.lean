@@ -14,13 +14,13 @@ def filter (keep : ℤ → Prop) [DecidablePred keep] : Hand n →+ Hand n where
   toFun c := Hand.ofFn (filterFn keep fun i ↦ c i.val)
   map_zero' := by
     ext i
-    simp [filterFn]
+    simp [filterFn, Hand.ofFn_apply]
   map_add' _ _ := by
     ext i
     simp [filterFn]
     all_goals grind
 
-@[simp, grind =]
+@[grind =]
 theorem filter_apply (keep : ℤ → Prop) [DecidablePred keep]
     (c : Hand n) (i : ℤ) :
     filter keep c i = if keep i then c i else 0 := by
@@ -31,15 +31,15 @@ def restrictLT (k : ℤ) : Hand n →+ Hand n := filter (· < k)
 
 def restrictGT (k : ℤ) : Hand n →+ Hand n := filter (k < ·)
 
-@[simp, grind =]
+@[grind =]
 theorem restrictLT_apply (k : ℤ) (c : Hand n) (i : ℤ) :
     restrictLT k c i = if i < k then c i else 0 := by
-  simp [restrictLT]
+  grind [restrictLT]
 
-@[simp, grind =]
+@[grind =]
 theorem restrictGT_apply (k : ℤ) (c : Hand n) (i : ℤ) :
     restrictGT k c i = if k < i then c i else 0 := by
-  simp [restrictGT]
+  grind [restrictGT]
 
 namespace Meldable.Placement
 
@@ -53,7 +53,7 @@ def filter
   map_add' _ _ := by
     congr 1 <;> funext i <;> simp [filterFn, Placement.ofFn] <;> split <;> simp_all
 
-@[simp, grind =]
+@[grind =]
 theorem tripNum_filter (tripKeep seqKeep : ℤ → Prop)
     [DecidablePred tripKeep] [DecidablePred seqKeep]
     (p : Placement n) (i : ℤ) :
@@ -62,7 +62,7 @@ theorem tripNum_filter (tripKeep seqKeep : ℤ → Prop)
   simp [filter, filterFn, Placement.tripNum_ofFn]
   all_goals grind
 
-@[simp, grind =]
+@[grind =]
 theorem seqNum_filter (tripKeep seqKeep : ℤ → Prop)
     [DecidablePred tripKeep] [DecidablePred seqKeep]
     (p : Placement n) (i : ℤ) :
@@ -77,53 +77,45 @@ def restrictLT (k : ℤ) : Placement n →+ Placement n :=
 def restrictGT (k : ℤ) : Placement n →+ Placement n :=
   filter (k < ·) (k < ·)
 
-@[simp, grind =]
+@[grind =]
 theorem tripNum_restrictLT (k : ℤ) (p : Placement n) (i : ℤ) :
     (restrictLT k p).tripNum i = if i < k then p.tripNum i else 0 := by
-  simp [restrictLT]
+  grind [restrictLT]
 
-@[simp, grind =]
+@[grind =]
 theorem seqNum_restrictLT (k : ℤ) (p : Placement n) (i : ℤ) :
     (restrictLT k p).seqNum i = if i + 2 < k then p.seqNum i else 0 := by
-  simp [restrictLT]
+  grind [restrictLT]
 
-@[simp, grind =]
+@[grind =]
 theorem tripNum_restrictGT (k : ℤ) (p : Placement n) (i : ℤ) :
     (restrictGT k p).tripNum i = if k < i then p.tripNum i else 0 := by
-  simp [restrictGT]
+  grind [restrictGT]
 
-@[simp, grind =]
+@[grind =]
 theorem seqNum_restrictGT (k : ℤ) (p : Placement n) (i : ℤ) :
     (restrictGT k p).seqNum i = if k < i then p.seqNum i else 0 := by
-  simp [restrictGT]
+  grind [restrictGT]
 
 end Meldable.Placement
 
 @[simp, grind =]
 theorem restrictLT_single_of_lt (k : ℤ) (i : Fin (3 * n)) (hi : i.val < k) :
-    restrictLT k (single i) = single i := by
-  apply Hand.ext
-  grind
+    restrictLT k (single i) = single i := by ext j; grind
 
 @[simp, grind =]
 theorem restrictLT_single_of_not_lt
     (k : ℤ) (i : Fin (3 * n)) (hi : ¬(i.val : ℤ) < k) :
-    restrictLT k (single i) = 0 := by
-  apply Hand.ext
-  grind
+    restrictLT k (single i) = 0 := by ext j; grind
 
 @[simp, grind =]
 theorem restrictGT_single_of_gt (k : ℤ) (i : Fin (3 * n)) (hi : k < i.val) :
-    restrictGT k (single i) = single i := by
-  apply Hand.ext
-  grind
+    restrictGT k (single i) = single i := by ext j; grind
 
 @[simp, grind =]
 theorem restrictGT_single_of_not_gt
     (k : ℤ) (i : Fin (3 * n)) (hi : ¬k < (i.val : ℤ)) :
-    restrictGT k (single i) = 0 := by
-  apply Hand.ext
-  grind
+    restrictGT k (single i) = 0 := by ext j; grind
 
 @[simp, grind =]
 theorem restrictLT_pair_of_lt (k : ℤ) (i : Fin (3 * n)) (hi : i.val < k) :
@@ -143,7 +135,6 @@ theorem restrictGT_pair_of_not_gt
     (k : ℤ) (i : Fin (3 * n)) (hi : ¬k < (i.val : ℤ)) :
     restrictGT k (pair i) = 0 := by simp [pair, hi]
 
-@[grind →]
 theorem Meldable.IsWitness.split_at_zero {p : Meldable.Placement n} {c : Hand n}
     (hp : IsWitness p c) (k : ℤ) (hk : c k = 0) :
     IsWitness (Meldable.Placement.restrictLT k p) (restrictLT k c) ∧
@@ -152,10 +143,11 @@ theorem Meldable.IsWitness.split_at_zero {p : Meldable.Placement n} {c : Hand n}
     Placement.seqNum_restrictLT, restrictGT_apply, Placement.tripNum_restrictGT,
     Placement.seqNum_restrictGT]
 
-@[grind →]
 theorem Meldable.split_at_zero {c : Hand n} (hc : Meldable c)
     (k : ℤ) (hk : c k = 0) :
     Meldable (restrictLT k c) ∧ Meldable (restrictGT k c) := by
-  grind [Meldable]
+  obtain ⟨p, hp⟩ := hc
+  have ⟨hLT, hGT⟩ := hp.split_at_zero k hk
+  exact ⟨⟨p.restrictLT k, hLT⟩, ⟨p.restrictGT k, hGT⟩⟩
 
 end Mahjong.Hand

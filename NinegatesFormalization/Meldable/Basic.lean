@@ -88,7 +88,7 @@ def seqNum : Placement n →+ (ℤ → ℕ) where
       extend p.seqNum' i + extend q.seqNum' i
     exact extend_add _ _ _
 
-@[simp]
+@[grind =]
 lemma tripNum_ofFn (trip : Fin (3 * n) → ℕ) (seq : Fin (3 * n - 2) → ℕ)
     (i : ℤ) :
     (ofFn trip seq).tripNum i =
@@ -101,7 +101,7 @@ private lemma tripNum_ofFn_fin
     (i : Fin (3 * n)) : (ofFn trip seq).tripNum i.val = trip i :=
   extend_coe _ _
 
-@[simp]
+@[grind =]
 lemma seqNum_ofFn (trip : Fin (3 * n) → ℕ) (seq : Fin (3 * n - 2) → ℕ)
     (i : ℤ) :
     (ofFn trip seq).seqNum i =
@@ -174,7 +174,8 @@ theorem toHand_apply (p : Placement n) (i : ℤ) :
   have hseq₁ := hseq 1
   have hseq₂ := hseq 2
   norm_num at hseq₀ hseq₁ hseq₂
-  simp [toHand, Hand.triplet, Hand.sequence, Finset.sum_add_distrib]
+  simp [toHand, Hand.triplet, Hand.sequence, Hand.single_apply,
+    Finset.sum_add_distrib]
   simp only [htrip, hseq₀, hseq₁, hseq₂]
   omega
 
@@ -205,16 +206,12 @@ namespace Meldable
 @[simp]
 lemma sequence {i : Fin (3 * n - 2)} : Meldable (sequence i) := by
   refine ⟨Placement.ofFn 0 (fun j ↦ if j = i then 1 else 0), ?_⟩
-  unfold IsWitness
-  rw [Placement.toHand_eq_sum]
-  simp
+  simp [IsWitness, Placement.toHand_eq_sum]
 
 @[simp]
 lemma triplet {i : Fin (3 * n)} : Meldable (triplet i) := by
   refine ⟨Placement.ofFn (fun j ↦ if j = i then 1 else 0) 0, ?_⟩
-  unfold IsWitness
-  rw [Placement.toHand_eq_sum]
-  simp
+  simp [IsWitness, Placement.toHand_eq_sum]
 
 @[grind ←]
 lemma add {c d : Hand n} (hc : Meldable c) (hd : Meldable d) :
@@ -242,7 +239,6 @@ lemma finset_sum {ι : Type*} {s : Finset ι} {f : ι → Hand n}
         Meldable.add (hf i (Finset.mem_insert_self i s))
           (ih fun j hj => hf j (Finset.mem_insert_of_mem hj))
 
-@[grind →]
 theorem size_mod_three {c : Hand n} (hc : Meldable c) :
     size c % 3 = 0 := by
   obtain ⟨p, rfl⟩ := hc
@@ -250,7 +246,6 @@ theorem size_mod_three {c : Hand n} (hc : Meldable c) :
   simp only [map_nsmul, size_triplet, size_sequence, smul_eq_mul]
   rw [← Finset.sum_mul, ← Finset.sum_mul, ← add_mul, Nat.mul_mod_left]
 
-@[grind →]
 theorem sum_mod_three {c : Hand n} (hc : Meldable c) :
     sum c % 3 = 0 := by
   obtain ⟨p, rfl⟩ := hc
