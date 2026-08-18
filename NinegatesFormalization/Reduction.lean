@@ -22,7 +22,27 @@ lemma insertSeqAt_apply (c : Hand n) (k : Fin (3 * n + 1)) (i : ℤ) :
 
 @[grind =] private lemma size_insertSeqAt (c : Hand n) (k : Fin (3 * n + 1)) :
     size (c.insertSeqAt k) = size c + 3 := by
-  sorry
+  change (∑ i : Fin (3 * n + 3), c.insertSeqAt k i.val) =
+    ∑ i : Fin (3 * n), c i.val + 3
+  rw [Fin.sum_univ_eq_sum_range (fun i ↦ c.insertSeqAt k i) (3 * n + 3)]
+  rw [Fin.sum_univ_eq_sum_range (fun i ↦ c i) (3 * n)]
+  have hk₀ : k.val + (3 * n - k.val) = 3 * n := by omega
+  have hk : k.val + 3 + (3 * n - k.val) = 3 * n + 3 := by omega
+  conv_lhs => rw [← hk, Finset.sum_range_add, Finset.sum_range_add]
+  conv_rhs => rw [← hk₀, Finset.sum_range_add]
+  have hpre :
+      (∑ i ∈ Finset.range k.val, c.insertSeqAt k i) =
+        ∑ i ∈ Finset.range k.val, c i := by
+    apply Finset.sum_congr rfl; grind
+  have hmid :
+      (∑ i ∈ Finset.range 3, c.insertSeqAt k (k.val + i)) = 3 := by
+    norm_num [Finset.sum_range_succ]; grind
+  have hpost :
+      (∑ i ∈ Finset.range (3 * n - k.val),
+        c.insertSeqAt k (k.val + 3 + i)) =
+          ∑ i ∈ Finset.range (3 * n - k.val), c (k.val + i) := by
+    apply Finset.sum_congr rfl; grind
+  grind
 
 private def removeSeqAt (c : Hand (n + 1)) (k : Fin (3 * n + 1)) : Hand n :=
   Hand.ofFn fun i ↦
