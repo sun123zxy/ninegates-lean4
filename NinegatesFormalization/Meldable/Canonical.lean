@@ -38,39 +38,89 @@ def canonicalize (p : Placement n) : Placement n :=
         p.seqNum ((i.val : ℤ) - 2) / 3)
     (fun i ↦ p.seqNum i.val % 3)
 
-@[simp]
+@[simp, grind =]
 lemma tripNum_canonicalize (p : Placement n) (i : ℤ) :
     p.canonicalize.tripNum i =
       p.tripNum i + p.seqNum i / 3 +
         p.seqNum (i - 1) / 3 + p.seqNum (i - 2) / 3 := by
-  sorry
+  simp [canonicalize]
+  grind
 
-@[simp]
+@[simp, grind =]
 lemma seqNum_canonicalize (p : Placement n) (i : ℤ) :
     p.canonicalize.seqNum i = p.seqNum i % 3 := by
-  sorry
-
-lemma Canonical.canonicalize (p : Placement n) : p.canonicalize.Canonical := by
-  sorry
+  simp [canonicalize]
+  grind
 
 @[simp]
+lemma Canonical.canonicalize (p : Placement n) : p.canonicalize.Canonical := by
+  intro i
+  simp only [seqNum_canonicalize]
+  exact Nat.mod_lt _ (by omega)
+
+@[simp, grind =]
 theorem toHand_canonicalize (p : Placement n) :
     p.canonicalize.toHand = p.toHand := by
-  sorry
+  ext i
+  simp only [toHand_apply, tripNum_canonicalize, seqNum_canonicalize]
+  omega
 
+@[grind =]
 theorem Canonical.iff_canonicalize_eq_self (p : Placement n) :
     p.Canonical ↔ p.canonicalize = p := by
-  sorry
+  constructor
+  · intro hp
+    apply ext <;> intro i _ _
+    · simp only [tripNum_canonicalize]
+      have hi := hp i
+      have hi₁ := hp (i - 1)
+      have hi₂ := hp (i - 2)
+      omega
+    · simp only [seqNum_canonicalize]
+      have hi := hp i
+      omega
+  · intro h i
+    have hi := congrArg (fun q : Placement n ↦ q.seqNum i) h
+    simp only [seqNum_canonicalize] at hi
+    omega
 
-@[simp]
+@[simp, grind =]
 theorem canonicalize_idem (p : Placement n) :
     p.canonicalize.canonicalize = p.canonicalize := by
-  sorry
+  exact (Canonical.iff_canonicalize_eq_self p.canonicalize).mp
+    (Canonical.canonicalize p)
 
+@[grind →]
 theorem Canonical.unique {p q : Placement n}
     (hp : p.Canonical) (hq : q.Canonical) (h : p.toHand = q.toHand) :
     p = q := by
-  sorry
+  have hcoord : ∀ k : ℕ, k < 3 * n →
+      p.tripNum k = q.tripNum k ∧ p.seqNum k = q.seqNum k := by
+    intro k
+    induction k using Nat.strong_induction_on with
+    | h k ih =>
+      intro hk
+      have hprev₁ : p.seqNum ((k : ℤ) - 1) = q.seqNum ((k : ℤ) - 1) := by
+        cases k with
+        | zero => simp
+        | succ k => simpa using (ih k (by omega) (by omega)).2
+      have hprev₂ : p.seqNum ((k : ℤ) - 2) = q.seqNum ((k : ℤ) - 2) := by
+        cases k with
+        | zero => simp
+        | succ k =>
+          cases k with
+          | zero => simp
+          | succ k =>
+            have hk : ((k + 1 + 1 : ℕ) : ℤ) - 2 = k := by omega
+            simpa only [hk] using (ih k (by omega) (by omega)).2
+      have hhand := congrArg (fun c : Hand n ↦ c k) h
+      simp only [toHand_apply] at hhand
+      have hpk := hp k
+      have hqk := hq k
+      constructor <;> omega
+  apply ext <;> intro i hi₀ hi₁
+  · simpa [Int.toNat_of_nonneg hi₀] using (hcoord i.toNat (by omega)).1
+  · simpa [Int.toNat_of_nonneg hi₀] using (hcoord i.toNat (by omega)).2
 
 end Placement
 
@@ -79,6 +129,11 @@ variable {n : ℕ}
 /-- A hand is meldable exactly when it has a canonical placement. -/
 theorem iff_exists_canonical_witness (c : Hand n) :
     Meldable c ↔ ∃ p, IsWitness p c ∧ p.Canonical := by
-  sorry
+  constructor
+  · rintro ⟨p, hp⟩
+    refine ⟨p.canonicalize, ?_, Placement.Canonical.canonicalize p⟩
+    simpa [IsWitness] using hp
+  · rintro ⟨p, hp, _⟩
+    exact ⟨p, hp⟩
 
 end Mahjong.Hand.Meldable
