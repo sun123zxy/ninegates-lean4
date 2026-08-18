@@ -160,7 +160,7 @@ instance : AddCommMonoid (Hand n) where
   nsmul_succ k c := by ext i; simp [Nat.succ_mul, add_comm]
 
 def size : Hand n →+ ℕ where
-  toFun c := ∑ i : Fin (3 * n), c i.val
+  toFun c := ∑ i : Fin (3 * n), c i
   map_zero' := by simp
   map_add' _ _ := by simp [Finset.sum_add_distrib]
 
@@ -178,10 +178,12 @@ lemma single_apply (i : Fin (3 * n)) (j : ℤ) :
   extend_single 1 i j
 
 @[simp, grind =]
-lemma size_single (i : Fin (3 * n)) : size (single i) = 1 := by simp [size, single]
+lemma size_single (i : Fin (3 * n)) : size (single i) = 1 := by
+  simp [size, single]
 
 @[simp, grind =]
-lemma sum_single (i : Fin (3 * n)) : sum (single i) = i.val := by simp [sum, single]
+lemma sum_single (i : Fin (3 * n)) : sum (single i) = i.val := by
+  simp [sum, single]
 
 @[grind =]
 def pair (i : Fin (3 * n)) : Hand n := 2 • single i

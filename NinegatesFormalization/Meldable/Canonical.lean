@@ -34,8 +34,8 @@ def canonicalize (p : Placement n) : Placement n :=
   ofFn
     (fun i ↦
       p.tripNum i.val + p.seqNum i.val / 3 +
-        p.seqNum ((i.val : ℤ) - 1) / 3 +
-        p.seqNum ((i.val : ℤ) - 2) / 3)
+        p.seqNum (i.val - 1) / 3 +
+        p.seqNum (i.val - 2) / 3)
     (fun i ↦ p.seqNum i.val % 3)
 
 @[simp, grind =]

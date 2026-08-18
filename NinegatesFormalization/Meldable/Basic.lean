@@ -162,12 +162,12 @@ lemma toHand_apply (p : Placement n) (i : ℤ) :
     p.toHand i =
       3 * p.tripNum i + p.seqNum i + p.seqNum (i - 1) + p.seqNum (i - 2) := by
   have htrip :
-      (∑ j : Fin (3 * n), if i = (j.val : ℤ) then p.tripNum j.val * 3 else 0) =
+      (∑ j : Fin (3 * n), if i = j.val then p.tripNum j.val * 3 else 0) =
         p.tripNum i * 3 := by
     simpa [tripNum, mul_comm] using sum_ite_eq_extend 3 p.tripNum' i 0
   have hseq (d : ℕ) :
       (∑ j : Fin (3 * n - 2),
-        if i = (j.val : ℤ) + d then p.seqNum j.val else 0) =
+        if i = j.val + d then p.seqNum j.val else 0) =
         p.seqNum (i - d) := by
     simpa [seqNum] using sum_ite_eq_extend 1 p.seqNum' i d
   have hseq₀ := hseq 0

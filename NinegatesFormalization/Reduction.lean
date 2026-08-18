@@ -9,7 +9,7 @@ def insertSeqAt (c : Hand n) (k : Fin (3 * n + 1)) : Hand (n + 1) :=
   Hand.ofFn fun i ↦
     if (i.val : ℤ) < k.val then c i.val
     else if (i.val : ℤ) < k.val + 3 then 1
-    else c ((i.val : ℤ) - 3)
+    else c (i.val - 3)
 
 @[grind =]
 lemma insertSeqAt_apply (c : Hand n) (k : Fin (3 * n + 1)) (i : ℤ) :
@@ -17,8 +17,7 @@ lemma insertSeqAt_apply (c : Hand n) (k : Fin (3 * n + 1)) (i : ℤ) :
       if i < k.val then c i
       else if i < k.val + 3 then 1
       else c (i - 3) := by
-  simp only [insertSeqAt, Hand.ofFn_apply]
-  split <;> grind
+  rw [insertSeqAt, Hand.ofFn_apply]; grind
 
 @[grind =] private lemma size_insertSeqAt (c : Hand n) (k : Fin (3 * n + 1)) :
     size (c.insertSeqAt k) = size c + 3 := by
@@ -46,11 +45,11 @@ lemma insertSeqAt_apply (c : Hand n) (k : Fin (3 * n + 1)) (i : ℤ) :
 
 private def removeSeqAt (c : Hand (n + 1)) (k : Fin (3 * n + 1)) : Hand n :=
   Hand.ofFn fun i ↦
-    if (i.val : ℤ) < k.val then c i.val else c ((i.val : ℤ) + 3)
+    if (i.val : ℤ) < k.val then c i.val else c (i.val + 3)
 
 private lemma insertSeqAt_removeSeqAt (c : Hand (n + 1))
     (k : Fin (3 * n + 1)) (h₀ : c k.val = 1)
-    (h₁ : c (↑(k.val + 1) : ℤ) = 1) (h₂ : c (↑(k.val + 2) : ℤ) = 1) :
+    (h₁ : c (k.val + 1) = 1) (h₂ : c (k.val + 2) = 1) :
     (removeSeqAt c k).insertSeqAt k = c := by
   apply Hand.ext
   intro i hi₀ hi₁
@@ -69,27 +68,22 @@ theorem Winning.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
     let j' : Fin (3 * (n + 1)) :=
       ⟨if i.val < k.val then i.val else i.val + 3, by split <;> omega⟩
     have h := hcvalid j'
-    simp only [insertSeqAt_apply] at h
-    split at h <;> grind
+    rw [insertSeqAt_apply] at h; grind
   have hsize : Hand.size c = 3 * n + 5 := by
     grind
   have hj : j.val < k.val ∨ k.val + 3 ≤ j.val := by
     by_contra h
     have hEq := congrArg (fun z : Hand (n + 1) ↦ z j.val) hcd
-    simp only [insertSeqAt_apply] at hEq
-    split at hEq <;> grind
+    rw [insertSeqAt_apply] at hEq; grind
   have hd₀ : d k.val = 1 := by
     have hEq := congrArg (fun z : Hand (n + 1) ↦ z k.val) hcd
-    simp only [insertSeqAt_apply] at hEq
-    split at hEq <;> grind
-  have hd₁ : d (↑(k.val + 1) : ℤ) = 1 := by
+    rw [insertSeqAt_apply] at hEq; grind
+  have hd₁ : d (k.val + 1) = 1 := by
     have hEq := congrArg (fun z : Hand (n + 1) ↦ z (k.val + 1)) hcd
-    simp only [insertSeqAt_apply] at hEq
-    split at hEq <;> grind
-  have hd₂ : d (↑(k.val + 2) : ℤ) = 1 := by
+    grind
+  have hd₂ : d (k.val + 2) = 1 := by
     have hEq := congrArg (fun z : Hand (n + 1) ↦ z (k.val + 2)) hcd
-    simp only [insertSeqAt_apply] at hEq
-    split at hEq <;> grind
+    grind
   have hdEq : (removeSeqAt d k).insertSeqAt k = d :=
     insertSeqAt_removeSeqAt d k hd₀ hd₁ hd₂
   have hd' : Meldable (removeSeqAt d k) := by
@@ -119,7 +113,7 @@ theorem IsFullWait.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
     apply Hand.ext
     intro x hx₀ hx₁
     simp [insertSeqAt_apply, single_apply]
-    split <;> grind
+    grind
   exact Winning.of_insertSeqAt k (hcomm.symm ▸ hc j)
 
 private lemma insertSeqAt_standardFullWait
@@ -128,7 +122,7 @@ private lemma insertSeqAt_standardFullWait
   apply Hand.ext
   intro i hi₀ hi₁
   simp only [insertSeqAt_apply, standardFullWait, Hand.ofFn_apply]
-  split <;> grind
+  grind
 
 private lemma sum_comp_le_sum_of_injective
     {α β : Type*} [Fintype α] [Fintype β]
@@ -216,10 +210,9 @@ theorem exists_insertSeqAt_of_large
     have hp := hpositive (block a b)
     grind
   have hc₀ : c k.val = 1 := by simpa [k, idx, block] using hc 0
-  have hc₁ : c (↑(k.val + 1) : ℤ) = 1 := by simpa [k, idx, block] using hc 1
-  have hc₂ : c (↑(k.val + 2) : ℤ) = 1 := by
-    have hi : (idx (block a 2)).val = k.val + 2 := by grind
-    simpa only [hi] using hc 2
+  have hc₁ : c (k.val + 1) = 1 := by simpa [k, idx, block] using hc 1
+  have hc₂ : c (k.val + 2) = 1 := by
+    simpa [k, idx, block, add_assoc] using hc (2 : Fin 3)
   exact ⟨removeSeqAt c k, k, hk₀, hk₁,
     (insertSeqAt_removeSeqAt c k hc₀ hc₁ hc₂).symm⟩
 
