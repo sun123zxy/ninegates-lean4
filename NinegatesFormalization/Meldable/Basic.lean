@@ -1,3 +1,7 @@
+import Mathlib.Algebra.BigOperators.Pi
+import Mathlib.Algebra.BigOperators.Ring.Finset
+import Mathlib.Algebra.CharP.Defs
+import Mathlib.Algebra.Group.Equiv.TypeTags
 import NinegatesFormalization.Basic
 
 /-!

@@ -1,4 +1,10 @@
-import Mathlib
+import Mathlib.Algebra.BigOperators.Group.Finset.Piecewise
+import Mathlib.Algebra.Module.Basic
+import Mathlib.Data.Fintype.Basic
+import Mathlib.Data.FunLike.IsApply
+import Mathlib.Data.Int.ConditionallyCompleteOrder
+import Mathlib.Order.ConditionallyCompleteLattice.Basic
+import Mathlib.Tactic
 
 /-!
 # Mahjong hands
@@ -26,6 +32,7 @@ namespace Mahjong
 
 namespace Internal
 
+@[grind =]
 def extend {m : ℕ} (f : Fin m → ℕ) (i : ℤ) : ℕ :=
   if h : 0 ≤ i ∧ i < m then f ⟨i.toNat, by omega⟩ else 0
 
