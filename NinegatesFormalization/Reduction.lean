@@ -150,9 +150,9 @@ theorem IsFullWait.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
     grind
   exact Winning.of_insertSeqAt k (hcomm.symm ▸ hc j)
 
-private lemma insertSeqAt_standardFullWait
+private lemma insertSeqAt_standardFullWait (hn : 0 < n)
     (k : Fin (3 * n + 1)) (hk₀ : 0 < k.val) (hk₁ : k.val < 3 * n) :
-    (standardFullWait n).insertSeqAt k = standardFullWait (n + 1) := by
+    (standardFullWait n hn).insertSeqAt k = standardFullWait (n + 1) (Nat.succ_pos n) := by
   apply Hand.ext
   intro i hi₀ hi₁
   simp only [insertSeqAt_apply, standardFullWait, Hand.ofFn_apply]
@@ -251,7 +251,7 @@ theorem exists_insertSeqAt_of_large
     (insertSeqAt_removeSeqAt c k hc₀ hc₁ hc₂).symm⟩
 
 abbrev IsCounterexample (c : Hand n) : Prop :=
-  IsFullWait c ∧ c ≠ standardFullWait n
+  IsFullWait c ∧ ∀ hn : 0 < n, c ≠ standardFullWait n hn
 
 theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n}
     (hc : IsCounterexample c) :
@@ -267,14 +267,15 @@ theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n}
               exists_insertSeqAt_of_large (n := m) (by omega) hc.1
             have hdFull : IsFullWait d :=
               IsFullWait.of_insertSeqAt k (hcd ▸ hc.1)
-            have hdNe : d ≠ standardFullWait m := by
-              intro hd
-              apply hc.2
+            have hdNe : ∀ hm : 0 < m, d ≠ standardFullWait m hm := by
+              intro hm hd
+              have hpos : 0 < m + 1 := Nat.succ_pos m
+              apply hc.2 hpos
               calc
                 c = d.insertSeqAt k := hcd
-                _ = (standardFullWait m).insertSeqAt k := by rw [hd]
-                _ = standardFullWait (m + 1) :=
-                  insertSeqAt_standardFullWait k hk₀ hk₁
+                _ = (standardFullWait m hm).insertSeqAt k := by rw [hd]
+                _ = standardFullWait (m + 1) hpos :=
+                  insertSeqAt_standardFullWait hm k hk₀ hk₁
             exact ih m (by omega) (by omega) ⟨hdFull, hdNe⟩
 
 end Mahjong.Hand

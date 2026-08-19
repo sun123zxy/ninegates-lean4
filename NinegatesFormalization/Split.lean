@@ -139,9 +139,15 @@ theorem Meldable.IsWitness.split_at_zero {p : Meldable.Placement n} {c : Hand n}
     (hp : IsWitness p c) (k : ℤ) (hk : c k = 0) :
     IsWitness (Meldable.Placement.restrictLT k p) (restrictLT k c) ∧
       IsWitness (Meldable.Placement.restrictGT k p) (restrictGT k c) := by
-  grind only [IsWitness, Placement.toHand_apply, restrictLT_apply, Placement.tripNum_restrictLT,
-    Placement.seqNum_restrictLT, restrictGT_apply, Placement.tripNum_restrictGT,
-    Placement.seqNum_restrictGT]
+  constructor
+  · change Placement.toHand (Placement.restrictLT k p) = restrictLT k c
+    ext i hi₀ hi₁
+    grind only [IsWitness, Placement.toHand_apply, restrictLT_apply,
+      Placement.tripNum_restrictLT, Placement.seqNum_restrictLT]
+  · change Placement.toHand (Placement.restrictGT k p) = restrictGT k c
+    ext i hi₀ hi₁
+    grind only [IsWitness, Placement.toHand_apply, restrictGT_apply,
+      Placement.tripNum_restrictGT, Placement.seqNum_restrictGT]
 
 theorem Meldable.split_at_zero {c : Hand n} (hc : Meldable c)
     (k : ℤ) (hk : c k = 0) :

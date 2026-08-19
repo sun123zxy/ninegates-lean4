@@ -115,7 +115,7 @@ lemma ofFn_apply (f : Fin (3 * n) → ℕ) (i : ℤ) :
   rfl
 
 @[simp 1100, grind =]
-private lemma ofFn_apply_fin (f : Fin (3 * n) → ℕ) (i : Fin (3 * n)) :
+lemma ofFn_apply_fin (f : Fin (3 * n) → ℕ) (i : Fin (3 * n)) :
     ofFn f i.val = f i :=
   extend_coe _ _
 
@@ -127,13 +127,17 @@ lemma apply_of_lt_zero (c : Hand n) (i : ℤ) (hi : i < 0) : c i = 0 :=
 lemma apply_of_ge (c : Hand n) (i : ℤ) (hi : 3 * n ≤ i) : c i = 0 :=
   extend_of_ge _ _ hi
 
-@[ext, grind ext]
+lemma ext_fin {c d : Hand n}
+    (h : ∀ i : Fin (3 * n), c i = d i) : c = d := by
+  cases c; cases d; congr; funext i
+  have hi := h ⟨i, by omega⟩
+  change extend _ i = extend _ i at hi
+  simpa using hi
+
+@[ext]
 lemma ext {c d : Hand n}
     (h : ∀ i : ℤ, 0 ≤ i → i < 3 * n → c i = d i) : c = d := by
-  cases c
-  cases d
-  congr
-  funext i
+  cases c; cases d; congr; funext i
   have hi := h i.val (by omega) (by omega)
   change extend _ i.val = extend _ i.val at hi
   simpa using hi
@@ -184,6 +188,11 @@ lemma single_apply (i : Fin (3 * n)) (j : ℤ) :
     single i j = if j = i.val then 1 else 0 :=
   extend_single 1 i j
 
+@[grind =]
+lemma single_apply_fin (i j : Fin (3 * n)) :
+    single i j = if j = i then 1 else 0 := by
+  grind
+
 @[simp, grind =]
 lemma size_single (i : Fin (3 * n)) : size (single i) = 1 := by
   simp [size, single]
@@ -199,7 +208,11 @@ def pair (i : Fin (3 * n)) : Hand n := 2 • single i
 lemma pair_apply (i : Fin (3 * n)) (j : ℤ) :
     pair i j = if j = i.val then 2 else 0 := by grind [pair]
 
-@[simp, grind =]
+@[grind =]
+lemma pair_apply_fin (i j : Fin (3 * n)) :
+    pair i j = if j = i then 2 else 0 := by grind [pair]
+
+@[grind =]
 lemma size_pair (i : Fin (3 * n)) : size (pair i) = 2 := by simp [pair]
 
 @[simp, grind =]
@@ -211,6 +224,10 @@ def triplet (i : Fin (3 * n)) : Hand n := 3 • single i
 @[grind =]
 lemma triplet_apply (i : Fin (3 * n)) (j : ℤ) :
     triplet i j = if j = i.val then 3 else 0 := by grind [triplet]
+
+@[grind =]
+lemma triplet_apply_fin (i j : Fin (3 * n)) :
+    triplet i j = if j = i then 3 else 0 := by grind [triplet]
 
 @[simp, grind =]
 lemma size_triplet (i : Fin (3 * n)) : size (triplet i) = 3 := by simp [triplet]

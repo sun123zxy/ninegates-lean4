@@ -100,7 +100,7 @@ lemma tripNum_ofFn (trip : Fin (3 * n) → ℕ) (seq : Fin (3 * n - 2) → ℕ)
   rfl
 
 @[simp 1100, grind =]
-private lemma tripNum_ofFn_fin
+lemma tripNum_ofFn_fin
     (trip : Fin (3 * n) → ℕ) (seq : Fin (3 * n - 2) → ℕ)
     (i : Fin (3 * n)) : (ofFn trip seq).tripNum i.val = trip i :=
   extend_coe _ _
@@ -114,8 +114,7 @@ lemma seqNum_ofFn (trip : Fin (3 * n) → ℕ) (seq : Fin (3 * n - 2) → ℕ)
   rfl
 
 @[simp 1100, grind =]
-private lemma seqNum_ofFn_fin
-    (trip : Fin (3 * n) → ℕ) (seq : Fin (3 * n - 2) → ℕ)
+lemma seqNum_ofFn_fin (trip : Fin (3 * n) → ℕ) (seq : Fin (3 * n - 2) → ℕ)
     (i : Fin (3 * n - 2)) : (ofFn trip seq).seqNum i.val = seq i :=
   extend_coe _ _
 
