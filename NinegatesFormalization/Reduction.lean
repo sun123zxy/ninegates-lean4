@@ -56,9 +56,43 @@ private lemma insertSeqAt_removeSeqAt (c : Hand (n + 1))
   simp only [insertSeqAt_apply, removeSeqAt, Hand.ofFn_apply]
   split <;> grind
 
+/- Note that is now is a standalone proof. It does not rely on the scan algorithm. -/
 theorem Meldable.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
     (hc : Meldable (c.insertSeqAt k)) : Meldable c := by
-  sorry
+  rcases hc with ⟨p, hp⟩
+  have hklt := k.isLt
+  have hinsert (j : ℤ) (hj₀ : (k.val : ℤ) ≤ j) (hj₁ : j < k.val + 3) :
+      (c.insertSeqAt k) j = 1 := by
+    rw [insertSeqAt_apply]
+    grind
+  have hcoord (j : ℤ) (hj₀ : (k.val : ℤ) ≤ j) (hj₁ : j < k.val + 3) :
+      3 * Placement.tripNum p j + Placement.seqNum p j +
+          Placement.seqNum p (j - 1) + Placement.seqNum p (j - 2) = 1 := by
+    have h := congrArg (fun d : Hand (n + 1) ↦ d j) hp
+    simpa only [Placement.toHand_apply, hinsert j hj₀ hj₁] using h
+  have h0 := hcoord (k.val : ℤ) (by omega) (by omega)
+  have h1 := hcoord (k.val + 1 : ℤ) (by omega) (by omega)
+  have h2 := hcoord (k.val + 2 : ℤ) (by omega) (by omega)
+  have hseq : Placement.seqNum p (k.val + 1 : ℤ) = Placement.seqNum p (k.val - 2 : ℤ) ∧
+      Placement.seqNum p (k.val + 2 : ℤ) = Placement.seqNum p (k.val - 1 : ℤ) := by
+    grind
+  clear hcoord hinsert h0 h1 h2
+  refine ⟨Placement.ofFn
+    (fun i ↦ if (i.val : ℤ) < k.val then p.tripNum i.val else p.tripNum (i.val + 3))
+    (fun i ↦ if (i.val : ℤ) < k.val then p.seqNum i.val else p.seqNum (i.val + 3)), ?_⟩
+  ext i hi₀ hi₁
+  by_cases hi : (i : ℤ) < k.val
+  · have hpi := congrArg (fun d : Hand (n + 1) ↦ d i) hp
+    grind
+  · by_cases hi' : (k.val : ℤ) + 2 ≤ i
+    · have hpi := congrArg (fun d : Hand (n + 1) ↦ d (i + 3)) hp
+      grind
+    · have hicases : (i : ℤ) = k.val ∨ (i : ℤ) = k.val + 1 := by omega
+      rcases hicases with hik | hik
+      · have hpi := congrArg (fun d : Hand (n + 1) ↦ d (i + 3)) hp
+        grind
+      · have hpi := congrArg (fun d : Hand (n + 1) ↦ d (i + 3)) hp
+        grind
 
 theorem Winning.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
     (hc : Winning (c.insertSeqAt k)) : Winning c := by
