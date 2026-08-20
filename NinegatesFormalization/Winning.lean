@@ -34,7 +34,11 @@ def IsWinningTile (c : Hand n) (i : Fin (3 * n)) : Prop := Winning (c + single i
 def IsWait (c : Hand n) : Prop := ∃ i, Winning (c + single i)
 
 lemma IsWait.Valid (c : Hand n) (hc : IsWait c) : Valid c := by
-  grind [IsWait, Winning, Valid]
+  obtain ⟨w, hw⟩ := hc
+  intro i
+  have hi := hw.1 i
+  simp only [add_apply] at hi
+  omega
 
 def IsFullWait (c : Hand n) : Prop := ∀ i, Winning (c + single i)
 
