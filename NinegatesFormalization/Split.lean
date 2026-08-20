@@ -121,15 +121,20 @@ theorem Meldable.IsWitness.split_at_zero {p : Meldable.Placement n} {c : Hand n}
     (hp : IsWitness p c) (k : Fin (3 * n)) (hk : c k = 0) :
     IsWitness (Meldable.Placement.restrictLT k p) (restrictLT k c) ∧
       IsWitness (Meldable.Placement.restrictGT k p) (restrictGT k c) := by
+  have hcross (j : Fin (3 * n)) (hleft : ¬j.val + 2 < k.val)
+      (hright : ¬k.val < j.val) : p.seqNum j = 0 := by
+    grind
   constructor <;> unfold IsWitness
   · ext i
-    grind only [IsWitness, Meldable.Placement.toHand_apply, restrictLT_apply,
-      Meldable.Placement.tripNum_restrictLT,
-      Meldable.Placement.seqNum_restrictLT]
+    have hpi := congrArg (fun x : Hand n ↦ x i) hp
+    simp only [Placement.toHand_apply, Placement.tripNum_restrictLT, mul_ite, mul_zero,
+      Placement.seqNum_restrictLT, restrictLT_apply] at hpi ⊢
+    grind only
   · ext i
-    grind only [IsWitness, Meldable.Placement.toHand_apply, restrictGT_apply,
-      Meldable.Placement.tripNum_restrictGT,
-      Meldable.Placement.seqNum_restrictGT]
+    have hpi := congrArg (fun x : Hand n ↦ x i) hp
+    simp only [Placement.toHand_apply, Placement.tripNum_restrictGT, Fin.lt_def,
+      Placement.seqNum_restrictGT, restrictGT_apply] at hpi ⊢
+    grind only
 
 theorem Meldable.split_at_zero {c : Hand n} (hc : Meldable c)
     (k : Fin (3 * n)) (hk : c k = 0) :
