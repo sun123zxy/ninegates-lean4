@@ -81,22 +81,26 @@ def single (i : Fin (3 * n)) : Hand n := ⟨fun j ↦ if j = i then 1 else 0⟩
 
 @[simp, grind =]
 lemma single_apply (i j : Fin (3 * n)) :
-    single i j = if j = i then 1 else 0 := rfl
+    single i j = if j.val = i.val then 1 else 0 := by
+  change (if j = i then 1 else 0) = _
+  simp only [Fin.ext_iff]
 
 @[simp, grind =]
 lemma size_single (i : Fin (3 * n)) : size (single i) = 1 := by
-  simp [size]
+  change (∑ j, if j = i then 1 else 0) = 1
+  simp
 
 @[simp, grind =]
 lemma sum_single (i : Fin (3 * n)) : sum (single i) = i.val := by
-  simp [sum]
+  change (∑ j, j.val * (if j = i then 1 else 0)) = i.val
+  simp
 
 @[grind =]
 def pair (i : Fin (3 * n)) : Hand n := 2 • single i
 
 @[simp, grind =]
 lemma pair_apply (i j : Fin (3 * n)) :
-    pair i j = if j = i then 2 else 0 := by grind [pair]
+    pair i j = if j.val = i.val then 2 else 0 := by grind [pair]
 
 @[simp, grind =]
 lemma size_pair (i : Fin (3 * n)) : size (pair i) = 2 := by simp [pair]
@@ -109,7 +113,7 @@ def triplet (i : Fin (3 * n)) : Hand n := 3 • single i
 
 @[simp, grind =]
 lemma triplet_apply (i j : Fin (3 * n)) :
-    triplet i j = if j = i then 3 else 0 := by grind [triplet]
+    triplet i j = if j.val = i.val then 3 else 0 := by grind [triplet]
 
 @[simp, grind =]
 lemma size_triplet (i : Fin (3 * n)) : size (triplet i) = 3 := by simp [triplet]
@@ -123,10 +127,8 @@ def sequence (i : Fin (3 * n - 2)) : Hand n :=
 
 @[simp, grind =]
 lemma sequence_apply (i : Fin (3 * n - 2)) (j : Fin (3 * n)) :
-    sequence i j =
-      if j = ⟨i, by omega⟩ ∨ j = ⟨i + 1, by omega⟩ ∨ j = ⟨i + 2, by omega⟩ then 1 else 0 := by
-  simp only [sequence, add_apply, single_apply]
-  split_ifs <;> simp_all [Fin.ext_iff]
+    sequence i j = if j.val = i.val ∨ j.val = i.val + 1 ∨ j.val = i.val + 2 then 1 else 0 := by
+  grind
 
 @[simp, grind =]
 lemma size_sequence (i : Fin (3 * n - 2)) : size (sequence i) = 3 := by simp [sequence]

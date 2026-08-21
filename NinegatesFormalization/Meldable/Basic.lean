@@ -107,7 +107,7 @@ lemma toHand_eq_sum (p : Placement n) :
 lemma seq_sum (p : Placement n) (i : Fin (3 * n)) (d : ℕ)
     (hd : d ≤ i.val) (hd₂ : d ≤ 2) :
     (∑ j : Fin (3 * n - 2),
-      if i = ⟨j.val + d, by omega⟩ then p.seqNum ⟨j.val, by omega⟩ else 0) =
+      if i.val = j.val + d then p.seqNum ⟨j.val, by omega⟩ else 0) =
       p.seqNum ⟨i.val - d, by omega⟩ := by
   classical
   by_cases hi : i.val - d < 3 * n - 2
@@ -126,19 +126,16 @@ lemma seq_sum (p : Placement n) (i : Fin (3 * n)) (d : ℕ)
       exfalso
       apply hkj
       apply Fin.ext
-      have hval := congrArg Fin.val hik
-      simp only [Fin.val_mk] at hval
-      simp [j]
+      have hval := hik
+      change k.val = i.val - d
       omega
-    · simp
+    · simpa [Nat.mul_comm]
   · have hge : 3 * n - 2 ≤ i.val - d := by omega
     rw [seqNum_of_ge p ⟨i.val - d, by omega⟩ hge]
     apply Finset.sum_eq_zero
     intro j hj
     simp only [ite_eq_right_iff]
     intro hij
-    have hval := congrArg Fin.val hij
-    simp only [Fin.val_mk] at hval
     omega
 
 @[simp, grind =]
@@ -151,54 +148,64 @@ lemma toHand_apply (p : Placement n) (i : Fin (3 * n)) :
   simp [toHand, Hand.triplet_apply, Hand.sequence_apply]
   have hsum :
       (∑ j : Fin (3 * n - 2),
-        if i = ⟨j.val, by omega⟩ ∨ i = ⟨j.val + 1, by omega⟩ ∨
-            i = ⟨j.val + 2, by omega⟩
+        if i.val = j.val ∨ i.val = j.val + 1 ∨
+            i.val = j.val + 2
           then p.seqNum ⟨j.val, by omega⟩ else 0) =
         (∑ j : Fin (3 * n - 2),
-          if i = ⟨j.val, by omega⟩ then p.seqNum ⟨j.val, by omega⟩ else 0) +
+          if i.val = j.val then p.seqNum ⟨j.val, by omega⟩ else 0) +
         (∑ j : Fin (3 * n - 2),
-          if i = ⟨j.val + 1, by omega⟩ then p.seqNum ⟨j.val, by omega⟩ else 0) +
+          if i.val = j.val + 1 then p.seqNum ⟨j.val, by omega⟩ else 0) +
         ∑ j : Fin (3 * n - 2),
-          if i = ⟨j.val + 2, by omega⟩ then p.seqNum ⟨j.val, by omega⟩ else 0 := by
+          if i.val = j.val + 2 then p.seqNum ⟨j.val, by omega⟩ else 0 := by
     rw [← Finset.sum_add_distrib, ← Finset.sum_add_distrib]
     apply Finset.sum_congr rfl
     intro j hj
     split_ifs <;> simp_all [Fin.ext_iff] <;> omega
   rw [hsum]
+  have htrip :
+      (∑ j : Fin (3 * n), if i.val = j.val then p.tripNum j * 3 else 0) =
+        3 * p.tripNum i := by
+    rw [Finset.sum_eq_single i]
+    · simpa [Nat.mul_comm]
+    · intro j hj hji
+      simp only [ite_eq_right_iff]
+      intro h
+      exfalso
+      apply hji
+      apply Fin.ext
+      exact h.symm
+    · simp
+  rw [htrip]
   have h0 := seq_sum p i 0 (by omega) (by omega)
   have h1 : (0 < i.val) →
       (∑ j : Fin (3 * n - 2),
-        if i = ⟨j.val + 1, by omega⟩ then p.seqNum ⟨j.val, by omega⟩ else 0) =
+        if i.val = j.val + 1 then p.seqNum ⟨j.val, by omega⟩ else 0) =
       p.seqNum ⟨i.val - 1, by omega⟩ := by
     intro hi
     exact seq_sum p i 1 (by omega) (by omega)
   have h2 : (1 < i.val) →
       (∑ j : Fin (3 * n - 2),
-        if i = ⟨j.val + 2, by omega⟩ then p.seqNum ⟨j.val, by omega⟩ else 0) =
+        if i.val = j.val + 2 then p.seqNum ⟨j.val, by omega⟩ else 0) =
       p.seqNum ⟨i.val - 2, by omega⟩ := by
     intro hi
     exact seq_sum p i 2 (by omega) (by omega)
   have h1z : ¬0 < i.val →
       (∑ j : Fin (3 * n - 2),
-        if i = ⟨j.val + 1, by omega⟩ then p.seqNum ⟨j.val, by omega⟩ else 0) = 0 := by
+        if i.val = j.val + 1 then p.seqNum ⟨j.val, by omega⟩ else 0) = 0 := by
     intro hi
     apply Finset.sum_eq_zero
     intro j hj
     simp only [ite_eq_right_iff]
     intro hij
-    have hval := congrArg Fin.val hij
-    simp only [Fin.val_mk] at hval
     omega
   have h2z : ¬1 < i.val →
       (∑ j : Fin (3 * n - 2),
-        if i = ⟨j.val + 2, by omega⟩ then p.seqNum ⟨j.val, by omega⟩ else 0) = 0 := by
+        if i.val = j.val + 2 then p.seqNum ⟨j.val, by omega⟩ else 0) = 0 := by
     intro hi
     apply Finset.sum_eq_zero
     intro j hj
     simp only [ite_eq_right_iff]
     intro hij
-    have hval := congrArg Fin.val hij
-    simp only [Fin.val_mk] at hval
     omega
   split <;> split <;> simp_all <;> omega
 
