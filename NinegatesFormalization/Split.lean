@@ -19,17 +19,19 @@ lemma filter_apply (keep : Fin (3 * n) → Prop) [DecidablePred keep]
     (c : Hand n) (i : Fin (3 * n)) :
     filter keep c i = if keep i then c i else 0 := rfl
 
-def restrictLT (k : Fin (3 * n)) : Hand n →+ Hand n := filter (· < k)
+def restrictLT (k : Fin (3 * n)) : Hand n →+ Hand n :=
+  filter (fun i ↦ i.val < k.val)
 
-def restrictGT (k : Fin (3 * n)) : Hand n →+ Hand n := filter (k < ·)
+def restrictGT (k : Fin (3 * n)) : Hand n →+ Hand n :=
+  filter (fun i ↦ k.val < i.val)
 
 @[simp, grind =]
 lemma restrictLT_apply (k i : Fin (3 * n)) (c : Hand n) :
-    restrictLT k c i = if i < k then c i else 0 := rfl
+    restrictLT k c i = if i.val < k.val then c i else 0 := rfl
 
 @[simp, grind =]
 lemma restrictGT_apply (k i : Fin (3 * n)) (c : Hand n) :
-    restrictGT k c i = if k < i then c i else 0 := rfl
+    restrictGT k c i = if k.val < i.val then c i else 0 := rfl
 
 namespace Meldable.Placement
 
@@ -45,7 +47,7 @@ def filter
         · intro i hi
           simp [p.seqNum_tail.2 i hi]⟩
   map_zero' := by ext i <;> simp
-  map_add' _ _ := by ext i <;> simp [add_apply, add_assoc] <;> split <;> simp
+  map_add' _ _ := by ext i <;> grind
 
 @[simp, grind =]
 lemma tripNum_filter (tripKeep seqKeep : Fin (3 * n) → Prop)
@@ -62,14 +64,14 @@ lemma seqNum_filter (tripKeep seqKeep : Fin (3 * n) → Prop)
       if seqKeep i then p.seqNum i else 0 := rfl
 
 def restrictLT (k : Fin (3 * n)) : Placement n →+ Placement n :=
-  filter (· < k) (fun i ↦ i.val + 2 < k.val)
+  filter (fun i ↦ i.val < k.val) (fun i ↦ i.val + 2 < k.val)
 
 def restrictGT (k : Fin (3 * n)) : Placement n →+ Placement n :=
-  filter (k < ·) (k < ·)
+  filter (fun i ↦ k.val < i.val) (fun i ↦ k.val < i.val)
 
 @[simp, grind =]
 lemma tripNum_restrictLT (k i : Fin (3 * n)) (p : Placement n) :
-    (restrictLT k p).tripNum i = if i < k then p.tripNum i else 0 := rfl
+    (restrictLT k p).tripNum i = if i.val < k.val then p.tripNum i else 0 := rfl
 
 @[simp, grind =]
 lemma seqNum_restrictLT (k i : Fin (3 * n)) (p : Placement n) :
@@ -77,63 +79,58 @@ lemma seqNum_restrictLT (k i : Fin (3 * n)) (p : Placement n) :
 
 @[simp, grind =]
 lemma tripNum_restrictGT (k i : Fin (3 * n)) (p : Placement n) :
-    (restrictGT k p).tripNum i = if k < i then p.tripNum i else 0 := rfl
+    (restrictGT k p).tripNum i = if k.val < i.val then p.tripNum i else 0 := rfl
 
 @[simp, grind =]
 lemma seqNum_restrictGT (k i : Fin (3 * n)) (p : Placement n) :
-    (restrictGT k p).seqNum i = if k < i then p.seqNum i else 0 := rfl
+    (restrictGT k p).seqNum i = if k.val < i.val then p.seqNum i else 0 := rfl
 
 end Meldable.Placement
 
 @[simp, grind =]
-lemma restrictLT_single_of_lt (k i : Fin (3 * n)) (hi : i < k) :
+lemma restrictLT_single_of_lt (k i : Fin (3 * n)) (hi : i.val < k.val) :
     restrictLT k (single i) = single i := by apply DFunLike.ext; grind [restrictLT]
 
 @[simp, grind =]
-lemma restrictLT_single_of_not_lt (k i : Fin (3 * n)) (hi : ¬i < k) :
+lemma restrictLT_single_of_not_lt (k i : Fin (3 * n)) (hi : ¬i.val < k.val) :
     restrictLT k (single i) = 0 := by apply DFunLike.ext; grind [restrictLT]
 
 @[simp, grind =]
-lemma restrictGT_single_of_gt (k i : Fin (3 * n)) (hi : k < i) :
+lemma restrictGT_single_of_gt (k i : Fin (3 * n)) (hi : k.val < i.val) :
     restrictGT k (single i) = single i := by apply DFunLike.ext; grind [restrictGT]
 
 @[simp, grind =]
-lemma restrictGT_single_of_not_gt (k i : Fin (3 * n)) (hi : ¬k < i) :
+lemma restrictGT_single_of_not_gt (k i : Fin (3 * n)) (hi : ¬k.val < i.val) :
     restrictGT k (single i) = 0 := by apply DFunLike.ext; grind [restrictGT]
 
 @[simp, grind =]
-lemma restrictLT_pair_of_lt (k i : Fin (3 * n)) (hi : i < k) :
+lemma restrictLT_pair_of_lt (k i : Fin (3 * n)) (hi : i.val < k.val) :
     restrictLT k (pair i) = pair i := by simp [pair, hi]
 
 @[simp, grind =]
-lemma restrictLT_pair_of_not_lt (k i : Fin (3 * n)) (hi : ¬i < k) :
+lemma restrictLT_pair_of_not_lt (k i : Fin (3 * n)) (hi : ¬i.val < k.val) :
     restrictLT k (pair i) = 0 := by simp [pair, hi]
 
 @[simp, grind =]
-lemma restrictGT_pair_of_gt (k i : Fin (3 * n)) (hi : k < i) :
+lemma restrictGT_pair_of_gt (k i : Fin (3 * n)) (hi : k.val < i.val) :
     restrictGT k (pair i) = pair i := by simp [pair, hi]
 
 @[simp, grind =]
-lemma restrictGT_pair_of_not_gt (k i : Fin (3 * n)) (hi : ¬k < i) :
+lemma restrictGT_pair_of_not_gt (k i : Fin (3 * n)) (hi : ¬k.val < i.val) :
     restrictGT k (pair i) = 0 := by simp [pair, hi]
 
 theorem Meldable.IsWitness.split_at_zero {p : Meldable.Placement n} {c : Hand n}
     (hp : IsWitness p c) (k : Fin (3 * n)) (hk : c k = 0) :
     IsWitness (Meldable.Placement.restrictLT k p) (restrictLT k c) ∧
       IsWitness (Meldable.Placement.restrictGT k p) (restrictGT k c) := by
-  have hcross (j : Fin (3 * n)) (hleft : ¬j.val + 2 < k.val)
-      (hright : ¬k.val < j.val) : p.seqNum j = 0 := by
-    grind
-  constructor <;> unfold IsWitness
-  · ext i
-    have hpi := congrArg (fun x : Hand n ↦ x i) hp
-    simp only [Placement.toHand_apply, Placement.tripNum_restrictLT, mul_ite, mul_zero,
-      Placement.seqNum_restrictLT, restrictLT_apply] at hpi ⊢
+  unfold IsWitness at hp; subst c
+  have hcross (j : Fin (3 * n)) : j.val ≤ k.val → k.val ≤ j.val + 2 → p.seqNum j = 0 := by grind
+  constructor <;> unfold IsWitness <;> ext i
+  · simp only [Placement.toHand_apply, Placement.tripNum_restrictLT, Fin.val_fin_lt, mul_ite,
+    mul_zero, Placement.seqNum_restrictLT, restrictLT_apply]
     grind only
-  · ext i
-    have hpi := congrArg (fun x : Hand n ↦ x i) hp
-    simp only [Placement.toHand_apply, Placement.tripNum_restrictGT, Fin.lt_def,
-      Placement.seqNum_restrictGT, restrictGT_apply] at hpi ⊢
+  · simp only [Placement.toHand_apply, Placement.tripNum_restrictGT, Fin.val_fin_lt, mul_ite,
+    mul_zero, Placement.seqNum_restrictGT, restrictGT_apply]
     grind only
 
 theorem Meldable.split_at_zero {c : Hand n} (hc : Meldable c)
