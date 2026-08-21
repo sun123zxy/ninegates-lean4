@@ -56,7 +56,7 @@ lemma standardFullWait_apply (n : ℕ) (hn : 0 < n) (i : Fin (3 * n)) :
   rfl
 
 set_option maxHeartbeats 1000000 in
--- The explicit residue cases keep the remaining arithmetic automation bounded.
+-- This declaration checks three residue-dependent placements pointwise.
 theorem IsFullWait.standardFullWait (n : ℕ) (hn : 0 < n) :
     IsFullWait (standardFullWait n hn) := by
   intro p
@@ -65,8 +65,17 @@ theorem IsFullWait.standardFullWait (n : ℕ) (hn : 0 < n) :
     simp only [add_apply, standardFullWait_apply, single_apply]
     split_ifs <;> omega
   · rw [map_add, size_single, size_standardFullWait]
-  · have hmod : p.val % 3 = 0 ∨ p.val % 3 = 1 ∨ p.val % 3 = 2 := by grind only
-    rcases hmod with h | h | h
+  · have mod3 (x : ℕ) : x % 3 = 0 ∨ x % 3 = 1 ∨ x % 3 = 2 := by
+      have hx := Nat.mod_lt x (by omega : 0 < 3)
+      omega
+    have hm0 (x : ℕ) (hx : x % 3 = 0) (hx2 : 2 ≤ x) :
+        (x - 1) % 3 = 2 ∧ (x - 2) % 3 = 1 := by omega
+    have hm1 (x : ℕ) (hx : x % 3 = 1) (hx2 : 2 ≤ x) :
+        (x - 1) % 3 = 0 ∧ (x - 2) % 3 = 2 := by omega
+    have hm2 (x : ℕ) (hx : x % 3 = 2) (hx2 : 2 ≤ x) :
+        (x - 1) % 3 = 1 ∧ (x - 2) % 3 = 0 := by omega
+    have hmod := mod3 p.val
+    rcases hmod with h | h | h -- case analysis on the residue of p mod 3 since constructions are different
     · let tsm : Hand n := ⟨fun i ↦ if i.val = 0 then 0 else 1⟩
       let sm : Hand n := ⟨fun i ↦ if i.val = 0 then 3 else 1⟩
       let q : Meldable.Placement n :=
@@ -84,13 +93,7 @@ theorem IsFullWait.standardFullWait (n : ℕ) (hn : 0 < n) :
         rw [htsm]
         dsimp [q]
         simp only [zero_add]
-        have hm0 (x : ℕ) (hx : x % 3 = 0) (hx2 : 2 ≤ x) :
-            (x - 1) % 3 = 2 ∧ (x - 2) % 3 = 1 := by omega
-        have hm1 (x : ℕ) (hx : x % 3 = 1) (hx2 : 2 ≤ x) :
-            (x - 1) % 3 = 0 ∧ (x - 2) % 3 = 2 := by omega
-        have hm2 (x : ℕ) (hx : x % 3 = 2) (hx2 : 2 ≤ x) :
-            (x - 1) % 3 = 1 ∧ (x - 2) % 3 = 0 := by omega
-        have himod : i.val % 3 = 0 ∨ i.val % 3 = 1 ∨ i.val % 3 = 2 := by omega
+        have himod := mod3 i.val
         rcases himod with hi0 | hi1 | hi2
         · by_cases hs : i.val < 2
           · split_ifs <;> omega
@@ -128,7 +131,7 @@ theorem IsFullWait.standardFullWait (n : ℕ) (hn : 0 < n) :
       · rw [hq]
         rw [← hsm, ← htsm]
         ac_rfl
-    · let q : Meldable.Placement n := -- this requires a larger heartbeat limit
+    · let q : Meldable.Placement n :=
         ⟨(fun i ↦ if i.val = 0 ∨
             i.val = 3 * n - 1 then 1 else 0),
           fun i ↦ if i.val + 2 < 3 * n ∧
@@ -144,13 +147,7 @@ theorem IsFullWait.standardFullWait (n : ℕ) (hn : 0 < n) :
         simp only [Meldable.Placement.toHand_apply, standardFullWait_apply,
           add_apply, pair_apply, single_apply]
         dsimp [q]
-        have hm0 (x : ℕ) (hx : x % 3 = 0) (hx2 : 2 ≤ x) :
-            (x - 1) % 3 = 2 ∧ (x - 2) % 3 = 1 := by omega
-        have hm1 (x : ℕ) (hx : x % 3 = 1) (hx2 : 2 ≤ x) :
-            (x - 1) % 3 = 0 ∧ (x - 2) % 3 = 2 := by omega
-        have hm2 (x : ℕ) (hx : x % 3 = 2) (hx2 : 2 ≤ x) :
-            (x - 1) % 3 = 1 ∧ (x - 2) % 3 = 0 := by omega
-        have himod : i.val % 3 = 0 ∨ i.val % 3 = 1 ∨ i.val % 3 = 2 := by omega
+        have himod := mod3 i.val
         rcases himod with hi0 | hi1 | hi2
         · by_cases hs : i.val < 2
           · split_ifs <;> omega
@@ -179,13 +176,7 @@ theorem IsFullWait.standardFullWait (n : ℕ) (hn : 0 < n) :
         simp only [Meldable.Placement.toHand_apply, standardFullWait_apply,
           add_apply, pair_apply, single_apply]
         dsimp [q]
-        have hm0 (x : ℕ) (hx : x % 3 = 0) (hx2 : 2 ≤ x) :
-            (x - 1) % 3 = 2 ∧ (x - 2) % 3 = 1 := by omega
-        have hm1 (x : ℕ) (hx : x % 3 = 1) (hx2 : 2 ≤ x) :
-            (x - 1) % 3 = 0 ∧ (x - 2) % 3 = 2 := by omega
-        have hm2 (x : ℕ) (hx : x % 3 = 2) (hx2 : 2 ≤ x) :
-            (x - 1) % 3 = 1 ∧ (x - 2) % 3 = 0 := by omega
-        have himod : i.val % 3 = 0 ∨ i.val % 3 = 1 ∨ i.val % 3 = 2 := by omega
+        have himod := mod3 i.val
         rcases himod with hi0 | hi1 | hi2
         · by_cases hs : i.val < 2
           · split_ifs <;> omega
