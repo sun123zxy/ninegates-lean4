@@ -4,46 +4,36 @@ import NinegatesFormalization.Meldable.Basic
 namespace Mahjong.Hand
 
 @[grind =]
-def standardFullWait (n : ℕ) (hn : 0 < n) : Hand n :=
+def standardFullWait (n : ℕ) : Hand n :=
   ⟨fun i ↦ if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1⟩
 
 @[simp, grind =]
-lemma standardFullWait_apply (n : ℕ) (hn : 0 < n) (i : Fin (3 * n)) :
-    standardFullWait n hn i =
-      if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1 := by
-  rfl
+lemma standardFullWait_apply (n : ℕ) (i : Fin (3 * n)) :
+    standardFullWait n i = if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1 := by rfl
 
 @[simp, grind =]
 lemma size_standardFullWait (n : ℕ) (hn : 0 < n) :
-    size (standardFullWait n hn) = 3 * n + 4 := by
+    size (standardFullWait n) = 3 * n + 4 := by
   simp only [size_eq_sum, standardFullWait_apply]
-  change (∑ i : Fin (3 * n), if i.val = 0 ∨
-      i.val = 3 * n - 1 then 3 else 1) = 3 * n + 4
   have hsplit (i : Fin (3 * n)) :
       (if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1) =
         1 + (if i.val = 0 then 2 else 0) +
-          (if i.val = 3 * n - 1 then 2 else 0) := by
-    grind
+          (if i.val = 3 * n - 1 then 2 else 0) := by grind
   have hsingle (k : ℕ) (hk : k < 3 * n) :
       (∑ i : Fin (3 * n), if i.val = k then 2 else 0) = 2 := by
-    rw [Finset.sum_eq_single ⟨k, hk⟩] <;> grind [Fin.ext_iff]
-  simp_rw [hsplit]
-  rw [Finset.sum_add_distrib, Finset.sum_add_distrib, Finset.sum_const,
-    hsingle 0 (by omega), hsingle (3 * n - 1) (by omega)]
-  simp [Fintype.card_fin]
-
-lemma mod_three_cases (x : ℕ) : x % 3 = 0 ∨ x % 3 = 1 ∨ x % 3 = 2 := by
-  have hx := Nat.mod_lt x (by omega : 0 < 3)
-  omega
+    rw [Finset.sum_eq_single ⟨k, hk⟩] <;> grind
+  simp [hsplit, Finset.sum_add_distrib, hsingle 0 (by omega), hsingle (3 * n - 1) (by omega)]
 
 theorem IsFullWait.standardFullWait (n : ℕ) (hn : 0 < n) :
-    IsFullWait (standardFullWait n hn) := by
+    IsFullWait (standardFullWait n) := by
+  have mod_three_cases (x : ℕ) : x % 3 = 0 ∨ x % 3 = 1 ∨ x % 3 = 2 := by omega
   intro p
   split_ands
   · intro i
     simp only [add_apply, standardFullWait_apply, single_apply]
     split_ifs <;> omega
   · rw [map_add, size_single, size_standardFullWait]
+    exact hn
   · rcases mod_three_cases p.val with hp | hp | hp
     on_goal 1 =>
       let q : Meldable.Placement n :=
@@ -76,7 +66,7 @@ theorem IsFullWait.standardFullWait (n : ℕ) (hn : 0 < n) :
       ext i
       simp only [standardFullWait_apply, add_apply, pair_apply, single_apply]
       by_cases hi₀ : i.val = 0; · grind
-      by_cases hi₁ : i.val = 1; · grind
+      by_cases hi₁ : i.val = 1; · simp_all; grind
       by_cases hi₂ : i.val = 3 * n - 1; · grind
       have hi₃ : 2 ≤ i.val := by omega
       have hi₄ : i.val ≤ 3 * n - 2 := by omega
