@@ -6,14 +6,10 @@ import Mathlib.Tactic
 /-!
 # Mahjong hands
 
-## Representation
-
-A `Hand n` records the multiplicities of the `3 * n` consecutive tile values.
-Its private representation is a function on `Fin (3 * n)`; all observations use
-that finite coordinate type directly.
-
 ## Main definitions
 
+* A `Hand n` records the counting vector of a hand.
+  It's a wrapper around `Fin (3 * n) → ℕ`.
 * `single`, `pair`, `triplet`, and `sequence` are the elementary tile patterns.
 * `size` counts tiles, while `sum` is their value-weighted sum.
 * `Valid c` requires every legal multiplicity of `c` to be at most four.
