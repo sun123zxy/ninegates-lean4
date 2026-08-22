@@ -8,52 +8,29 @@ def standardFullWait (n : ℕ) (hn : 0 < n) : Hand n :=
   ⟨fun i ↦ if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1⟩
 
 @[simp, grind =]
+lemma standardFullWait_apply (n : ℕ) (hn : 0 < n) (i : Fin (3 * n)) :
+    standardFullWait n hn i =
+      if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1 := by
+  rfl
+
+@[simp, grind =]
 lemma size_standardFullWait (n : ℕ) (hn : 0 < n) :
     size (standardFullWait n hn) = 3 * n + 4 := by
+  simp only [size_eq_sum, standardFullWait_apply]
   change (∑ i : Fin (3 * n), if i.val = 0 ∨
       i.val = 3 * n - 1 then 3 else 1) = 3 * n + 4
-  classical
   have hsplit (i : Fin (3 * n)) :
       (if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1) =
         1 + (if i.val = 0 then 2 else 0) +
           (if i.val = 3 * n - 1 then 2 else 0) := by
     grind
-  have hzero :
-      (∑ i : Fin (3 * n), if i.val = 0 then 2 else 0) = 2 := by
-    let z : Fin (3 * n) := ⟨0, by omega⟩
-    rw [Finset.sum_eq_single z]
-    · simp [z]
-    · intro i hi hne
-      by_cases hi0 : i.val = 0
-      · exfalso
-        apply hne
-        apply Fin.ext
-        simpa [z] using hi0
-      · simp [hi0]
-    · simp
-  have hlast :
-      (∑ i : Fin (3 * n), if i.val = 3 * n - 1 then 2 else 0) = 2 := by
-    let l : Fin (3 * n) := ⟨3 * n - 1, by omega⟩
-    rw [Finset.sum_eq_single l]
-    · simp [l]
-    · intro i hi hne
-      by_cases hil : i.val = 3 * n - 1
-      · exfalso
-        apply hne
-        apply Fin.ext
-        simpa [l] using hil
-      · simp [hil]
-    · simp
+  have hsingle (k : ℕ) (hk : k < 3 * n) :
+      (∑ i : Fin (3 * n), if i.val = k then 2 else 0) = 2 := by
+    rw [Finset.sum_eq_single ⟨k, hk⟩] <;> grind [Fin.ext_iff]
   simp_rw [hsplit]
   rw [Finset.sum_add_distrib, Finset.sum_add_distrib, Finset.sum_const,
-    hzero, hlast]
+    hsingle 0 (by omega), hsingle (3 * n - 1) (by omega)]
   simp [Fintype.card_fin]
-
-@[simp, grind =]
-lemma standardFullWait_apply (n : ℕ) (hn : 0 < n) (i : Fin (3 * n)) :
-    standardFullWait n hn i =
-      if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1 := by
-  rfl
 
 lemma mod_three_cases (x : ℕ) : x % 3 = 0 ∨ x % 3 = 1 ∨ x % 3 = 2 := by
   have hx := Nat.mod_lt x (by omega : 0 < 3)

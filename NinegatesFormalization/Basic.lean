@@ -24,6 +24,18 @@ When comparing `i j : Fin (3 * n)`, we tend to retreat to `Nat` by `Fin.val`.
 That is, write `i.val < j.val` instead of `i < j`, or `i.val = j.val` instead of `i = j`.
 This helps us to maintain a canonical writing and a smooth proof automation,
 as comparison on `Fin` is defined in terms of the underlying `Nat` comparison anyway.
+
+## Design Notes
+
+### Definition of `Hand`
+
+TODO: Alternative choices of defintion of `Hand`.
+
+We refrain from annotate `Hand`'s defining lemma with `@[grind]` or `@[simp]`.
+As a general policy in this library, if a definition mentions `∑`,
+we shall hide it from the downstream as `∑` often breaks proof automation.
+We provide `grind`/`simp`-annotated lemmas free of `∑` for downstream use,
+and non-`grind`/`simp`-annotated `xxx_eq_sum` lemmas for the rare occasions when `∑` is needed.
 -/
 
 namespace Mahjong
@@ -78,10 +90,14 @@ def size : Hand n →+ ℕ where
   map_zero' := by simp
   map_add' _ _ := by simp [Finset.sum_add_distrib]
 
+lemma size_eq_sum (c : Hand n) : size c = ∑ i, c i := rfl
+
 def sum : Hand n →+ ℕ where
   toFun c := ∑ i, i.val * c i
   map_zero' := by simp
   map_add' _ _ := by simp [mul_add, Finset.sum_add_distrib]
+
+lemma sum_eq_sum (c : Hand n) : sum c = ∑ i, i.val * c i := rfl
 
 @[grind =]
 def single (i : Fin (3 * n)) : Hand n := ⟨fun j ↦ if j = i then 1 else 0⟩
