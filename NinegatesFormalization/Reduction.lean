@@ -6,93 +6,183 @@ namespace Mahjong.Hand
 variable {n : ℕ}
 
 def insertSeqAt (c : Hand n) (k : Fin (3 * n + 1)) : Hand (n + 1) :=
-  Hand.ofFn fun i ↦
-    if (i.val : ℤ) < k.val then c i.val
-    else if (i.val : ℤ) < k.val + 3 then 1
-    else c (i.val - 3)
+  ⟨fun i ↦
+    if _h : i.val < k.val then c ⟨i.val, by omega⟩
+    else if _h : i.val < k.val + 3 then 1
+    else c ⟨i.val - 3, by omega⟩⟩
 
 @[grind =]
-lemma insertSeqAt_apply (c : Hand n) (k : Fin (3 * n + 1)) (i : ℤ) :
+lemma insertSeqAt_apply (c : Hand n) (k : Fin (3 * n + 1))
+    (i : Fin (3 * (n + 1))) :
     c.insertSeqAt k i =
-      if i < k.val then c i
-      else if i < k.val + 3 then 1
-      else c (i - 3) := by
-  rw [insertSeqAt, Hand.ofFn_apply]; grind
+      if _h : i.val < k.val then c ⟨i.val, by omega⟩
+      else if _h : i.val < k.val + 3 then 1
+      else c ⟨i.val - 3, by omega⟩ := rfl
 
-@[grind =] private lemma size_insertSeqAt (c : Hand n) (k : Fin (3 * n + 1)) :
+@[simp, grind =]
+lemma insertSeqAt_apply_of_lt (c : Hand n) (k : Fin (3 * n + 1))
+    (i : Fin (3 * (n + 1))) (hi : i.val < k.val) :
+    c.insertSeqAt k i = c ⟨i.val, by omega⟩ := by grind
+
+@[simp, grind =]
+lemma insertSeqAt_apply_of_mem (c : Hand n) (k : Fin (3 * n + 1))
+    (i : Fin (3 * (n + 1))) (hi₀ : k.val ≤ i.val) (hi₁ : i.val < k.val + 3) :
+    c.insertSeqAt k i = 1 := by grind
+
+@[simp, grind =]
+lemma insertSeqAt_apply_of_ge (c : Hand n) (k : Fin (3 * n + 1))
+    (i : Fin (3 * (n + 1))) (hi : k.val + 3 ≤ i.val) :
+    c.insertSeqAt k i = c ⟨i.val - 3, by omega⟩ := by grind
+
+def insertSeqEquiv (k : Fin (3 * n + 1)) :
+    Fin (3 * n) ⊕ Fin 3 ≃ Fin (3 * (n + 1)) where
+  toFun x := match x with
+    | .inl i =>
+        ⟨if i.val < k.val then i.val else i.val + 3, by split <;> omega⟩
+    | .inr j => ⟨k.val + j.val, by omega⟩
+  invFun i :=
+    if h₀ : i.val < k.val then .inl ⟨i.val, by omega⟩
+    else if h₁ : i.val < k.val + 3 then .inr ⟨i.val - k.val, by omega⟩
+    else .inl ⟨i.val - 3, by omega⟩
+  left_inv x := by
+    rcases x with i | i
+    · simp only
+      by_cases hi : i.val < k.val
+      · simp [hi]
+      · simp [hi]
+        omega
+    · simp only
+      have hk : ¬k.val + i.val < k.val := by omega
+      have hki : k.val + i.val < k.val + 3 := by omega
+      simp [hk, hki]
+  right_inv i := by
+    apply Fin.ext
+    by_cases hi₀ : i.val < k.val
+    · simp [hi₀]
+    by_cases hi₁ : i.val < k.val + 3
+    · simp [hi₀, hi₁]
+      omega
+    · have hi₂ : ¬i.val - 3 < k.val := by omega
+      simp [hi₀, hi₁, hi₂]
+      omega
+
+@[simp, grind =]
+lemma insertSeqEquiv_inl_val (k : Fin (3 * n + 1)) (i : Fin (3 * n)) :
+    (insertSeqEquiv k (.inl i)).val =
+      if i.val < k.val then i.val else i.val + 3 := rfl
+
+@[simp, grind =]
+lemma insertSeqEquiv_inr_val (k : Fin (3 * n + 1)) (i : Fin 3) :
+    (insertSeqEquiv k (.inr i)).val = k.val + i.val := rfl
+
+@[grind =]
+lemma size_insertSeqAt (c : Hand n) (k : Fin (3 * n + 1)) :
     size (c.insertSeqAt k) = size c + 3 := by
-  change (∑ i : Fin (3 * n + 3), c.insertSeqAt k i.val) =
-    ∑ i : Fin (3 * n), c i.val + 3
-  rw [Fin.sum_univ_eq_sum_range (fun i ↦ c.insertSeqAt k i) (3 * n + 3)]
-  rw [Fin.sum_univ_eq_sum_range (fun i ↦ c i) (3 * n)]
-  have hk₀ : k.val + (3 * n - k.val) = 3 * n := by omega
-  have hk : k.val + 3 + (3 * n - k.val) = 3 * n + 3 := by omega
-  conv_lhs => rw [← hk, Finset.sum_range_add, Finset.sum_range_add]
-  conv_rhs => rw [← hk₀, Finset.sum_range_add]
-  have hpre :
-      (∑ i ∈ Finset.range k.val, c.insertSeqAt k i) =
-        ∑ i ∈ Finset.range k.val, c i := by
-    apply Finset.sum_congr rfl; grind
-  have hmid :
-      (∑ i ∈ Finset.range 3, c.insertSeqAt k (k.val + i)) = 3 := by
-    norm_num [Finset.sum_range_succ]; grind
-  have hpost :
-      (∑ i ∈ Finset.range (3 * n - k.val),
-        c.insertSeqAt k (k.val + 3 + i)) =
-          ∑ i ∈ Finset.range (3 * n - k.val), c (k.val + i) := by
-    apply Finset.sum_congr rfl; grind
+  have hinl (i : Fin (3 * n)) :
+      c.insertSeqAt k (insertSeqEquiv k (.inl i)) = c i := by
+    simp only [insertSeqAt_apply, insertSeqEquiv_inl_val]
+    split <;> grind
+  have hinr (i : Fin 3) :
+      c.insertSeqAt k (insertSeqEquiv k (.inr i)) = 1 := by
+    simp only [insertSeqAt_apply, insertSeqEquiv_inr_val]
+    grind
+  change (∑ i : Fin (3 * (n + 1)), c.insertSeqAt k i) =
+    (∑ i : Fin (3 * n), c i) + 3
+  calc
+    _ = ∑ x : Fin (3 * n) ⊕ Fin 3, c.insertSeqAt k (insertSeqEquiv k x) :=
+      (Equiv.sum_comp (insertSeqEquiv k) (fun i ↦ c.insertSeqAt k i)).symm
+    _ = _ := by
+      rw [Fintype.sum_sum_type]
+      simp only [hinl, hinr]
+      simp
+
+def removeSeqAt (c : Hand (n + 1)) (k : Fin (3 * n + 1)) : Hand n :=
+  ⟨fun i ↦
+    if _h : i.val < k.val then c ⟨i.val, by omega⟩
+    else c ⟨i.val + 3, by omega⟩⟩
+
+@[grind =]
+lemma removeSeqAt_apply (c : Hand (n + 1)) (k : Fin (3 * n + 1))
+    (i : Fin (3 * n)) :
+    removeSeqAt c k i =
+      if _h : i.val < k.val then c ⟨i.val, by omega⟩
+      else c ⟨i.val + 3, by omega⟩ := rfl
+
+@[simp, grind =]
+lemma removeSeqAt_apply_of_lt (c : Hand (n + 1)) (k : Fin (3 * n + 1))
+    (i : Fin (3 * n)) (hi : i.val < k.val) :
+    removeSeqAt c k i = c ⟨i.val, by omega⟩ := by grind
+
+@[simp, grind =]
+lemma removeSeqAt_apply_of_ge (c : Hand (n + 1)) (k : Fin (3 * n + 1))
+    (i : Fin (3 * n)) (hi : k.val ≤ i.val) :
+    removeSeqAt c k i = c ⟨i.val + 3, by omega⟩ := by grind
+
+lemma insertSeqAt_removeSeqAt (c : Hand (n + 1))
+    (k : Fin (3 * n + 1)) (h₀ : c ⟨k.val, by omega⟩ = 1)
+    (h₁ : c ⟨k.val + 1, by omega⟩ = 1) (h₂ : c ⟨k.val + 2, by omega⟩ = 1) :
+    (removeSeqAt c k).insertSeqAt k = c := by
+  ext i
   grind
 
-private def removeSeqAt (c : Hand (n + 1)) (k : Fin (3 * n + 1)) : Hand n :=
-  Hand.ofFn fun i ↦
-    if (i.val : ℤ) < k.val then c i.val else c (i.val + 3)
-
-private lemma insertSeqAt_removeSeqAt (c : Hand (n + 1))
-    (k : Fin (3 * n + 1)) (h₀ : c k.val = 1)
-    (h₁ : c (k.val + 1) = 1) (h₂ : c (k.val + 2) = 1) :
-    (removeSeqAt c k).insertSeqAt k = c := by
-  apply Hand.ext
-  intro i hi₀ hi₁
-  simp only [insertSeqAt_apply, removeSeqAt, Hand.ofFn_apply]
-  split <;> grind
-
-/- Note that is now is a standalone proof. It does not rely on the scan algorithm. -/
+/- Note that this is a standalone proof. It does not rely on the scan algorithm. -/
 theorem Meldable.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
     (hc : Meldable (c.insertSeqAt k)) : Meldable c := by
   rcases hc with ⟨p, hp⟩
-  have hklt := k.isLt
-  have hinsert (j : ℤ) (hj₀ : (k.val : ℤ) ≤ j) (hj₁ : j < k.val + 3) :
-      (c.insertSeqAt k) j = 1 := by
-    rw [insertSeqAt_apply]
+  unfold Meldable.IsWitness at hp
+  let k₀ : Fin (3 * (n + 1)) := ⟨k.val, by omega⟩
+  let k₁ : Fin (3 * (n + 1)) := ⟨k.val + 1, by omega⟩
+  let k₂ : Fin (3 * (n + 1)) := ⟨k.val + 2, by omega⟩
+  have h₀ := congrArg (fun d : Hand (n + 1) ↦ d k₀) hp
+  have h₁ := congrArg (fun d : Hand (n + 1) ↦ d k₁) hp
+  have h₂ := congrArg (fun d : Hand (n + 1) ↦ d k₂) hp
+  have hseq₁ (hk : 2 ≤ k.val) :
+      p.seqNum k₁ = p.seqNum ⟨k.val - 2, by omega⟩ := by grind
+  have hseq₂ (hk : 1 ≤ k.val) :
+      p.seqNum k₂ = p.seqNum ⟨k.val - 1, by omega⟩ := by grind
+  let q : Meldable.Placement n :=
+    ⟨(fun i ↦
+        if h : i.val < k.val then p.tripNum ⟨i.val, by omega⟩
+        else p.tripNum ⟨i.val + 3, by omega⟩),
+      (fun i ↦
+        if h : i.val < k.val then p.seqNum ⟨i.val, by omega⟩
+        else p.seqNum ⟨i.val + 3, by omega⟩), by
+      constructor
+      · intro i hi
+        split
+        · have hs₁ := hseq₁ (by omega)
+          have hs₂ := hseq₂ (by omega)
+          grind [Fin.ext]
+        · apply Meldable.Placement.seqNum_of_ge
+          simp only
+          omega
+      · intro i hi
+        split
+        · have hs₁ := hseq₁ (by omega)
+          have hs₂ := hseq₂ (by omega)
+          grind [Fin.ext]
+        · apply Meldable.Placement.seqNum_of_ge
+          simp only
+          omega⟩
+  refine ⟨q, ?_⟩
+  unfold Meldable.IsWitness
+  ext i
+  simp only [q, Meldable.Placement.toHand_apply]
+  by_cases hi : i.val < k.val
+  · have hpi := congrArg
+      (fun d : Hand (n + 1) ↦ d ⟨i.val, by omega⟩) hp
+    simp only [Meldable.Placement.toHand_apply, insertSeqAt_apply] at hpi
     grind
-  have hcoord (j : ℤ) (hj₀ : (k.val : ℤ) ≤ j) (hj₁ : j < k.val + 3) :
-      3 * Placement.tripNum p j + Placement.seqNum p j +
-          Placement.seqNum p (j - 1) + Placement.seqNum p (j - 2) = 1 := by
-    have h := congrArg (fun d : Hand (n + 1) ↦ d j) hp
-    simpa only [Placement.toHand_apply, hinsert j hj₀ hj₁] using h
-  have h0 := hcoord (k.val : ℤ) (by omega) (by omega)
-  have h1 := hcoord (k.val + 1 : ℤ) (by omega) (by omega)
-  have h2 := hcoord (k.val + 2 : ℤ) (by omega) (by omega)
-  have hseq : Placement.seqNum p (k.val + 1 : ℤ) = Placement.seqNum p (k.val - 2 : ℤ) ∧
-      Placement.seqNum p (k.val + 2 : ℤ) = Placement.seqNum p (k.val - 1 : ℤ) := by
+  by_cases hi' : k.val + 2 ≤ i.val
+  · have hpi := congrArg
+      (fun d : Hand (n + 1) ↦ d ⟨i.val + 3, by omega⟩) hp
+    simp only [Meldable.Placement.toHand_apply, insertSeqAt_apply] at hpi
     grind
-  clear hcoord hinsert h0 h1 h2
-  refine ⟨Placement.ofFn
-    (fun i ↦ if (i.val : ℤ) < k.val then p.tripNum i.val else p.tripNum (i.val + 3))
-    (fun i ↦ if (i.val : ℤ) < k.val then p.seqNum i.val else p.seqNum (i.val + 3)), ?_⟩
-  ext i hi₀ hi₁
-  by_cases hi : (i : ℤ) < k.val
-  · have hpi := congrArg (fun d : Hand (n + 1) ↦ d i) hp
-    grind
-  · by_cases hi' : (k.val : ℤ) + 2 ≤ i
-    · have hpi := congrArg (fun d : Hand (n + 1) ↦ d (i + 3)) hp
-      grind
-    · have hicases : (i : ℤ) = k.val ∨ (i : ℤ) = k.val + 1 := by omega
-      rcases hicases with hik | hik
-      · have hpi := congrArg (fun d : Hand (n + 1) ↦ d (i + 3)) hp
-        grind
-      · have hpi := congrArg (fun d : Hand (n + 1) ↦ d (i + 3)) hp
-        grind
+  · have hpi := congrArg
+      (fun d : Hand (n + 1) ↦ d ⟨i.val + 3, by omega⟩) hp
+    simp only [Meldable.Placement.toHand_apply, insertSeqAt_apply] at hpi
+    have hicases : i.val = k.val ∨ i.val = k.val + 1 := by omega
+    rcases hicases with hik | hik <;> grind [Fin.ext]
 
 theorem Winning.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
     (hc : Winning (c.insertSeqAt k)) : Winning c := by
@@ -102,21 +192,23 @@ theorem Winning.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
     let j' : Fin (3 * (n + 1)) :=
       ⟨if i.val < k.val then i.val else i.val + 3, by split <;> omega⟩
     have h := hcvalid j'
-    rw [insertSeqAt_apply] at h; grind
-  have hsize : Hand.size c = 3 * n + 5 := by
     grind
+  have hsize : Hand.size c = 3 * n + 5 := by grind
   have hj : j.val < k.val ∨ k.val + 3 ≤ j.val := by
     by_contra h
-    have hEq := congrArg (fun z : Hand (n + 1) ↦ z j.val) hcd
-    rw [insertSeqAt_apply] at hEq; grind
-  have hd₀ : d k.val = 1 := by
-    have hEq := congrArg (fun z : Hand (n + 1) ↦ z k.val) hcd
-    rw [insertSeqAt_apply] at hEq; grind
-  have hd₁ : d (k.val + 1) = 1 := by
-    have hEq := congrArg (fun z : Hand (n + 1) ↦ z (k.val + 1)) hcd
+    have hEq := congrArg (fun z : Hand (n + 1) ↦ z j) hcd
     grind
-  have hd₂ : d (k.val + 2) = 1 := by
-    have hEq := congrArg (fun z : Hand (n + 1) ↦ z (k.val + 2)) hcd
+  let k₀ : Fin (3 * (n + 1)) := ⟨k.val, by omega⟩
+  let k₁ : Fin (3 * (n + 1)) := ⟨k.val + 1, by omega⟩
+  let k₂ : Fin (3 * (n + 1)) := ⟨k.val + 2, by omega⟩
+  have hd₀ : d k₀ = 1 := by
+    have hEq := congrArg (fun z : Hand (n + 1) ↦ z k₀) hcd
+    grind
+  have hd₁ : d k₁ = 1 := by
+    have hEq := congrArg (fun z : Hand (n + 1) ↦ z k₁) hcd
+    grind
+  have hd₂ : d k₂ = 1 := by
+    have hEq := congrArg (fun z : Hand (n + 1) ↦ z k₂) hcd
     grind
   have hdEq : (removeSeqAt d k).insertSeqAt k = d :=
     insertSeqAt_removeSeqAt d k hd₀ hd₁ hd₂
@@ -126,14 +218,13 @@ theorem Winning.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
   let j' : Fin (3 * n) :=
     ⟨if j.val < k.val then j.val else j.val - 3, by split <;> omega⟩
   have htarget : c = removeSeqAt d k + pair j' := by
-    apply Hand.ext
-    intro x hx₀ hx₁
-    by_cases hx : x < k.val
-    · have hEq := congrArg (fun z : Hand (n + 1) ↦ z x) hcd
-      simp [insertSeqAt_apply, removeSeqAt, pair_apply, j', hx] at hEq ⊢
+    ext x
+    by_cases hx : x.val < k.val
+    · have hEq := congrArg
+        (fun z : Hand (n + 1) ↦ z ⟨x.val, by omega⟩) hcd
       grind
-    · have hEq := congrArg (fun z : Hand (n + 1) ↦ z (x + 3)) hcd
-      simp [insertSeqAt_apply, removeSeqAt, pair_apply, j', hx] at hEq ⊢
+    · have hEq := congrArg
+        (fun z : Hand (n + 1) ↦ z ⟨x.val + 3, by omega⟩) hcd
       grind
   exact ⟨hvalid, hsize, removeSeqAt d k, j', hd', htarget⟩
 
@@ -144,18 +235,14 @@ theorem IsFullWait.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
     ⟨if i.val < k.val then i.val else i.val + 3, by split <;> omega⟩
   have hcomm : (c + single i).insertSeqAt k =
       c.insertSeqAt k + single j := by
-    apply Hand.ext
-    intro x hx₀ hx₁
-    simp [insertSeqAt_apply, single_apply]
+    ext x
     grind
   exact Winning.of_insertSeqAt k (hcomm.symm ▸ hc j)
 
-private lemma insertSeqAt_standardFullWait (hn : 0 < n)
+lemma insertSeqAt_standardFullWait (hn : 0 < n)
     (k : Fin (3 * n + 1)) (hk₀ : 0 < k.val) (hk₁ : k.val < 3 * n) :
-    (standardFullWait n hn).insertSeqAt k = standardFullWait (n + 1) (Nat.succ_pos n) := by
-  apply Hand.ext
-  intro i hi₀ hi₁
-  simp only [insertSeqAt_apply, standardFullWait, Hand.ofFn_apply]
+    (standardFullWait n).insertSeqAt k = standardFullWait (n + 1) := by
+  ext i
   grind
 
 private lemma sum_comp_le_sum_of_injective
@@ -174,57 +261,57 @@ theorem exists_insertSeqAt_of_large
       0 < k.val ∧ k.val < 3 * n ∧ c = d.insertSeqAt k := by
   let idx : Fin (3 * n + 1) → Fin (3 * (n + 1)) :=
     fun i ↦ ⟨i.val + 1, by omega⟩
-  have hpositive (i : Fin (3 * n + 1)) : 0 < c (idx i).val := by
+  have hpositive (i : Fin (3 * n + 1)) : 0 < c (idx i) := by
     apply interior_positive (n := n + 1) (by omega) c hc
     grind
   have hsum_le :
-      (∑ i : Fin (3 * n + 1), c (idx i).val) ≤ size c := by
-    change (∑ i : Fin (3 * n + 1), c (idx i).val) ≤
-      ∑ j : Fin (3 * (n + 1)), c j.val
-    refine sum_comp_le_sum_of_injective idx ?_ (fun j ↦ c j.val)
+      (∑ i : Fin (3 * n + 1), c (idx i)) ≤ size c := by
+    change (∑ i : Fin (3 * n + 1), c (idx i)) ≤
+      ∑ j : Fin (3 * (n + 1)), c j
+    refine sum_comp_le_sum_of_injective idx ?_ (fun j ↦ c j)
     intro i j hij
     apply Fin.ext
     have hval := congrArg Fin.val hij
     grind
   have hdecomp :
-      (3 * n + 1) + ∑ i : Fin (3 * n + 1), (c (idx i).val - 1) =
-        ∑ i : Fin (3 * n + 1), c (idx i).val := by
+      (3 * n + 1) + ∑ i : Fin (3 * n + 1), (c (idx i) - 1) =
+        ∑ i : Fin (3 * n + 1), c (idx i) := by
     calc
-      (3 * n + 1) + ∑ i : Fin (3 * n + 1), (c (idx i).val - 1) =
-          ∑ i : Fin (3 * n + 1), (1 + (c (idx i).val - 1)) := by
+      (3 * n + 1) + ∑ i : Fin (3 * n + 1), (c (idx i) - 1) =
+          ∑ i : Fin (3 * n + 1), (1 + (c (idx i) - 1)) := by
         simp [Finset.sum_add_distrib]
-      _ = ∑ i : Fin (3 * n + 1), c (idx i).val := by
+      _ = ∑ i : Fin (3 * n + 1), c (idx i) := by
         apply Finset.sum_congr rfl
         grind
   have hexcess :
-      (∑ i : Fin (3 * n + 1), (c (idx i).val - 1)) ≤ 6 := by
+      (∑ i : Fin (3 * n + 1), (c (idx i) - 1)) ≤ 6 := by
     grind [IsFullWait.size]
   let block : Fin 7 → Fin 3 → Fin (3 * n + 1) :=
     fun a b ↦ ⟨3 * a.val + b.val, by omega⟩
   have hblock :
-      ∃ a : Fin 7, ∀ b : Fin 3, c (idx (block a b)).val - 1 = 0 := by
+      ∃ a : Fin 7, ∀ b : Fin 3, c (idx (block a b)) - 1 = 0 := by
     by_contra h
     push Not at h
     have hone (a : Fin 7) :
-        1 ≤ ∑ b : Fin 3, (c (idx (block a b)).val - 1) := by
+        1 ≤ ∑ b : Fin 3, (c (idx (block a b)) - 1) := by
       obtain ⟨b, hb⟩ := h a
       calc
-        1 ≤ c (idx (block a b)).val - 1 := Nat.one_le_iff_ne_zero.mpr hb
-        _ ≤ ∑ b : Fin 3, (c (idx (block a b)).val - 1) :=
+        1 ≤ c (idx (block a b)) - 1 := Nat.one_le_iff_ne_zero.mpr hb
+        _ ≤ ∑ b : Fin 3, (c (idx (block a b)) - 1) :=
           Finset.single_le_sum
-            (f := fun b : Fin 3 ↦ c (idx (block a b)).val - 1)
+            (f := fun b : Fin 3 ↦ c (idx (block a b)) - 1)
             (by grind) (Finset.mem_univ b)
     have hseven :
         7 ≤ ∑ a : Fin 7, ∑ b : Fin 3,
-          (c (idx (block a b)).val - 1) := by
+          (c (idx (block a b)) - 1) := by
       calc
         7 = ∑ _ : Fin 7, 1 := by simp
-        _ ≤ ∑ a : Fin 7, ∑ b : Fin 3, (c (idx (block a b)).val - 1) :=
+        _ ≤ ∑ a : Fin 7, ∑ b : Fin 3, (c (idx (block a b)) - 1) :=
           Finset.sum_le_sum fun a _ ↦ hone a
     have hblocks_le :
-        (∑ a : Fin 7, ∑ b : Fin 3,
-          (c (idx (block a b)).val - 1)) ≤
-            ∑ i : Fin (3 * n + 1), (c (idx i).val - 1) := by
+      (∑ a : Fin 7, ∑ b : Fin 3,
+          (c (idx (block a b)) - 1)) ≤
+            ∑ i : Fin (3 * n + 1), (c (idx i) - 1) := by
       let pairIdx : Fin 7 × Fin 3 → Fin (3 * n + 1) :=
         fun x ↦ block x.1 x.2
       have hinj : Function.Injective pairIdx := by
@@ -233,25 +320,26 @@ theorem exists_insertSeqAt_of_large
         grind
       simpa only [Fintype.sum_prod_type] using
         sum_comp_le_sum_of_injective pairIdx hinj
-          (fun i ↦ c (idx i).val - 1)
+          (fun i ↦ c (idx i) - 1)
     omega
   obtain ⟨a, ha⟩ := hblock
   let k : Fin (3 * n + 1) := ⟨3 * a.val + 1, by omega⟩
   have hk₀ : 0 < k.val := by grind
   have hk₁ : k.val < 3 * n := by grind
-  have hc (b : Fin 3) : c (idx (block a b)).val = 1 := by
+  have hc (b : Fin 3) : c (idx (block a b)) = 1 := by
     have hv := ha b
     have hp := hpositive (block a b)
     grind
-  have hc₀ : c k.val = 1 := by simpa [k, idx, block] using hc 0
-  have hc₁ : c (k.val + 1) = 1 := by simpa [k, idx, block] using hc 1
-  have hc₂ : c (k.val + 2) = 1 := by
+  have hc₀ : c ⟨k.val, by omega⟩ = 1 := by simpa [k, idx, block] using hc 0
+  have hc₁ : c ⟨k.val + 1, by omega⟩ = 1 := by
+    simpa [k, idx, block] using hc 1
+  have hc₂ : c ⟨k.val + 2, by omega⟩ = 1 := by
     simpa [k, idx, block, add_assoc] using hc (2 : Fin 3)
   exact ⟨removeSeqAt c k, k, hk₀, hk₁,
     (insertSeqAt_removeSeqAt c k hc₀ hc₁ hc₂).symm⟩
 
 abbrev IsCounterexample (c : Hand n) : Prop :=
-  IsFullWait c ∧ ∀ hn : 0 < n, c ≠ standardFullWait n hn
+  IsFullWait c ∧ c ≠ standardFullWait n
 
 theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n}
     (hc : IsCounterexample c) :
@@ -267,15 +355,15 @@ theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n}
               exists_insertSeqAt_of_large (n := m) (by omega) hc.1
             have hdFull : IsFullWait d :=
               IsFullWait.of_insertSeqAt k (hcd ▸ hc.1)
-            have hdNe : ∀ hm : 0 < m, d ≠ standardFullWait m hm := by
-              intro hm hd
-              have hpos : 0 < m + 1 := Nat.succ_pos m
-              apply hc.2 hpos
+            have hdNe : d ≠ standardFullWait m := by
+              intro hd
+              apply hc.2
               calc
                 c = d.insertSeqAt k := hcd
-                _ = (standardFullWait m hm).insertSeqAt k := by rw [hd]
-                _ = standardFullWait (m + 1) hpos :=
-                  insertSeqAt_standardFullWait hm k hk₀ hk₁
+                _ = (standardFullWait m).insertSeqAt k :=
+                  congrArg (fun e : Hand m ↦ e.insertSeqAt k) hd
+                _ = standardFullWait (m + 1) :=
+                  insertSeqAt_standardFullWait (by omega) k hk₀ hk₁
             exact ih m (by omega) (by omega) ⟨hdFull, hdNe⟩
 
 end Mahjong.Hand

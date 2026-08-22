@@ -27,32 +27,50 @@ namespace Placement
 variable {n : ℕ}
 
 /-- A placement is canonical when it uses fewer than three sequences at every start. -/
-def Canonical (p : Placement n) : Prop := ∀ i : ℤ, p.seqNum i < 3
+@[grind =]
+def Canonical (p : Placement n) : Prop := ∀ i, p.seqNum i < 3
 
 /-- Replace groups of three equal sequences by the corresponding triplets. -/
 def canonicalize (p : Placement n) : Placement n :=
-  ofFn
-    (fun i ↦
-      p.tripNum i.val + p.seqNum i.val / 3 +
-        p.seqNum (i.val - 1) / 3 +
-        p.seqNum (i.val - 2) / 3)
-    (fun i ↦ p.seqNum i.val % 3)
+  ⟨(fun i ↦
+      p.tripNum i + p.seqNum i / 3 +
+        (if 1 ≤ i.val then p.seqNum ⟨i.val - 1, by omega⟩ / 3 else 0) +
+        (if 2 ≤ i.val then p.seqNum ⟨i.val - 2, by omega⟩ / 3 else 0)),
+    (fun i ↦ p.seqNum i % 3), by
+      constructor <;> intro i hi <;> grind⟩
 
-@[simp, grind =]
-lemma tripNum_canonicalize (p : Placement n) (i : ℤ) :
+@[grind =]
+lemma tripNum_canonicalize (p : Placement n) (i : Fin (3 * n)) :
     p.canonicalize.tripNum i =
       p.tripNum i + p.seqNum i / 3 +
-        p.seqNum (i - 1) / 3 + p.seqNum (i - 2) / 3 := by
-  grind [= canonicalize]
+        (if 1 ≤ i.val then p.seqNum ⟨i.val - 1, by omega⟩ / 3 else 0) +
+        (if 2 ≤ i.val then p.seqNum ⟨i.val - 2, by omega⟩ / 3 else 0) := rfl
 
 @[simp, grind =]
-lemma seqNum_canonicalize (p : Placement n) (i : ℤ) :
-    p.canonicalize.seqNum i = p.seqNum i % 3 := by
-  grind [= canonicalize]
+lemma seqNum_canonicalize (p : Placement n) (i : Fin (3 * n)) :
+    p.canonicalize.seqNum i = p.seqNum i % 3 := rfl
+
+@[simp, grind =]
+lemma tripNum_canonicalize_of_eq_zero (p : Placement n) (i : Fin (3 * n))
+    (hi : i.val = 0) :
+    p.canonicalize.tripNum i = p.tripNum i + p.seqNum i / 3 := by grind
+
+@[simp, grind =]
+lemma tripNum_canonicalize_of_eq_one (p : Placement n) (i : Fin (3 * n))
+    (hi : i.val = 1) :
+    p.canonicalize.tripNum i = p.tripNum i + p.seqNum i / 3 +
+      p.seqNum ⟨0, by omega⟩ / 3 := by grind
+
+@[simp, grind =]
+lemma tripNum_canonicalize_of_ge_two (p : Placement n) (i : Fin (3 * n))
+    (hi : 2 ≤ i.val) :
+    p.canonicalize.tripNum i = p.tripNum i + p.seqNum i / 3 +
+      p.seqNum ⟨i.val - 1, by omega⟩ / 3 +
+      p.seqNum ⟨i.val - 2, by omega⟩ / 3 := by grind
 
 @[simp]
 lemma Canonical.canonicalize (p : Placement n) : p.canonicalize.Canonical := by
-  grind [= Canonical]
+  grind
 
 @[simp]
 theorem toHand_canonicalize (p : Placement n) :
@@ -62,7 +80,12 @@ theorem toHand_canonicalize (p : Placement n) :
 
 theorem Canonical.iff_canonicalize_eq_self (p : Placement n) :
     p.Canonical ↔ p.canonicalize = p := by
-  grind [= Canonical]
+  constructor
+  · intro hp
+    ext i <;> grind
+  · intro h i
+    have hi := congrArg (fun q : Placement n ↦ q.seqNum i) h
+    grind
 
 @[simp]
 theorem canonicalize_idem (p : Placement n) :
@@ -73,33 +96,28 @@ theorem canonicalize_idem (p : Placement n) :
 theorem Canonical.unique {p q : Placement n}
     (hp : p.Canonical) (hq : q.Canonical) (h : p.toHand = q.toHand) :
     p = q := by
-  have hcoord : ∀ k : ℕ, k < 3 * n →
-      p.tripNum k = q.tripNum k ∧ p.seqNum k = q.seqNum k := by
+  have hcoord : ∀ k : ℕ, ∀ hk : k < 3 * n,
+      p.tripNum ⟨k, hk⟩ = q.tripNum ⟨k, hk⟩ ∧
+        p.seqNum ⟨k, hk⟩ = q.seqNum ⟨k, hk⟩ := by
     intro k
     induction k using Nat.strong_induction_on with
     | h k ih =>
       intro hk
-      have hprev₁ : p.seqNum ((k : ℤ) - 1) = q.seqNum ((k : ℤ) - 1) := by
-        cases k with
-        | zero => simp
-        | succ k => simpa using (ih k (by omega) (by omega)).2
-      have hprev₂ : p.seqNum ((k : ℤ) - 2) = q.seqNum ((k : ℤ) - 2) := by
-        cases k with
-        | zero => simp
-        | succ k =>
-          cases k with
-          | zero => simp
-          | succ k =>
-            have hk : ((k + 1 + 1 : ℕ) : ℤ) - 2 = k := by omega
-            simpa only [hk] using (ih k (by omega) (by omega)).2
-      have hhand := congrArg (fun c : Hand n ↦ c k) h
-      simp only [toHand_apply] at hhand
-      have hpk := hp k
-      have hqk := hq k
-      constructor <;> omega
-  apply ext <;> intro i hi₀ hi₁
-  · simpa [Int.toNat_of_nonneg hi₀] using (hcoord i.toNat (by omega)).1
-  · simpa [Int.toNat_of_nonneg hi₀] using (hcoord i.toNat (by omega)).2
+      let i : Fin (3 * n) := ⟨k, hk⟩
+      have hhand := congrArg (fun c : Hand n ↦ c i) h
+      have hpk := hp i
+      have hqk := hq i
+      by_cases hk₀ : k = 0
+      · constructor <;> grind
+      by_cases hk₁ : k = 1
+      · have hprev := (ih 0 (by omega) (by omega)).2
+        constructor <;> grind
+      · have hprev₁ := (ih (k - 1) (by omega) (by omega)).2
+        have hprev₂ := (ih (k - 2) (by omega) (by omega)).2
+        constructor <;> grind
+  ext i
+  · exact (hcoord i.val i.isLt).1
+  · exact (hcoord i.val i.isLt).2
 
 end Placement
 
