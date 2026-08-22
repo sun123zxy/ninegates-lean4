@@ -73,4 +73,5 @@ theorem IsFullWait.standardFullWait (n : ℕ) (hn : 0 < n) :
       by_cases hi₅ : i.val = p.val; · grind
       rcases mod_three_cases i.val with himod | himod | himod
       all_goals simp_all; grind
+
 end Mahjong.Hand
