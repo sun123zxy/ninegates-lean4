@@ -33,9 +33,10 @@ We design `toHand_apply` automation as follows:
   `toHand_apply_of_ge_two` are `@[simp]` lemmas for each specific case.
   These reductions are safe as no `ite` case splits remain in the statement.
 
-The effectiveness of this design is verified by the proof of `IsFullWait.standardFullWait`,
-where automation simplifies the proof dramatically.
-In practice, as `grind` has a upper limit on the number of case splits,
+The effectiveness of this design is verified by the neat proof of `IsFullWait.standardFullWait`.
+
+In practice, as `grind` has a upper limit on the number of case splits
+(though it is configurable by `grind (splits := 20)`),
 it is still recommended to manually perform the case split and `simp` with the case conditions
 before invoking `grind` for the remaining proof obligations.
 -/
@@ -52,7 +53,7 @@ structure Placement (n : ℕ) where
   seqNum : Fin (3 * n) → ℕ
   seqNum_tail :
     (∀ i, i.val + 2 = 3 * n → seqNum i = 0) ∧
-      ∀ i, i.val + 1 = 3 * n → seqNum i = 0
+    (∀ i, i.val + 1 = 3 * n → seqNum i = 0)
 
 attribute [grind ext] Placement.ext
 

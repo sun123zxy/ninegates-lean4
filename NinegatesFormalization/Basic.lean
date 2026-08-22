@@ -17,6 +17,13 @@ that finite coordinate type directly.
 * `single`, `pair`, `triplet`, and `sequence` are the elementary tile patterns.
 * `size` counts tiles, while `sum` is their value-weighted sum.
 * `Valid c` requires every legal multiplicity of `c` to be at most four.
+
+## Conventions
+
+When comparing `i j : Fin (3 * n)`, we tend to retreat to `Nat` by `Fin.val`.
+That is, write `i.val < j.val` instead of `i < j`, or `i.val = j.val` instead of `i = j`.
+This helps us to maintain a canonical writing and a smooth proof automation,
+as comparison on `Fin` is defined in terms of the underlying `Nat` comparison anyway.
 -/
 
 namespace Mahjong
