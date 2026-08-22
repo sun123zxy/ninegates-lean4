@@ -5,10 +5,39 @@ import NinegatesFormalization.Basic
 /-!
 # Meld decompositions
 
-`Placement n` records triplet and sequence multiplicities on the finite tile
-coordinates.  Sequence multiplicities are extended to all `3 * n` coordinates;
-the final two coordinates carry a proof that their values are zero.  The hand
-of a placement is the finite sum of its triplet and sequence contributions.
+## Main Definitions
+
+- `Placement n` records triplet and sequence multiplicities on the finite tile
+  coordinates. Sequence multiplicities at the final two coordinates are required
+  to be zero.
+
+- For a placement `p`, `p.toHand` is the hand given by the finite sum of the
+  triplets and sequences specified by `p`.
+
+- A placement is a witness for a hand when its `toHand` is that hand. A hand is
+  `Meldable` when it has such a witness.
+
+## Design Notes
+
+### `toHand_apply` Automation
+
+`seqNum` requires a case split on the first two coordinates.
+We design `toHand_apply` automation as follows:
+
+- `toHand_apply` is a `@[grind =]` lemma whose statement use `ite`.
+  Recall that `grind` is designed to handle case splits, so this lemma
+  is useful for downstream when they do not bother with the case split,
+  or has a case split that is not in the exact form where `toHand_apply` specifies.
+
+- `toHand_apply_of_eq_zero`, `toHand_apply_of_eq_one`, and
+  `toHand_apply_of_ge_two` are `@[simp]` lemmas for each specific case.
+  These reductions are safe as no `ite` case splits remain in the statement.
+
+The effectiveness of this design is verified by the proof of `IsFullWait.standardFullWait`,
+where automation simplifies the proof dramatically.
+In practice, as `grind` has a upper limit on the number of case splits,
+it is still recommended to manually perform the case split and `simp` with the case conditions
+before invoking `grind` for the remaining proof obligations.
 -/
 
 namespace Mahjong.Hand
@@ -90,7 +119,6 @@ lemma seqNum_of_ge (p : Placement n) (i : Fin (3 * n))
   · apply hlast₂ i
     omega
 
-@[grind =]
 def toHand : Placement n →+ Hand n where
   toFun p :=
     ∑ i, p.tripNum i • Hand.triplet i +
@@ -98,54 +126,66 @@ def toHand : Placement n →+ Hand n where
   map_zero' := by simp
   map_add' _ _ := by simp [add_nsmul, Finset.sum_add_distrib]; ac_rfl
 
-@[grind =]
 lemma toHand_eq_sum (p : Placement n) :
     p.toHand =
       ∑ i, p.tripNum i • Hand.triplet i +
         ∑ j, p.seqNum ⟨j.val, by omega⟩ • Hand.sequence j := rfl
 
 lemma seq_sum (p : Placement n) (i : Fin (3 * n)) (d : ℕ)
-    (hd : d ≤ i.val) (hd₂ : d ≤ 2) :
+    (hd₂ : d ≤ 2) :
     (∑ j : Fin (3 * n - 2),
       if i.val = j.val + d then p.seqNum ⟨j.val, by omega⟩ else 0) =
-      p.seqNum ⟨i.val - d, by omega⟩ := by
+      if hd : d ≤ i.val then p.seqNum ⟨i.val - d, by omega⟩ else 0 := by
   classical
-  by_cases hi : i.val - d < 3 * n - 2
-  · let j : Fin (3 * n - 2) := ⟨i.val - d, hi⟩
-    rw [Finset.sum_eq_single j]
-    · have hij : i = ⟨j.val + d, by omega⟩ := by
+  split
+  · rename_i hd
+    by_cases hi : i.val - d < 3 * n - 2
+    · let j : Fin (3 * n - 2) := ⟨i.val - d, hi⟩
+      rw [Finset.sum_eq_single j]
+      · have hij : i = ⟨j.val + d, by omega⟩ := by
+          apply Fin.ext
+          exact (Nat.sub_add_cancel hd).symm
+        simp only [hij, if_true]
+        congr 1
         apply Fin.ext
-        exact (Nat.sub_add_cancel hd).symm
-      simp only [hij, if_true]
-      congr 1
-      apply Fin.ext
-      simp [j]
-    · intro k hk hkj
+        simp [j]
+      · intro k hk hkj
+        simp only [ite_eq_right_iff]
+        intro hik
+        exfalso
+        apply hkj
+        apply Fin.ext
+        have hval := hik
+        change k.val = i.val - d
+        omega
+      · simp
+    · have hge : 3 * n - 2 ≤ i.val - d := by omega
+      rw [seqNum_of_ge p ⟨i.val - d, by omega⟩ hge]
+      apply Finset.sum_eq_zero
+      intro j hj
       simp only [ite_eq_right_iff]
-      intro hik
-      exfalso
-      apply hkj
-      apply Fin.ext
-      have hval := hik
-      change k.val = i.val - d
+      intro hij
       omega
-    · simpa [Nat.mul_comm]
-  · have hge : 3 * n - 2 ≤ i.val - d := by omega
-    rw [seqNum_of_ge p ⟨i.val - d, by omega⟩ hge]
+  · rename_i hd
     apply Finset.sum_eq_zero
     intro j hj
     simp only [ite_eq_right_iff]
     intro hij
     omega
 
-@[simp, grind =]
+@[grind =]
 lemma toHand_apply (p : Placement n) (i : Fin (3 * n)) :
     p.toHand i =
-      3 * p.tripNum i +
-        p.seqNum i +
-        (if 0 < i.val then p.seqNum ⟨i.val - 1, by omega⟩ else 0) +
-        (if 1 < i.val then p.seqNum ⟨i.val - 2, by omega⟩ else 0) := by
-  simp [toHand, Hand.triplet_apply, Hand.sequence_apply]
+      if h₀ : i.val = 0 then
+        3 * p.tripNum i + p.seqNum i
+      else if h₁ : i.val = 1 then
+        3 * p.tripNum i + p.seqNum i + p.seqNum ⟨0, by omega⟩
+      else
+        3 * p.tripNum i + p.seqNum i +
+          p.seqNum ⟨i.val - 1, by omega⟩ + p.seqNum ⟨i.val - 2, by omega⟩ := by
+  simp only [toHand, AddMonoidHom.coe_mk, ZeroHom.coe_mk, add_apply, sum_apply,
+    smul_apply, Hand.triplet_apply, smul_eq_mul, mul_ite, mul_zero,
+    Hand.sequence_apply, mul_one, dite_eq_ite]
   have hsum :
       (∑ j : Fin (3 * n - 2),
         if i.val = j.val ∨ i.val = j.val + 1 ∨
@@ -160,13 +200,13 @@ lemma toHand_apply (p : Placement n) (i : Fin (3 * n)) :
     rw [← Finset.sum_add_distrib, ← Finset.sum_add_distrib]
     apply Finset.sum_congr rfl
     intro j hj
-    split_ifs <;> simp_all [Fin.ext_iff] <;> omega
+    split_ifs <;> simp_all
   rw [hsum]
   have htrip :
       (∑ j : Fin (3 * n), if i.val = j.val then p.tripNum j * 3 else 0) =
         3 * p.tripNum i := by
     rw [Finset.sum_eq_single i]
-    · simpa [Nat.mul_comm]
+    · simp [Nat.mul_comm]
     · intro j hj hji
       simp only [ite_eq_right_iff]
       intro h
@@ -176,66 +216,39 @@ lemma toHand_apply (p : Placement n) (i : Fin (3 * n)) :
       exact h.symm
     · simp
   rw [htrip]
-  have h0 := seq_sum p i 0 (by omega) (by omega)
-  have h1 : (0 < i.val) →
+  have h0 :
       (∑ j : Fin (3 * n - 2),
-        if i.val = j.val + 1 then p.seqNum ⟨j.val, by omega⟩ else 0) =
-      p.seqNum ⟨i.val - 1, by omega⟩ := by
-    intro hi
-    exact seq_sum p i 1 (by omega) (by omega)
-  have h2 : (1 < i.val) →
-      (∑ j : Fin (3 * n - 2),
-        if i.val = j.val + 2 then p.seqNum ⟨j.val, by omega⟩ else 0) =
-      p.seqNum ⟨i.val - 2, by omega⟩ := by
-    intro hi
-    exact seq_sum p i 2 (by omega) (by omega)
-  have h1z : ¬0 < i.val →
-      (∑ j : Fin (3 * n - 2),
-        if i.val = j.val + 1 then p.seqNum ⟨j.val, by omega⟩ else 0) = 0 := by
-    intro hi
-    apply Finset.sum_eq_zero
-    intro j hj
-    simp only [ite_eq_right_iff]
-    intro hij
+        if i.val = j.val then p.seqNum ⟨j.val, by omega⟩ else 0) = p.seqNum i := by
+    simpa using seq_sum p i 0 (by omega)
+  have h1 := seq_sum p i 1 (by omega)
+  have h2 := seq_sum p i 2 (by omega)
+  rw [h0, h1, h2]
+  by_cases hi₀ : i.val = 0
+  · simp [hi₀]
+  by_cases hi₁ : i.val = 1
+  · simp [hi₁]
     omega
-  have h2z : ¬1 < i.val →
-      (∑ j : Fin (3 * n - 2),
-        if i.val = j.val + 2 then p.seqNum ⟨j.val, by omega⟩ else 0) = 0 := by
-    intro hi
-    apply Finset.sum_eq_zero
-    intro j hj
-    simp only [ite_eq_right_iff]
-    intro hij
+  · have hi₂ : 2 ≤ i.val := by omega
+    have hi₁' : 1 ≤ i.val := by omega
+    simp [hi₀, hi₁, hi₁', hi₂]
     omega
-  split <;> split <;> simp_all <;> omega
 
-@[simp, grind =]
-lemma toHand_apply_of_lt_one (p : Placement n) (i : Fin (3 * n))
-    (hi : i.val < 1) :
-    p.toHand i = 3 * p.tripNum i + p.seqNum i := by
-  rw [toHand_apply]
-  have h0 : ¬0 < i.val := by omega
-  have h1 : ¬1 < i.val := by omega
-  simp only [h0, h1, if_false, add_zero]
+@[simp]
+lemma toHand_apply_of_eq_zero (p : Placement n) (i : Fin (3 * n))
+    (hi : i.val = 0) :
+    p.toHand i = 3 * p.tripNum i + p.seqNum i := by grind
 
-@[simp, grind =]
-lemma toHand_apply_of_lt_two (p : Placement n) (i : Fin (3 * n))
-    (hi : i.val < 2) :
+@[simp]
+lemma toHand_apply_of_eq_one (p : Placement n) (i : Fin (3 * n))
+    (hi : i.val = 1) :
     p.toHand i = 3 * p.tripNum i + p.seqNum i +
-      (if 0 < i.val then p.seqNum ⟨i.val - 1, by omega⟩ else 0) := by
-  rw [toHand_apply]
-  have h1 : ¬1 < i.val := by omega
-  simp only [h1, if_false, add_zero]
+      p.seqNum ⟨0, by omega⟩ := by grind
 
-@[simp, grind =]
+@[simp]
 lemma toHand_apply_of_ge_two (p : Placement n) (i : Fin (3 * n))
     (hi : 2 ≤ i.val) :
     p.toHand i = 3 * p.tripNum i + p.seqNum i +
-      p.seqNum ⟨i.val - 1, by omega⟩ + p.seqNum ⟨i.val - 2, by omega⟩ := by
-  rw [toHand_apply]
-  have h0 : 0 < i.val := by omega
-  have h1 : 1 < i.val := by omega
-  simp only [h0, h1, if_true]
+      p.seqNum ⟨i.val - 1, by omega⟩ + p.seqNum ⟨i.val - 2, by omega⟩ := by grind
 
 end Placement
 
@@ -269,12 +282,12 @@ lemma sequence {i : Fin (3 * n - 2)} : Meldable (sequence i) := by
     · simp only [ite_eq_right_iff]
       intro h
       have hval := congrArg Fin.val h
-      simp only [Fin.val_mk] at hval
+      simp only at hval
       omega
     · simp only [ite_eq_right_iff]
       intro h
       have hval := congrArg Fin.val h
-      simp only [Fin.val_mk] at hval
+      simp only at hval
       omega
   · simp only [IsWitness, Placement.toHand_eq_sum, Pi.zero_apply, zero_nsmul,
       Finset.sum_const_zero, zero_add, ite_smul, one_nsmul]

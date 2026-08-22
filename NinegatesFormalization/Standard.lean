@@ -64,22 +64,24 @@ lemma standardFullWait_pair_of_mod_zero (n : ℕ) (hn : 0 < n)
     ∃ d : Hand n, ∃ i : Fin (3 * n), Meldable d ∧
       standardFullWait n hn + single p = d + pair i := by
   let q : Meldable.Placement n :=
-    ⟨0, fun i ↦ if i.val + 2 < 3 * n ∧
+    ⟨(fun _ ↦ 0), fun i ↦ if i.val + 2 < 3 * n ∧
       ((i.val % 3 = 1 ∧ i.val < p.val) ∨
         (i.val % 3 = 0 ∧ p.val ≤ i.val)) then 1 else 0, by
           constructor <;> intro i hi <;>
             simp only [ite_eq_right_iff] <;> intro h <;> grind⟩
-  refine ⟨q.toHand + triplet ⟨0, by omega⟩, ⟨3 * n - 1, by omega⟩,
-    Meldable.add ⟨q, rfl⟩ Meldable.triplet, ?_⟩
-  apply Hand.ext
-  intro i
-  simp only [standardFullWait_apply, add_apply, pair_apply, single_apply, triplet_apply]
-  by_cases hi : i.val < 2
-  · rw [Meldable.Placement.toHand_apply_of_lt_two q i hi]
-    dsimp [q]; grind
-  · rw [Meldable.Placement.toHand_apply_of_ge_two q i (by omega)]
-    dsimp [q]
-    rcases mod_three_cases i.val with hi0 | hi1 | hi2 <;> grind (splits := 10)
+  use q.toHand + triplet ⟨0, by omega⟩, ⟨3 * n - 1, by omega⟩,
+    Meldable.add ⟨q, rfl⟩ Meldable.triplet
+  ext i
+  simp only [standardFullWait_apply, add_apply, pair_apply, single_apply]
+  by_cases hi₀ : i.val = 0; · grind
+  by_cases hi₁ : i.val = 1; · grind
+  by_cases hi₂ : i.val = 3 * n - 1; · grind
+  by_cases hi₃ : i.val = 3 * n - 1; · grind
+  have hi₄ : 2 ≤ i.val := by omega
+  have hi₅ : i.val ≤ 3 * n - 2 := by omega
+  by_cases hi₆ : i.val = p.val; · grind
+  rcases mod_three_cases i.val with himod | himod | himod
+  all_goals simp_all; grind
 
 lemma standardFullWait_pair_of_mod_one (n : ℕ) (hn : 0 < n)
     (p : Fin (3 * n)) (hp : p.val % 3 = 1) :
@@ -92,16 +94,19 @@ lemma standardFullWait_pair_of_mod_one (n : ℕ) (hn : 0 < n)
           (i.val % 3 = 2 ∧ p.val < i.val)) then 1 else 0, by
           constructor <;> intro i hi <;>
             simp only [ite_eq_right_iff] <;> intro h <;> grind⟩
-  refine ⟨q.toHand, p, ⟨q, rfl⟩, ?_⟩
-  apply Hand.ext
-  intro i
+  use q.toHand, p, ⟨q, rfl⟩
+  ext i
+  -- grind (splits := 20) -- if you want a brainless case split
   simp only [standardFullWait_apply, add_apply, pair_apply, single_apply]
-  by_cases hi : i.val < 2
-  · rw [Meldable.Placement.toHand_apply_of_lt_two q i hi]
-    dsimp [q]; grind
-  · rw [Meldable.Placement.toHand_apply_of_ge_two q i (by omega)]
-    dsimp [q]
-    rcases mod_three_cases i.val with hi0 | hi1 | hi2 <;> grind (splits := 10)
+  by_cases hi₀ : i.val = 0; · grind
+  by_cases hi₁ : i.val = 1; · grind
+  by_cases hi₂ : i.val = 3 * n - 1; · grind
+  by_cases hi₃ : i.val = 3 * n - 1; · grind
+  have hi₄ : 2 ≤ i.val := by omega
+  have hi₅ : i.val ≤ 3 * n - 2 := by omega
+  by_cases hi₆ : i.val = p.val; · grind
+  rcases mod_three_cases i.val with himod | himod | himod
+  all_goals simp_all; grind
 
 lemma standardFullWait_pair_of_mod_two (n : ℕ) (hn : 0 < n)
     (p : Fin (3 * n)) (hp : p.val % 3 = 2) :
@@ -114,16 +119,18 @@ lemma standardFullWait_pair_of_mod_two (n : ℕ) (hn : 0 < n)
           (i.val % 3 = 2 ∧ p.val ≤ i.val)) then 1 else 0, by
           constructor <;> intro i hi <;>
             simp only [ite_eq_right_iff] <;> intro h <;> grind⟩
-  refine ⟨q.toHand, ⟨0, by omega⟩, ⟨q, rfl⟩, ?_⟩
-  apply Hand.ext
-  intro i
+  use q.toHand, ⟨0, by omega⟩, ⟨q, rfl⟩
+  ext i
   simp only [standardFullWait_apply, add_apply, pair_apply, single_apply]
-  by_cases hi : i.val < 2
-  · rw [Meldable.Placement.toHand_apply_of_lt_two q i hi]
-    dsimp [q]; grind
-  · rw [Meldable.Placement.toHand_apply_of_ge_two q i (by omega)]
-    dsimp [q]
-    rcases mod_three_cases i.val with hi0 | hi1 | hi2 <;> grind (splits := 10)
+  by_cases hi₀ : i.val = 0; · grind
+  by_cases hi₁ : i.val = 1; · grind
+  by_cases hi₂ : i.val = 3 * n - 1; · grind
+  by_cases hi₃ : i.val = 3 * n - 1; · grind
+  have hi₄ : 2 ≤ i.val := by omega
+  have hi₅ : i.val ≤ 3 * n - 2 := by omega
+  by_cases hi₆ : i.val = p.val; · grind
+  rcases mod_three_cases i.val with himod | himod | himod
+  all_goals simp_all; grind
 
 theorem IsFullWait.standardFullWait (n : ℕ) (hn : 0 < n) :
     IsFullWait (standardFullWait n hn) := by
