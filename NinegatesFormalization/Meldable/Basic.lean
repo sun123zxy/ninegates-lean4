@@ -209,6 +209,34 @@ lemma toHand_apply (p : Placement n) (i : Fin (3 * n)) :
     omega
   split <;> split <;> simp_all <;> omega
 
+@[simp, grind =]
+lemma toHand_apply_of_lt_one (p : Placement n) (i : Fin (3 * n))
+    (hi : i.val < 1) :
+    p.toHand i = 3 * p.tripNum i + p.seqNum i := by
+  rw [toHand_apply]
+  have h0 : ¬0 < i.val := by omega
+  have h1 : ¬1 < i.val := by omega
+  simp only [h0, h1, if_false, add_zero]
+
+@[simp, grind =]
+lemma toHand_apply_of_lt_two (p : Placement n) (i : Fin (3 * n))
+    (hi : i.val < 2) :
+    p.toHand i = 3 * p.tripNum i + p.seqNum i +
+      (if 0 < i.val then p.seqNum ⟨i.val - 1, by omega⟩ else 0) := by
+  rw [toHand_apply]
+  have h1 : ¬1 < i.val := by omega
+  simp only [h1, if_false, add_zero]
+
+@[simp, grind =]
+lemma toHand_apply_of_ge_two (p : Placement n) (i : Fin (3 * n))
+    (hi : 2 ≤ i.val) :
+    p.toHand i = 3 * p.tripNum i + p.seqNum i +
+      p.seqNum ⟨i.val - 1, by omega⟩ + p.seqNum ⟨i.val - 2, by omega⟩ := by
+  rw [toHand_apply]
+  have h0 : 0 < i.val := by omega
+  have h1 : 1 < i.val := by omega
+  simp only [h0, h1, if_true]
+
 end Placement
 
 @[grind =]
