@@ -48,4 +48,9 @@ lemma IsFullWait.size (hn : 0 < n) {c : Hand n} (hc : IsFullWait c) :
   have hsize := (hc i).size
   grind
 
+lemma IsFullWait.le_three {c : Hand n} (hc : IsFullWait c) : ∀ i, c i ≤ 3 := by
+  intro i
+  have hi := (hc i).left i
+  grind
+
 end Mahjong.Hand
