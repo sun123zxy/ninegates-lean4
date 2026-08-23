@@ -20,9 +20,9 @@ which might be a little boilerplate-heavy for this simple algorithm.
 
 ## Main Results
 
-- A successful scan returns a canonical witness for the input hand.
-- Scanning the hand of a placement returns its canonicalization.
-- A hand is `Meldable` exactly when its scan succeeds.
+- `Hand.meldScan_sound`: a successful scan returns a canonical witness for the input hand.
+- `Hand.meldScan_toHand`: scanning the hand of a placement returns its canonicalization.
+- `Meldable.iff_meldScan`: Hand meldability by successful scanning.
 -/
 
 namespace Mahjong.Hand.Meldable
@@ -205,87 +205,69 @@ lemma replayList_get (state : State) (ps : List StepPlacement) (i : Fin ps.lengt
               simp [replayList] at h ⊢
               grind
 
-end Scan
-
-/-- Encode a canonical placement as the coordinate choices consumed by `Scan.scan`. -/
-def Placement.toStepPlacements (p : Placement n) (hp : p.Canonical) : List StepPlacement :=
+/-- Split a canonical placement into the coordinate choices consumed by `Scan.scan`. -/
+def disjoinCanonicalPlacement (p : Placement n) (hp : p.Canonical) : List StepPlacement :=
   List.ofFn fun i ↦ ⟨p.tripNum i, ⟨p.seqNum i, hp i⟩⟩
 
-lemma Scan.toStepPlacements_replayList (p : Placement n) (hp : p.Canonical) :
-    Scan.replayList (0, 0) (p.toStepPlacements hp) =
-      (List.ofFn (fun i ↦ p.toHand i), (0, 0)) := by
+lemma replayList_disjoinCanonicalPlacement (p : Placement n) (hp : p.Canonical) :
+    replayList (0, 0) (disjoinCanonicalPlacement p hp) =
+      (List.ofFn p.toHand, (0, 0)) := by
   by_cases hn : n = 0
   · subst n
-    simp [Placement.toStepPlacements, Scan.replayList]
+    simp [disjoinCanonicalPlacement, replayList]
   apply Prod.ext
   · apply List.ext_getElem
-    · simp [Scan.replayList_length, Placement.toStepPlacements]
+    · simp [replayList_length, disjoinCanonicalPlacement]
     · intro k hk₁ hk₂
-      have hk : k < (p.toStepPlacements hp).length := by
-        simpa [Scan.replayList_length] using hk₁
-      have hcoord :=
-        Scan.replayList_get (0, 0) (p.toStepPlacements hp) ⟨k, hk⟩
-      simp [Placement.toStepPlacements] at hcoord ⊢
-      by_cases hk₀ : k = 0
-      · simp [Placement.toHand_apply_of_eq_zero, hk₀] at ⊢ hcoord
-        grind
-      by_cases hk₁ : k = 1
-      · simp [Placement.toHand_apply_of_eq_one, hk₁] at ⊢ hcoord
-        grind
-      · have hk₂ : 2 ≤ k := by omega
-        simp [Placement.toHand_apply_of_ge_two, hk₂] at ⊢ hcoord
-        grind
+      have hk : k < (disjoinCanonicalPlacement p hp).length := by
+        simpa [replayList_length] using hk₁
+      have hcoord := replayList_get (0, 0) (disjoinCanonicalPlacement p hp) ⟨k, hk⟩
+      grind [disjoinCanonicalPlacement]
   · have hnpos : 0 < n := Nat.pos_of_ne_zero hn
     have htail :=
-      Scan.replayList_snd_of_length_ge_two (0, 0) (p.toStepPlacements hp)
-        (by simp [Placement.toStepPlacements]; omega)
-    simp [Placement.toStepPlacements] at htail ⊢
-    grind [p.seqNum_tail]
-
-namespace Scan
+      replayList_snd_of_length_ge_two (0, 0) (disjoinCanonicalPlacement p hp)
+        (by simp [disjoinCanonicalPlacement]; omega)
+    grind [disjoinCanonicalPlacement]
 
 variable {n : ℕ} {c : Hand n} {ps : List StepPlacement}
 
-/-- Turn a successful scan of a hand into the corresponding placement. -/
-def toPlacement
-    (h : scan (List.ofFn fun i ↦ c i) = some ps) : Placement n :=
+/-- Join the step placements from a successful scan into the corresponding placement. -/
+def joinStepPlacements
+    (h : scan (List.ofFn c) = some ps) : Placement n :=
   have hlength : ps.length = 3 * n := by simpa using length_of_scan h
   ⟨(fun i ↦ (ps.get ⟨i.val, by omega⟩).tripNum),
     (fun i ↦ (ps.get ⟨i.val, by omega⟩).seqNum.val), by
       by_cases hn : n = 0
-      · subst n
-        constructor <;> intro i <;> exact Fin.elim0 i
+      · grind
       have hfinal : (replayList (0, 0) ps).2 = (0, 0) := by
         exact congrArg Prod.snd (replayList_of_scan h)
-      have hzero :=
-        seqNum_tail_eq_zero_of_replayList (0, 0) ps (by omega) hfinal
-      constructor <;> intro i hi <;> grind⟩
+      have hzero := seqNum_tail_eq_zero_of_replayList (0, 0) ps (by omega) hfinal
+      grind⟩
 
-/-- The placement extracted from a successful scan is canonical. -/
-lemma canonical_toPlacement
-    (h : scan (List.ofFn fun i ↦ c i) = some ps) :
-    (toPlacement h).Canonical := by
+/-- The placement joined from a successful scan is canonical. -/
+lemma joinStepPlacements_canonical
+    (h : scan (List.ofFn c) = some ps) :
+    (joinStepPlacements h).Canonical := by
   intro i
-  simp [toPlacement]
+  simp [joinStepPlacements]
 
-lemma toStepPlacements_toPlacement
-    (h : scan (List.ofFn fun i ↦ c i) = some ps) :
-    Placement.toStepPlacements (toPlacement h) (canonical_toPlacement h) = ps := by
+lemma disjoinCanonicalPlacement_joinStepPlacements
+    (h : scan (List.ofFn c) = some ps) :
+    disjoinCanonicalPlacement (joinStepPlacements h) (joinStepPlacements_canonical h) = ps := by
   apply List.ext_getElem
-  · simp [Placement.toStepPlacements, length_of_scan h]
+  · simp [disjoinCanonicalPlacement, length_of_scan h]
   · intro i hi₁ hi₂
-    simp [Placement.toStepPlacements, toPlacement]
+    simp [disjoinCanonicalPlacement, joinStepPlacements]
 
-/-- The placement extracted from a successful scan gives the scanned hand. -/
-theorem isWitness_toPlacement
-    (h : scan (List.ofFn fun i ↦ c i) = some ps) :
-    IsWitness (toPlacement h) c := by
+/-- The placement joined from a successful scan gives the scanned hand. -/
+theorem joinStepPlacements_isWitness
+    (h : scan (List.ofFn c) = some ps) :
+    IsWitness (joinStepPlacements h) c := by
   simp only [IsWitness]
   have hreplay :=
-    Scan.toStepPlacements_replayList (toPlacement h) (canonical_toPlacement h)
-  rw [toStepPlacements_toPlacement h] at hreplay
-  have hlists :=
-    congrArg Prod.fst (hreplay.symm.trans (replayList_of_scan h))
+    replayList_disjoinCanonicalPlacement (joinStepPlacements h) (joinStepPlacements_canonical h)
+  rw [disjoinCanonicalPlacement_joinStepPlacements h] at hreplay
+  have hlists := congrArg Prod.fst (hreplay.symm.trans (replayList_of_scan h))
   ext i
   exact congrFun (List.ofFn_injective hlists) i
 
@@ -298,9 +280,9 @@ variable {n : ℕ}
 
 /-- Scan a hand and return its canonical meld placement when the scan succeeds. -/
 def meldScan (c : Hand n) : Option (Meldable.Placement n) :=
-  match h : Meldable.Scan.scan (List.ofFn fun i ↦ c i) with
+  match h : Meldable.Scan.scan (List.ofFn c) with
   | none => none
-  | some _ => some (Meldable.Scan.toPlacement h)
+  | some _ => some (Meldable.Scan.joinStepPlacements h)
 
 /-- A successful scan returns a canonical witness for the input hand. -/
 theorem meldScan_sound {c : Hand n} {p : Meldable.Placement n}
@@ -310,8 +292,8 @@ theorem meldScan_sound {c : Hand n} {p : Meldable.Placement n}
   split at h
   · contradiction
   · cases h
-    exact ⟨Meldable.Scan.isWitness_toPlacement _,
-      Meldable.Scan.canonical_toPlacement _⟩
+    exact ⟨Meldable.Scan.joinStepPlacements_isWitness _,
+      Meldable.Scan.joinStepPlacements_canonical _⟩
 
 /-- Scanning the hand given by a placement returns its canonicalization. -/
 theorem meldScan_toHand (p : Meldable.Placement n) :
@@ -319,16 +301,14 @@ theorem meldScan_toHand (p : Meldable.Placement n) :
   let q := p.canonicalize
   have hq : q.Canonical := Meldable.Placement.Canonical.canonicalize p
   have hreplay :
-      Meldable.Scan.replayList (0, 0) (Meldable.Placement.toStepPlacements q hq) =
-        (List.ofFn (fun i ↦ p.toHand i), (0, 0)) := by
-    simpa [q] using Meldable.Scan.toStepPlacements_replayList q hq
+      Meldable.Scan.replayList (0, 0) (Meldable.Scan.disjoinCanonicalPlacement q hq) =
+        (List.ofFn p.toHand, (0, 0)) := by
+    simpa [q] using Meldable.Scan.replayList_disjoinCanonicalPlacement q hq
   obtain ⟨ps, hscan⟩ := Meldable.Scan.exists_scan_of_replayList ⟨_, hreplay⟩
-  have hresult :
-      p.toHand.meldScan = some (Meldable.Scan.toPlacement hscan) := by
-    unfold meldScan
-    split <;> grind
+  have hresult : p.toHand.meldScan = some (Meldable.Scan.joinStepPlacements hscan) := by
+    grind [meldScan]
   have hsound := meldScan_sound hresult
-  have hplacement : Meldable.Scan.toPlacement hscan = q := by
+  have hplacement : Meldable.Scan.joinStepPlacements hscan = q := by
     apply Meldable.Placement.Canonical.unique hsound.2 hq
     simp only [Meldable.IsWitness] at hsound
     simpa [q] using hsound.1
@@ -337,9 +317,7 @@ theorem meldScan_toHand (p : Meldable.Placement n) :
 /-- A hand is meldable exactly when scanning it succeeds. -/
 theorem Meldable.iff_meldScan (c : Hand n) : Meldable c ↔ c.meldScan.isSome := by
   constructor
-  · rintro ⟨p, hp⟩
-    simp only [Meldable.IsWitness] at hp
-    rw [← hp]
+  · rintro ⟨p, rfl⟩
     exact Option.isSome_iff_exists.2 ⟨p.canonicalize, meldScan_toHand p⟩
   · intro h
     obtain ⟨p, hp⟩ := Option.isSome_iff_exists.1 h
