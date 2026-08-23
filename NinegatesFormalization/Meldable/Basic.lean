@@ -54,6 +54,7 @@ structure Placement (n : ℕ) where
   seqNum_tail :
     (∀ i, i.val + 2 = 3 * n → seqNum i = 0) ∧
     (∀ i, i.val + 1 = 3 * n → seqNum i = 0)
+deriving Repr
 
 attribute [grind ext] Placement.ext
 
