@@ -65,4 +65,37 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
         Meldable.sum_mod_three (hright_meldable i₃ hi₃)
     grind
 
+theorem excess_eq_six (hn : 2 ≤ n) {c : Hand n} (hc : IsFullWait c) :
+    c ⟨0, by omega⟩ + c ⟨3 * n - 1, by omega⟩ +
+      ∑ i : Fin (3 * n - 2), (c ⟨i.val + 1, by omega⟩ - 1) = 6 := by
+  have hpos := interior_positive hn c hc
+  have hsize := IsFullWait.size (by omega) hc
+  have hsum (f : Fin (3 * n) → ℕ) : (∑ i : Fin (3 * n), f i) =
+      f ⟨0, by omega⟩ + (∑ i : Fin (3 * n - 2), f ⟨i.val + 1, by omega⟩)
+        + f ⟨3 * n - 1, by omega⟩ := by
+    have hsumFin (g : Fin ((3 * n - 2) + 2) → ℕ) : (∑ i, g i) =
+        g 0 + (∑ i : Fin (3 * n - 2), g i.castSucc.succ) + g (Fin.last (3 * n - 2 + 1)) := by
+      grind [Fin.sum_univ_succ, Fin.sum_univ_castSucc]
+    let e : Fin ((3 * n - 2) + 2) ≃ Fin (3 * n) := finCongr (by omega)
+    have he0 : e 0 = ⟨0, by omega⟩ := by simp [Fin.ext_iff, e]
+    have heMid (i : Fin (3 * n - 2)) : e i.castSucc.succ = ⟨i.val + 1, by omega⟩ := by
+      simp [Fin.ext_iff, e]
+    have heLast : e (Fin.last (3 * n - 2 + 1)) = ⟨3 * n - 1, by omega⟩ := by
+      simp [Fin.ext_iff, e]; omega
+    grind [Equiv.sum_comp e f]
+  rw [size_eq_sum, hsum c] at hsize
+  have hdecomp : (3 * n - 2) + ∑ i : Fin (3 * n - 2), (c ⟨i.val + 1, by omega⟩ - 1) =
+      ∑ i : Fin (3 * n - 2), c ⟨i.val + 1, by omega⟩ := by
+    calc
+      _ = ∑ i : Fin (3 * n - 2),
+          (1 + (c ⟨i.val + 1, by omega⟩ - 1)) := by
+            simp [Finset.sum_add_distrib]
+      _ = _ := by grind [Finset.sum_congr rfl]
+  omega
+
+theorem interior_excess_le_six (hn : 2 ≤ n) {c : Hand n} (hc : IsFullWait c) :
+    ∑ i : Fin (3 * n - 2), (c ⟨i.val + 1, by omega⟩ - 1) ≤ 6 := by
+  have h := excess_eq_six hn hc
+  omega
+
 end Mahjong.Hand

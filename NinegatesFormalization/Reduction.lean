@@ -187,22 +187,15 @@ private lemma sum_comp_le_sum_of_injective {α β : Type*} [Fintype α] [Fintype
 
 theorem exists_insertSeqAt_of_large (hn : 6 < n) {c : Hand (n + 1)} (hc : IsFullWait c) :
     ∃ d : Hand n, ∃ k : Fin (3 * n + 1), 0 < k.val ∧ k.val < 3 * n ∧ c = d.insertSeqAt k := by
-  let idx : Fin (3 * n + 1) → Fin (3 * (n + 1)) := fun i ↦ ⟨i.val + 1, by omega⟩
-  have hpositive (i : Fin (3 * n + 1)) : 0 < c (idx i) := by
+  let idx : Fin (3 * (n + 1) - 2) → Fin (3 * (n + 1)) :=
+    fun i ↦ ⟨i.val + 1, by omega⟩
+  have hpositive (i : Fin (3 * (n + 1) - 2)) : 0 < c (idx i) := by
     apply interior_positive (n := n + 1) (by omega) c hc
     grind
-  have hsum_le : (∑ i : Fin (3 * n + 1), c (idx i)) ≤ size c := by
-    refine sum_comp_le_sum_of_injective idx ?_ (fun j ↦ c j)
-    grind [Function.Injective]
-  have hdecomp :
-      (3 * n + 1) + ∑ i : Fin (3 * n + 1), (c (idx i) - 1) =
-        ∑ i : Fin (3 * n + 1), c (idx i) := by
-    calc
-      (3 * n + 1) + ∑ i : Fin (3 * n + 1), (c (idx i) - 1)
-        = ∑ i : Fin (3 * n + 1), (1 + (c (idx i) - 1)) := by simp [Finset.sum_add_distrib]
-      _ = ∑ i : Fin (3 * n + 1), c (idx i) := by apply Finset.sum_congr rfl; grind
-  have hexcess : (∑ i : Fin (3 * n + 1), (c (idx i) - 1)) ≤ 6 := by grind [IsFullWait.size]
-  let block : Fin 7 → Fin 3 → Fin (3 * n + 1) := fun a b ↦ ⟨3 * a.val + b.val, by omega⟩
+  have hexcess : (∑ i : Fin (3 * (n + 1) - 2), (c (idx i) - 1)) ≤ 6 := by
+    simpa [idx] using (interior_excess_le_six (n := n + 1) (c := c) (by omega) hc)
+  let block : Fin 7 → Fin 3 → Fin (3 * (n + 1) - 2) :=
+    fun a b ↦ ⟨3 * a.val + b.val, by omega⟩
   have hblock : ∃ a : Fin 7, ∀ b : Fin 3, c (idx (block a b)) - 1 = 0 := by
     by_contra h
     push Not at h
@@ -222,8 +215,8 @@ theorem exists_insertSeqAt_of_large (hn : 6 < n) {c : Hand (n + 1)} (hc : IsFull
     have hblocks_le :
       (∑ a : Fin 7, ∑ b : Fin 3,
           (c (idx (block a b)) - 1)) ≤
-            ∑ i : Fin (3 * n + 1), (c (idx i) - 1) := by
-      let pairIdx : Fin 7 × Fin 3 → Fin (3 * n + 1) :=
+            ∑ i : Fin (3 * (n + 1) - 2), (c (idx i) - 1) := by
+      let pairIdx : Fin 7 × Fin 3 → Fin (3 * (n + 1) - 2) :=
         fun x ↦ block x.1 x.2
       have hinj : Function.Injective pairIdx := by
         grind [Function.Injective]
