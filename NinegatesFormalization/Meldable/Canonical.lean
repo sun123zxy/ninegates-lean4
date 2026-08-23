@@ -68,15 +68,12 @@ lemma tripNum_canonicalize_of_ge_two (p : Placement n) (i : Fin (3 * n))
       p.seqNum ⟨i.val - 1, by omega⟩ / 3 +
       p.seqNum ⟨i.val - 2, by omega⟩ / 3 := by grind
 
-@[simp]
 lemma Canonical.canonicalize (p : Placement n) : p.canonicalize.Canonical := by
   grind
 
-@[simp]
-theorem toHand_canonicalize (p : Placement n) :
-    p.canonicalize.toHand = p.toHand := by
-  ext i
-  grind
+@[simp, grind =]
+theorem toHand_canonicalize (p : Placement n) : p.canonicalize.toHand = p.toHand := by
+  ext i; grind
 
 theorem Canonical.iff_canonicalize_eq_self (p : Placement n) :
     p.Canonical ↔ p.canonicalize = p := by
@@ -87,7 +84,7 @@ theorem Canonical.iff_canonicalize_eq_self (p : Placement n) :
     have hi := congrArg (fun q : Placement n ↦ q.seqNum i) h
     grind
 
-@[simp]
+@[simp, grind =]
 theorem canonicalize_idem (p : Placement n) :
     p.canonicalize.canonicalize = p.canonicalize := by
   exact (Canonical.iff_canonicalize_eq_self p.canonicalize).mp
@@ -123,13 +120,21 @@ end Placement
 
 variable {n : ℕ}
 
+theorem toHand_iff_witness_canonicalize (p : Placement n) :
+    Meldable p.toHand ↔ IsWitness p.canonicalize p.toHand := by
+  constructor
+  · rintro ⟨q, hq⟩
+    rw [IsWitness, Placement.toHand_canonicalize]
+  · rintro h
+    exact ⟨p.canonicalize, h⟩
+
 /-- A hand is meldable exactly when it has a canonical placement. -/
 theorem iff_exists_canonical_witness (c : Hand n) :
     Meldable c ↔ ∃ p, IsWitness p c ∧ p.Canonical := by
   constructor
   · rintro ⟨p, hp⟩
-    refine ⟨p.canonicalize, ?_, Placement.Canonical.canonicalize p⟩
-    simpa [IsWitness] using hp
+    use p.canonicalize, ?_, Placement.Canonical.canonicalize p
+    rw [IsWitness, Placement.toHand_canonicalize, hp]
   · rintro ⟨p, hp, _⟩
     exact ⟨p, hp⟩
 
