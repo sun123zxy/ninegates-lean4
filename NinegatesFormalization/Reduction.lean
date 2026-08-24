@@ -14,6 +14,8 @@ import NinegatesFormalization.Standard
 
 ## Main results
 
+- `Meldable.of_insertSeqAt` shows that deleting a sequence preserves meldability.
+- `Winning.of_insertSeqAt` shows that deleting a sequence preserves winning property.
 - `exists_insertSeqAt_of_large` finds a removable sequence in every sufficiently large full wait.
 - `full_wait_reduction` shows that given a larger counterexample, a smaller counterexample exists in small cases,
   relying on `exists_insertSeqAt_of_large` for the reduction.

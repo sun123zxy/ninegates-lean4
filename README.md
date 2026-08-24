@@ -2,7 +2,7 @@
 
 ## Introduction
 
-As of Augest 2026, full-auto AI formalization agents like Archon + GPT 5.6 are already capable of generating mathematically correct Lean code at scale, but they almost always produce unecessary glue code and redundant proof steps, which can be tedious to maintain and verify. For example, as of Augest 2026, native GPT 5.6 is still ignorant of the `grind` tactic and its automation power, nor can it annotate the code with `@[grind]` and `@[simp]` properly without human guidance. A neat, curated library design and annotation still require human's skillful intervention. As a statistical witness, on the path towards the proof of the counterexample reduction lemma, by carefully redesigning, restructuring, and annotating the Archon + GPT 5.5 generated 2604 lines of Lean code, we have reached a 70% reduction in line count, a 770-line Lean codebase that is much more maintainable and readable, while improving the proof structure and automation power. Hidden mathematical insights also emerge from this process.
+As of Augest 2026, full-auto AI formalization agents like Archon + GPT 5.6 are already capable of generating mathematically correct Lean code at scale, but they almost always produce unecessary glue code and redundant proof steps, which can be tedious to maintain and verify. For example, as of Augest 2026, native GPT 5.6 is still ignorant of the `grind` tactic and its automation power, nor can it annotate the code with `@[grind]` and `@[simp]` properly without human guidance. A neat, curated library design and annotation still require human expertise and intervention. As a statistical evidence, on the path towards the proof of the counterexample reduction lemma, by carefully redesigning, restructuring, and annotating the Archon + GPT 5.5 generated 2604 lines of Lean code, we have reached a 70% reduction in line count, a 770-line Lean codebase that is much more maintainable and readable, while improving the proof structure and automation power. We suprisingly observed that with clean organization and proper annotation, those mathematically proof-by-trivial lemmas can be indeed closed by a `ext; simp_all; grind` combo, and hidden mathematical insights also emerge as we reorganize the codebase.
 
 ## Reading the code
 
@@ -23,7 +23,7 @@ In general we follow the [official `grind` annotation guideline](https://lean-la
 
 - Hide the definition if it contains `∑`: Don't `@[grind]` or `@[simp]` it. Provide lemmas for downstream use. Reserve the responsibility manipulating `∑` on our side.
 
-This set of rules turns out to be effective, resulting a brainless `ext; simp_all; grind` combo almost always works. We have multiple positive examples in this library. Some of them are listed here for reference:
+This set of rules turns out to be effective, resulting a brainless `ext; simp_all; grind` combo almost always works for mathematically trivial lemmas. We have multiple positive examples in this library. Some of them are listed here for reference:
 
 - `Placement.toHand_apply`: For apply lemmas containing `if`. See `Meldable.Basic` documentation for a closer look.
 
