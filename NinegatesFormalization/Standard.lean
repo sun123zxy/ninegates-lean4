@@ -1,6 +1,12 @@
 import NinegatesFormalization.Winning
 import NinegatesFormalization.Meldable.Basic
 
+/-!
+# Standard full-wait
+
+This file defines the standard full-wait and proves that it is indeed a full wait.
+-/
+
 namespace Mahjong.Hand
 
 @[grind =]

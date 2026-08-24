@@ -3,7 +3,7 @@ import NinegatesFormalization.Meldable.Canonical
 /-!
 # Verified scanning algorithm for meld decompositions
 
-## Main Definitions
+## Main definitions
 
 - `Scan.State` records the two sequence counts still requiring the current tile.
 - `Meldable.StepPlacement` records the triplets and sequences selected at one coordinate.
@@ -18,11 +18,15 @@ are almost inverses of each other. With this symmetry,
 we can prove correctness of the scan algorithm swiftly without using `vcgen`,
 which might be a little boilerplate-heavy for this simple algorithm.
 
-## Main Results
+## Main results
 
 - `Hand.meldScan_sound`: a successful scan returns a canonical witness for the input hand.
 - `Hand.meldScan_toHand`: scanning the hand of a placement returns its canonicalization.
 - `Meldable.iff_meldScan`: Hand meldability by successful scanning.
+
+## Execution
+
+`Hand.meldScan` is executable! Try `#eval (.triplet 0 : Hand 3).meldScan` for example.
 -/
 
 namespace Mahjong.Hand.Meldable

@@ -3,7 +3,7 @@ import NinegatesFormalization.Meldable.Basic
 /-!
 # Canonical meld decompositions
 
-## Main Definitions
+## Main definitions
 
 - `Placement.Canonical p` means that fewer than three sequences start at each
   coordinate.
@@ -12,7 +12,7 @@ import NinegatesFormalization.Meldable.Basic
   modulo three.  Each removed group of three equal sequences is replaced by one
   triplet at each of the three coordinates covered by those sequences.
 
-## Main Results
+## Main results
 
 - `p.canonicalize` is canonical and gives the same hand as `p`.
 - `canonicalize` fixes exactly the canonical placements and is idempotent.

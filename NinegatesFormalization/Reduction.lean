@@ -1,6 +1,29 @@
 import NinegatesFormalization.Positivity
 import NinegatesFormalization.Standard
 
+/-!
+# Full-wait reduction
+
+## Main definitions
+
+- `insertSeqAt` inserts one complete sequence (`{1,1,1}`) at an interior coordinate.
+- `insertSeqEquiv` identifies the old coordinates and the inserted sequence
+  with the coordinates of the enlarged hand.
+- `removeSeqAt` is the inverse operation used by the reduction step.
+- `IsCounterexample` is a transparent predicate for a full wait that is not the standard full wait.
+
+## Main results
+
+- `exists_insertSeqAt_of_large` finds a removable sequence in every sufficiently large full wait.
+- `full_wait_reduction` shows that given a larger counterexample, a smaller counterexample exists in small cases,
+  relying on `exists_insertSeqAt_of_large` for the reduction.
+
+## Design notes
+
+- The automation design of `insertSeqAt_apply` and `removeSeqAt_apply` follow
+  our general automation policy of apply lemmas containing `if`.
+-/
+
 namespace Mahjong.Hand
 
 variable {n : ℕ}
@@ -243,8 +266,7 @@ theorem exists_insertSeqAt_of_large (hn : 6 < n) {c : Hand (n + 1)} (hc : IsFull
 abbrev IsCounterexample (c : Hand n) : Prop :=
   IsFullWait c ∧ c ≠ standardFullWait n
 
-theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n}
-    (hc : IsCounterexample c) :
+theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n} (hc : IsCounterexample c) :
     ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ ∃ d : Hand m, IsCounterexample d := by
   induction n using Nat.strong_induction_on with
   | h n ih =>

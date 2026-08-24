@@ -3,8 +3,6 @@ import NinegatesFormalization.Meldable.Basic
 /-!
 # Winning hands and waits
 
-## Winning hands
-
 A `Winning c` hand is valid, has `3 * n + 5` tiles, and can be written as a meldable
 hand plus one pair.  This separates the existential choice of the pair from the meld
 decomposition developed in `Meldable.Basic`.

@@ -1,11 +1,9 @@
-import Mathlib.Algebra.BigOperators.Ring.Finset
-import Mathlib.Tactic
 import NinegatesFormalization.Basic
 
 /-!
 # Meld decompositions
 
-## Main Definitions
+## Main definitions
 
 - `Placement n` records triplet and sequence multiplicities on the finite tile
   coordinates. Sequence multiplicities at the final two coordinates are required
@@ -17,28 +15,30 @@ import NinegatesFormalization.Basic
 - A placement is a witness for a hand when its `toHand` is that hand. A hand is
   `Meldable` when it has such a witness.
 
-## Design Notes
+## Design notes
 
-### `toHand_apply` Automation
+### `Placement.toHand_apply` automation
 
 `seqNum` requires a case split on the first two coordinates.
 We design `toHand_apply` automation as follows:
 
-- `toHand_apply` is a `@[grind =]` lemma whose statement use `ite`.
+- `toHand_apply` is a `@[grind =]` lemma whose statement contains `if`.
   Recall that `grind` is designed to handle case splits, so this lemma
   is useful for downstream when they do not bother with the case split,
   or has a case split that is not in the exact form where `toHand_apply` specifies.
 
 - `toHand_apply_of_eq_zero`, `toHand_apply_of_eq_one`, and
   `toHand_apply_of_ge_two` are `@[simp]` lemmas for each specific case.
-  These reductions are safe as no `ite` case splits remain in the statement.
+  These reductions are safe as no `if` case splits remain in the statement.
+
+  Note that we choose not to `@[grind]` them, because if we do,
+  when `grind` matches a `p.toHand i`, it immediately put multiple implications,
+  e.g. `i.val = 0 → p.toHand i = 3 * p.tripNum i + p.seqNum i`, into the whiteboard,
+  which is unnecessary as the `@[grind]`ed `if`-lemma already does this.
+
+  TODO: Actually analyze the grind trace to confirm this.
 
 The effectiveness of this design is verified by the neat proof of `IsFullWait.standardFullWait`.
-
-In practice, as `grind` has a upper limit on the number of case splits
-(though it is configurable by `grind (splits := 20)`),
-it is still recommended to manually perform the case split and `simp` with the case conditions
-before invoking `grind` for the remaining proof obligations.
 -/
 
 namespace Mahjong.Hand

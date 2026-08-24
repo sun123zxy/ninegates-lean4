@@ -1,6 +1,7 @@
 import Mathlib.Algebra.Module.Basic
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.FunLike.IsApply
+import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Tactic
 
 /-!
@@ -8,28 +9,31 @@ import Mathlib.Tactic
 
 ## Main definitions
 
-* A `Hand n` records the counting vector of a hand.
+- A `Hand n` records the counting vector of a hand.
   It's a wrapper around `Fin (3 * n) → ℕ`.
-* `single`, `pair`, `triplet`, and `sequence` are the elementary tile patterns.
-* `size` counts tiles, while `sum` is their value-weighted sum.
-* `Valid c` requires every legal multiplicity of `c` to be at most four.
+- `single`, `pair`, `triplet`, and `sequence` are the elementary tile patterns.
+- `size` counts tiles, while `sum` is their value-weighted sum.
+- `Valid c` requires every legal multiplicity of `c` to be at most four.
 
-## Conventions
+## Design notes
+
+### Definition of `Hand`
+
+TODO: Alternative choices of defintion of `Hand`.
+
+### Comparison convention of `Fin`
 
 When comparing `i j : Fin (3 * n)`, we tend to retreat to `Nat` by `Fin.val`.
 That is, write `i.val < j.val` instead of `i < j`, or `i.val = j.val` instead of `i = j`.
 This helps us to maintain a canonical writing and a smooth proof automation,
 as comparison on `Fin` is defined in terms of the underlying `Nat` comparison anyway.
 
-## Design Notes
+### Hide of `∑`
 
-### Definition of `Hand`
-
-TODO: Alternative choices of defintion of `Hand`.
-
-We refrain from annotate `Hand`'s defining lemma with `@[grind]` or `@[simp]`.
 As a general policy in this library, if a definition mentions `∑`,
-we shall hide it from the downstream as `∑` often breaks proof automation.
+we shall hide it from the downstream, as `∑` often breaks proof automation.
+
+Thus we refrain from annotate `Hand`'s defining lemma with `@[grind]` or `@[simp]`.
 We provide `grind`/`simp`-annotated lemmas free of `∑` for downstream use,
 and non-`grind`/`simp`-annotated `xxx_eq_sum` lemmas for the rare occasions when `∑` is needed.
 -/
@@ -49,6 +53,10 @@ instance : FunLike (Hand n) (Fin (3 * n)) ℕ where
     cases ‹Hand n›
     cases ‹Hand n›
     congr
+
+@[simp, grind =]
+lemma mk_apply (count : Fin (3 * n) → ℕ) (i : Fin (3 * n)) :
+    (⟨count⟩ : Hand n) i = count i := rfl
 
 @[ext, grind ext]
 lemma ext {c d : Hand n} (h : ∀ i, c i = d i) : c = d := DFunLike.ext c d h
@@ -95,31 +103,26 @@ def sum : Hand n →+ ℕ where
 
 lemma sum_eq_sum (c : Hand n) : sum c = ∑ i, i.val * c i := rfl
 
-@[grind =]
 def single (i : Fin (3 * n)) : Hand n := ⟨fun j ↦ if j = i then 1 else 0⟩
 
 @[simp, grind =]
 lemma single_apply (i j : Fin (3 * n)) :
     single i j = if j.val = i.val then 1 else 0 := by
-  change (if j = i then 1 else 0) = _
-  simp only [Fin.ext_iff]
+  grind [single]
 
 @[simp, grind =]
 lemma size_single (i : Fin (3 * n)) : size (single i) = 1 := by
-  change (∑ j, if j = i then 1 else 0) = 1
-  simp
+  simp [size, single]
 
 @[simp, grind =]
 lemma sum_single (i : Fin (3 * n)) : sum (single i) = i.val := by
-  change (∑ j, j.val * (if j = i then 1 else 0)) = i.val
-  simp
+  simp [sum, single]
 
-@[grind =]
 def pair (i : Fin (3 * n)) : Hand n := 2 • single i
 
 @[simp, grind =]
 lemma pair_apply (i j : Fin (3 * n)) :
-    pair i j = if j.val = i.val then 2 else 0 := by grind [pair]
+    pair i j = if j.val = i.val then 2 else 0 := by simp [pair]
 
 @[simp, grind =]
 lemma size_pair (i : Fin (3 * n)) : size (pair i) = 2 := by simp [pair]
@@ -127,7 +130,6 @@ lemma size_pair (i : Fin (3 * n)) : size (pair i) = 2 := by simp [pair]
 @[simp, grind =]
 lemma sum_pair (i : Fin (3 * n)) : sum (pair i) = 2 * i.val := by simp [pair]
 
-@[grind =]
 def triplet (i : Fin (3 * n)) : Hand n := 3 • single i
 
 @[simp, grind =]
@@ -140,23 +142,21 @@ lemma size_triplet (i : Fin (3 * n)) : size (triplet i) = 3 := by simp [triplet]
 @[simp, grind =]
 lemma sum_triplet (i : Fin (3 * n)) : sum (triplet i) = 3 * i.val := by simp [triplet]
 
-@[grind =]
 def sequence (i : Fin (3 * n - 2)) : Hand n :=
   single ⟨i, by omega⟩ + single ⟨i + 1, by omega⟩ + single ⟨i + 2, by omega⟩
 
 @[simp, grind =]
 lemma sequence_apply (i : Fin (3 * n - 2)) (j : Fin (3 * n)) :
     sequence i j = if j.val = i.val ∨ j.val = i.val + 1 ∨ j.val = i.val + 2 then 1 else 0 := by
-  grind
+  grind [sequence]
 
 @[simp, grind =]
-lemma size_sequence (i : Fin (3 * n - 2)) : size (sequence i) = 3 := by simp [sequence]
+lemma size_sequence (i : Fin (3 * n - 2)) : size (sequence i) = 3 := by
+  grind [sequence]
 
 @[simp, grind =]
-lemma sum_sequence (i : Fin (3 * n - 2)) :
-    sum (sequence i) = 3 * (i.val + 1) := by
-  simp [sequence]
-  omega
+lemma sum_sequence (i : Fin (3 * n - 2)) : sum (sequence i) = 3 * (i.val + 1) := by
+  grind [sequence]
 
 @[grind =]
 def Valid (c : Hand n) : Prop := ∀ i : Fin (3 * n), c i ≤ 4

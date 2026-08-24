@@ -1,16 +1,27 @@
 import NinegatesFormalization.Split
 import NinegatesFormalization.Winning
 
+/-!
+# Full-wait positivity
+
+## Main results
+
+- `interior_positive` shows that every non-boundary coordinate of a full wait
+  is occupied, using the the split-at-zero meldability result.
+- `excess_eq_six` is the immediate corollary of `interior_positive` that
+  restricts the sum of the interior excess to exactly six.
+- `interior_excess_le_six` is the weaker inequality derived from `excess_eq_six`,
+  which is used in the reduction step.
+-/
+
 namespace Mahjong.Hand
 
 variable {n : ℕ}
 
 private lemma winning_sides_at_zero {w : Hand n} (hw : Winning w)
     (k : Fin (3 * n)) (hk : w k = 0) :
-    (size (restrictLT k w) % 3 = 2 ∧
-      size (restrictGT k w) % 3 = 0 ∧ Meldable (restrictGT k w)) ∨
-    (size (restrictLT k w) % 3 = 0 ∧
-      size (restrictGT k w) % 3 = 2 ∧ Meldable (restrictLT k w)) := by
+    (size (restrictLT k w) % 3 = 2 ∧ size (restrictGT k w) % 3 = 0 ∧ Meldable (restrictGT k w)) ∨
+    (size (restrictLT k w) % 3 = 0 ∧ size (restrictGT k w) % 3 = 2 ∧ Meldable (restrictLT k w)) := by
   grind [Winning, → Meldable.split_at_zero, → Meldable.size_mod_three]
 
 theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
