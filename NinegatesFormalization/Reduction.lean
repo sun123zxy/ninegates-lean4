@@ -16,9 +16,11 @@ import NinegatesFormalization.Standard
 
 - `Meldable.of_insertSeqAt` shows that deleting a sequence preserves meldability.
 - `Winning.of_insertSeqAt` shows that deleting a sequence preserves winning property.
+- `IsCounterexample.of_insertSeqAt` shows that deleting an interior sequence preserves
+  counterexamples.
 - `exists_insertSeqAt_of_large` finds a removable sequence in every sufficiently large full wait.
-- `full_wait_reduction` shows that given a larger counterexample, a smaller counterexample exists in small cases,
-  relying on `exists_insertSeqAt_of_large` for the reduction.
+- `full_wait_reduction` shows that a larger counterexample yields a smaller
+  counterexample in the small cases, using `exists_insertSeqAt_of_large`.
 
 ## Design notes
 
@@ -268,6 +270,19 @@ theorem exists_insertSeqAt_of_large (hn : 6 < n) {c : Hand (n + 1)} (hc : IsFull
 abbrev IsCounterexample (c : Hand n) : Prop :=
   IsFullWait c ∧ c ≠ standardFullWait n
 
+lemma IsCounterexample.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
+    (hk₀ : 0 < k.val) (hk₁ : k.val < 3 * n)
+    (hc : IsCounterexample (c.insertSeqAt k)) : IsCounterexample c := by
+  constructor
+  · exact IsFullWait.of_insertSeqAt k hc.1
+  · intro hstandard
+    apply hc.2
+    calc
+      c.insertSeqAt k = (standardFullWait n).insertSeqAt k :=
+        congrArg (fun d : Hand n ↦ d.insertSeqAt k) hstandard
+      _ = standardFullWait (n + 1) :=
+        insertSeqAt_standardFullWait (by omega) k hk₀ hk₁
+
 theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n} (hc : IsCounterexample c) :
     ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ ∃ d : Hand m, IsCounterexample d := by
   induction n using Nat.strong_induction_on with
@@ -279,17 +294,7 @@ theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n} (hc : IsCounte
         | succ m =>
             obtain ⟨d, k, hk₀, hk₁, hcd⟩ :=
               exists_insertSeqAt_of_large (n := m) (by omega) hc.1
-            have hdFull : IsFullWait d :=
-              IsFullWait.of_insertSeqAt k (hcd ▸ hc.1)
-            have hdNe : d ≠ standardFullWait m := by
-              intro hd
-              apply hc.2
-              calc
-                c = d.insertSeqAt k := hcd
-                _ = (standardFullWait m).insertSeqAt k :=
-                  congrArg (fun e : Hand m ↦ e.insertSeqAt k) hd
-                _ = standardFullWait (m + 1) :=
-                  insertSeqAt_standardFullWait (by omega) k hk₀ hk₁
-            exact ih m (by omega) (by omega) ⟨hdFull, hdNe⟩
+            have hd := IsCounterexample.of_insertSeqAt k hk₀ hk₁ (hcd ▸ hc)
+            exact ih m (by omega) (by omega) hd
 
 end Mahjong.Hand
