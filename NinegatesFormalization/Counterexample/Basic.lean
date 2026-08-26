@@ -1,12 +1,12 @@
 import NinegatesFormalization.Basic
 import NinegatesFormalization.Standard
 
-namespace Mahjong.Hand
+namespace Mahjong.Hand.Counterexample
 
-abbrev IsCounterexample {n : ℕ} (c : Hand n) : Prop :=
+abbrev IsCE {n : ℕ} (c : Hand n) : Prop :=
   IsFullWait c ∧ c ≠ standardFullWait n
 
-abbrev HasCounterexample (n : ℕ) : Prop :=
-  ∃ c : Hand n, IsCounterexample c
+abbrev HasCE (n : ℕ) : Prop :=
+  ∃ c : Hand n, IsCE c
 
-end Mahjong.Hand
+end Mahjong.Hand.Counterexample

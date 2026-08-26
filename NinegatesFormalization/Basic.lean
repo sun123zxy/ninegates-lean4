@@ -42,6 +42,7 @@ namespace Mahjong
 
 structure Hand (n : ℕ) where
   count : Fin (3 * n) → ℕ
+deriving DecidableEq
 
 namespace Hand
 

@@ -23,6 +23,7 @@ which might be a little boilerplate-heavy for this simple algorithm.
 - `Hand.meldScan_sound`: a successful scan returns a canonical witness for the input hand.
 - `Hand.meldScan_toHand`: scanning the hand of a placement returns its canonicalization.
 - `Meldable.iff_meldScan`: Hand meldability by successful scanning.
+- Meldability is efficiently `Decidable` by scanning.
 
 ## Execution
 
@@ -326,5 +327,8 @@ theorem Meldable.iff_meldScan (c : Hand n) : Meldable c ↔ c.meldScan.isSome :=
   · intro h
     obtain ⟨p, hp⟩ := Option.isSome_iff_exists.1 h
     exact ⟨p, (meldScan_sound hp).1⟩
+
+instance (c : Hand n) : Decidable (Meldable c) :=
+  decidable_of_iff c.meldScan.isSome (Meldable.iff_meldScan c).symm
 
 end Mahjong.Hand

@@ -11,7 +11,6 @@ import NinegatesFormalization.Positivity
 - `insertSeqEquiv` identifies the old coordinates and the inserted sequence
   with the coordinates of the enlarged hand.
 - `removeSeqAt` is the inverse operation used by the reduction step.
-- `IsCounterexample` is a transparent predicate for a full wait that is not the standard full wait.
 
 ## Main results
 
@@ -33,10 +32,8 @@ namespace Mahjong.Hand
 
 variable {n : ℕ}
 
-@[grind]
-def HasSeqAt (c : Hand (n + 1)) (k : Fin (3 * n)) : Prop :=
-  c ⟨k.val, by omega⟩ = 1 ∧
-    c ⟨k.val + 1, by omega⟩ = 1 ∧ c ⟨k.val + 2, by omega⟩ = 1
+abbrev HasSeqAt (c : Hand (n + 1)) (k : Fin (3 * n)) : Prop :=
+  c ⟨k.val, by omega⟩ = 1 ∧ c ⟨k.val + 1, by omega⟩ = 1 ∧ c ⟨k.val + 2, by omega⟩ = 1
 
 def insertSeqAt (c : Hand n) (k : Fin (3 * n)) : Hand (n + 1) :=
   ⟨fun i ↦ if h : i.val < k.val then c ⟨i.val, by omega⟩
@@ -273,17 +270,21 @@ theorem exists_insertSeqAt_of_large (hn : 6 < n) {c : Hand (n + 1)} (hc : IsFull
     grind [hc 0, hc 1, hc 2]
   exact hseq.exists_insertSeqAt hk₀
 
-lemma IsCounterexample.of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
+section
+
+open Counterexample
+
+lemma Counterexample.IsCE_of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
     (hk₀ : 0 < k.val)
-    (hc : IsCounterexample (c.insertSeqAt k)) : IsCounterexample c := by
+    (hc : IsCE (c.insertSeqAt k)) : IsCE c := by
   constructor
   · exact IsFullWait.of_insertSeqAt k hc.1
   · intro hstandard
     apply hc.2
     simpa only [hstandard] using insertSeqAt_standardFullWait k hk₀
 
-theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n} (hc : IsCounterexample c) :
-    ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ HasCounterexample m := by
+theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n} (hc : IsCE c) :
+    ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ HasCE m := by
   induction n using Nat.strong_induction_on with
   | h n ih =>
       by_cases hsmall : n ≤ 7
@@ -293,7 +294,9 @@ theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n} (hc : IsCounte
         | succ m =>
             obtain ⟨d, k, hk₀, hcd⟩ :=
               exists_insertSeqAt_of_large (n := m) (by omega) hc.1
-            have hd := IsCounterexample.of_insertSeqAt k hk₀ (hcd ▸ hc)
+            have hd := IsCE_of_insertSeqAt k hk₀ (hcd ▸ hc)
             exact ih m (by omega) (by omega) hd
+
+end
 
 end Mahjong.Hand
