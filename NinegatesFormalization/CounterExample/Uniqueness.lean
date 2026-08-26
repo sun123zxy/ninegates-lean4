@@ -1,4 +1,4 @@
-import NinegatesFormalization.Reduction
+import NinegatesFormalization.CounterExample.Reduction
 
 /-!
 

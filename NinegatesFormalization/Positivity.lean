@@ -1,4 +1,4 @@
-import NinegatesFormalization.Split
+import NinegatesFormalization.Meldable.Split
 import NinegatesFormalization.Winning
 
 /-!

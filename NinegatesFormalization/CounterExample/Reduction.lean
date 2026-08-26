@@ -1,5 +1,5 @@
+import NinegatesFormalization.CounterExample.Basic
 import NinegatesFormalization.Positivity
-import NinegatesFormalization.Standard
 
 /-!
 # Full-wait reduction
@@ -266,9 +266,6 @@ theorem exists_insertSeqAt_of_large (hn : 6 < n) {c : Hand (n + 1)} (hc : IsFull
     simpa [k, idx, block, add_assoc] using hc (2 : Fin 3)
   exact ⟨removeSeqAt c k, k, hk₀, hk₁,
     (insertSeqAt_removeSeqAt c k hc₀ hc₁ hc₂).symm⟩
-
-abbrev IsCounterexample (c : Hand n) : Prop :=
-  IsFullWait c ∧ c ≠ standardFullWait n
 
 lemma IsCounterexample.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
     (hk₀ : 0 < k.val) (hk₁ : k.val < 3 * n)

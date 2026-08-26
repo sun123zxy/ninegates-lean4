@@ -1,2 +1,2 @@
-import NinegatesFormalization.Uniqueness
+import NinegatesFormalization.CounterExample.Uniqueness
 import NinegatesFormalization.Meldable.Scan
