@@ -162,6 +162,10 @@ lemma sum_sequence (i : Fin (3 * n - 2)) : sum (sequence i) = 3 * (i.val + 1) :=
 @[grind =]
 def Valid (c : Hand n) : Prop := ∀ i : Fin (3 * n), c i ≤ 4
 
+instance (c : Hand n) : Decidable (Valid c) := by
+  apply decidable_of_iff (∀ i, c i ≤ 4)
+  simp [Valid]
+
 end Hand
 
 end Mahjong
