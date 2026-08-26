@@ -1,5 +1,13 @@
 import NinegatesFormalization.Winning.Basic
 
+/-!
+## Wait predicates
+
+* `IsWinningTile c i` tests whether adding tile `i` wins.
+* `IsWait c` asks for at least one winning tile.
+* `IsFullWait c` requires every tile value to win.
+-/
+
 namespace Mahjong.Hand
 
 variable {n : ℕ}
