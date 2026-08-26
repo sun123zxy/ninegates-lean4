@@ -1,4 +1,4 @@
-import NinegatesFormalization.CounterExample.Basic
+import NinegatesFormalization.Counterexample.Basic
 import NinegatesFormalization.Positivity
 
 /-!
@@ -281,7 +281,7 @@ lemma IsCounterexample.of_insertSeqAt {c : Hand n} (k : Fin (3 * n + 1))
         insertSeqAt_standardFullWait (by omega) k hk₀ hk₁
 
 theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n} (hc : IsCounterexample c) :
-    ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ ∃ d : Hand m, IsCounterexample d := by
+    ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ HasCounterexample m := by
   induction n using Nat.strong_induction_on with
   | h n ih =>
       by_cases hsmall : n ≤ 7
