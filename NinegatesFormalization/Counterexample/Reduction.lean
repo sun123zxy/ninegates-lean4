@@ -140,7 +140,6 @@ lemma insertSeqAt_removeSeqAt (c : Hand (n + 1))
 lemma HasSeqAt.exists_insertSeqAt {c : Hand (n + 1)}
     {k : Fin (3 * n)} (hc : HasSeqAt c k) (hk₀ : 0 < k.val) :
     ∃ d : Hand n, ∃ k : Fin (3 * n), 0 < k.val ∧ c = d.insertSeqAt k := by
-  obtain ⟨hc₀, hc₁, hc₂⟩ := hc
   exact ⟨removeSeqAt c k, k, hk₀, by grind⟩
 
 /- Note that this is a standalone proof. It does not rely on the scan algorithm. -/
@@ -212,8 +211,7 @@ theorem IsFullWait.of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
     ext x; grind
   exact Winning.of_insertSeqAt k (hcomm.symm ▸ hc j)
 
-lemma insertSeqAt_standardFullWait (hn : 0 < n)
-    (k : Fin (3 * n)) (hk₀ : 0 < k.val) :
+lemma insertSeqAt_standardFullWait (k : Fin (3 * n)) (hk₀ : 0 < k.val) :
     (standardFullWait n).insertSeqAt k = standardFullWait (n + 1) := by
   ext i; grind
 
@@ -282,11 +280,7 @@ lemma IsCounterexample.of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
   · exact IsFullWait.of_insertSeqAt k hc.1
   · intro hstandard
     apply hc.2
-    calc
-      c.insertSeqAt k = (standardFullWait n).insertSeqAt k :=
-        congrArg (fun d : Hand n ↦ d.insertSeqAt k) hstandard
-      _ = standardFullWait (n + 1) :=
-        insertSeqAt_standardFullWait (by omega) k hk₀
+    simpa only [hstandard] using insertSeqAt_standardFullWait k hk₀
 
 theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n} (hc : IsCounterexample c) :
     ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ HasCounterexample m := by
