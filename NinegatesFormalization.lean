@@ -1,2 +1,3 @@
 import NinegatesFormalization.Counterexample.Uniqueness
-import NinegatesFormalization.Meldable.Scan
+import NinegatesFormalization.Meldable.Decidable
+import NinegatesFormalization.Winning.Decidable

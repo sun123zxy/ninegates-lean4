@@ -1,4 +1,4 @@
-import NinegatesFormalization.Winning
+import NinegatesFormalization.Wait.Basic
 import NinegatesFormalization.Meldable.Basic
 
 /-!
