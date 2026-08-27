@@ -1,7 +1,7 @@
 import NinegatesFormalization.Winning.Basic
 import NinegatesFormalization.Meldable.Decidable
 
-namespace Mahjong.Hand.Winning.Scan
+namespace Mahjong.Hand.Winning.Decidable
 
 variable {n : ℕ}
 
@@ -171,7 +171,7 @@ lemma foldl_oneTile_eq_reachable (states : List State) (xs : List ℕ) :
     xs.foldl (fun states x ↦ oneTile states x) states = reachable states xs := by
   induction xs generalizing states <;> simp [reachable, *]
 
-def scanState (s : State) : Meldable.Scan.State := (s.prev₁.val, s.prev₂.val)
+def scanState (s : State) : Meldable.Decidable.State := (s.prev₁.val, s.prev₂.val)
 
 def adjustPair : List ℕ → List Choice → List ℕ
   | x :: xs, choice :: choices =>
@@ -269,8 +269,8 @@ lemma replayChoices_pair_index {s t : State} {xs : List ℕ} {choices : List Cho
 
 lemma nextState_to_scanStep (s t : State) (b : Bool) (x : ℕ)
     (h : nextState s b x = some t) :
-    ∃ p : Meldable.StepPlacement,
-      Meldable.Scan.step (scanState s) (x - pairTiles b) =
+    ∃ p : Meldable.Decidable.StepPlacement,
+      Meldable.Decidable.step (scanState s) (x - pairTiles b) =
         some (p, scanState t) := by
   simp only [nextState] at h
   cases b with
@@ -284,7 +284,8 @@ lemma nextState_to_scanStep (s t : State) (b : Bool) (x : ℕ)
         simp [pairTiles, residual]
         omega
       have hcomm : s.prev₁.val + s.prev₂.val = s.prev₂.val + s.prev₁.val := by omega
-      simp [Meldable.Scan.step, scanState, pairTiles, hneed, hneed', hsub, residual, hcomm]
+      simp [Meldable.Decidable.step, scanState, pairTiles, hneed, hneed', hsub, residual,
+        hcomm]
   | true =>
       simp [pairTiles] at h
       rcases h with ⟨_, hneed, rfl⟩
@@ -294,14 +295,14 @@ lemma nextState_to_scanStep (s t : State) (b : Bool) (x : ℕ)
       have hsub : x - 2 - (s.prev₁.val + s.prev₂.val) = residual := by
         simp [residual]
         omega
-      simp [Meldable.Scan.step, scanState, pairTiles, hneed', hsub, residual]
+      simp [Meldable.Decidable.step, scanState, pairTiles, hneed', hsub, residual]
 
-lemma scanStep_to_nextState (s t : State) (p : Meldable.StepPlacement) (x : ℕ)
-    (h : Meldable.Scan.step (scanState s) x = some (p, scanState t)) :
+lemma scanStep_to_nextState (s t : State) (p : Meldable.Decidable.StepPlacement) (x : ℕ)
+    (h : Meldable.Decidable.step (scanState s) x = some (p, scanState t)) :
     nextState s false x = some { t with pairUsed := s.pairUsed } := by
-  have hr := (Meldable.Scan.step_eq_some_iff_replay (scanState s) x p
+  have hr := (Meldable.Decidable.step_eq_some_iff_replay (scanState s) x p
     (scanState t)).mp h
-  simp [Meldable.Scan.replay, scanState, nextState, pairTiles] at hr ⊢
+  simp [Meldable.Decidable.replay, scanState, nextState, pairTiles] at hr ⊢
   rcases hr with ⟨hx, hprev₁, hprev₂⟩
   refine ⟨by omega, Fin.ext hprev₂, ?_⟩
   apply Fin.ext
@@ -309,13 +310,13 @@ lemma scanStep_to_nextState (s t : State) (p : Meldable.StepPlacement) (x : ℕ)
     omega
   simp [hsub, hprev₁]
 
-lemma scanStep_to_nextState_pair (s t : State) (p : Meldable.StepPlacement) (x : ℕ)
+lemma scanStep_to_nextState_pair (s t : State) (p : Meldable.Decidable.StepPlacement) (x : ℕ)
     (hs : s.pairUsed = false)
-    (h : Meldable.Scan.step (scanState s) x = some (p, scanState t)) :
+    (h : Meldable.Decidable.step (scanState s) x = some (p, scanState t)) :
     nextState s true (x + 2) = some { t with pairUsed := true } := by
-  have hr := (Meldable.Scan.step_eq_some_iff_replay (scanState s) x p
+  have hr := (Meldable.Decidable.step_eq_some_iff_replay (scanState s) x p
     (scanState t)).mp h
-  simp [Meldable.Scan.replay, scanState, nextState, pairTiles, hs] at hr ⊢
+  simp [Meldable.Decidable.replay, scanState, nextState, pairTiles, hs] at hr ⊢
   rcases hr with ⟨hx, hprev₁, hprev₂⟩
   refine ⟨by omega, Fin.ext hprev₂, ?_⟩
   apply Fin.ext
@@ -323,18 +324,18 @@ lemma scanStep_to_nextState_pair (s t : State) (p : Meldable.StepPlacement) (x :
     omega
   simp [hsub, hprev₁]
 
-def advance (s : State) (p : Meldable.StepPlacement) : State :=
+def advance (s : State) (p : Meldable.Decidable.StepPlacement) : State :=
   ⟨s.prev₁, p.seqNum, s.pairUsed⟩
 
-def traceState : State → List Meldable.StepPlacement → State
+def traceState : State → List Meldable.Decidable.StepPlacement → State
   | s, [] => s
   | s, p :: ps => traceState (advance s p) ps
 
-def noPairChoices : List Meldable.StepPlacement → List Choice
+def noPairChoices : List Meldable.Decidable.StepPlacement → List Choice
   | [] => []
   | _ :: ps => ⟨false⟩ :: noPairChoices ps
 
-def pairChoicesAt : List Meldable.StepPlacement → ℕ → List Choice
+def pairChoicesAt : List Meldable.Decidable.StepPlacement → ℕ → List Choice
   | [], _ => []
   | _ :: ps, 0 => ⟨true⟩ :: noPairChoices ps
   | _ :: ps, k + 1 => ⟨false⟩ :: pairChoicesAt ps k
@@ -372,55 +373,58 @@ lemma list_ofFn_add_pair (d : Hand n) (i : Fin (3 * n)) :
     simpa [jf, add_apply, pair_apply] using hget.symm
 
 @[simp]
-lemma scanState_advance (s : State) (p : Meldable.StepPlacement) :
-    scanState (advance s p) = (Meldable.Scan.replay (scanState s) p).2 := by
-  simp [scanState, advance, Meldable.Scan.replay]
+lemma scanState_advance (s : State) (p : Meldable.Decidable.StepPlacement) :
+    scanState (advance s p) = (Meldable.Decidable.replay (scanState s) p).2 := by
+  simp [scanState, advance, Meldable.Decidable.replay]
 
 @[simp]
-lemma scanState_traceState (s : State) (ps : List Meldable.StepPlacement) :
-    scanState (traceState s ps) = (Meldable.Scan.replayList (scanState s) ps).2 := by
+lemma scanState_traceState (s : State) (ps : List Meldable.Decidable.StepPlacement) :
+    scanState (traceState s ps) =
+      (Meldable.Decidable.replayList (scanState s) ps).2 := by
   induction ps generalizing s with
-  | nil => simp [traceState, Meldable.Scan.replayList]
+  | nil => simp [traceState, Meldable.Decidable.replayList]
   | cons p ps ih =>
-      simp [traceState, Meldable.Scan.replayList, ih]
+      simp [traceState, Meldable.Decidable.replayList, ih]
 
 @[simp]
-lemma traceState_pairUsed (s : State) (ps : List Meldable.StepPlacement) :
+lemma traceState_pairUsed (s : State) (ps : List Meldable.Decidable.StepPlacement) :
     (traceState s ps).pairUsed = s.pairUsed := by
   induction ps generalizing s with
   | nil => rfl
   | cons p ps ih => simpa [traceState, advance] using ih (advance s p)
 
 @[simp]
-lemma nextState_replay_false (s : State) (p : Meldable.StepPlacement) :
-    nextState s false (Meldable.Scan.replay (scanState s) p).1 =
+lemma nextState_replay_false (s : State) (p : Meldable.Decidable.StepPlacement) :
+    nextState s false (Meldable.Decidable.replay (scanState s) p).1 =
       some (advance s p) := by
   apply scanStep_to_nextState s (advance s p) p
-  exact Meldable.Scan.step_replay (scanState s) p
+  exact Meldable.Decidable.step_replay (scanState s) p
 
 @[simp]
-lemma nextState_replay_true (s : State) (p : Meldable.StepPlacement)
+lemma nextState_replay_true (s : State) (p : Meldable.Decidable.StepPlacement)
     (hs : s.pairUsed = false) :
-    nextState s true ((Meldable.Scan.replay (scanState s) p).1 + 2) =
+    nextState s true ((Meldable.Decidable.replay (scanState s) p).1 + 2) =
       some (advance { s with pairUsed := true } p) := by
   apply scanStep_to_nextState_pair s (advance s p) p _ hs
-  exact Meldable.Scan.step_replay (scanState s) p
+  exact Meldable.Decidable.step_replay (scanState s) p
 
-lemma replayChoices_noPair_replayList (s : State) (ps : List Meldable.StepPlacement) :
-    replayChoices s (Meldable.Scan.replayList (scanState s) ps).1
+lemma replayChoices_noPair_replayList
+    (s : State) (ps : List Meldable.Decidable.StepPlacement) :
+    replayChoices s (Meldable.Decidable.replayList (scanState s) ps).1
         (noPairChoices ps) = some (traceState s ps) := by
   induction ps generalizing s with
-  | nil => simp [Meldable.Scan.replayList, noPairChoices, traceState, replayChoices]
+  | nil => simp [Meldable.Decidable.replayList, noPairChoices, traceState, replayChoices]
   | cons p ps ih =>
       have hnext := nextState_replay_false s p
-      simpa only [Meldable.Scan.replayList, noPairChoices, traceState, replayChoices,
+      simpa only [Meldable.Decidable.replayList, noPairChoices, traceState, replayChoices,
         hnext, Option.bind_eq_bind, Option.bind_some, scanState_advance] using
         ih (advance s p)
 
-lemma replayChoices_pair_replayList (s : State) (ps : List Meldable.StepPlacement)
+lemma replayChoices_pair_replayList
+    (s : State) (ps : List Meldable.Decidable.StepPlacement)
     (k : ℕ) (hk : k < ps.length) (hs : s.pairUsed = false) :
     replayChoices s
-        (addPairAt (Meldable.Scan.replayList (scanState s) ps).1 k)
+        (addPairAt (Meldable.Decidable.replayList (scanState s) ps).1 k)
         (pairChoicesAt ps k) =
       some (traceState { s with pairUsed := true } ps) := by
   induction ps generalizing s k with
@@ -429,7 +433,7 @@ lemma replayChoices_pair_replayList (s : State) (ps : List Meldable.StepPlacemen
       cases k with
       | zero =>
           have hnext := nextState_replay_true s p hs
-          simp only [Meldable.Scan.replayList, addPairAt, pairChoicesAt, replayChoices]
+          simp only [Meldable.Decidable.replayList, addPairAt, pairChoicesAt, replayChoices]
           rw [hnext]
           simp only [Option.bind_eq_bind, Option.bind_some]
           simpa [scanState, advance, traceState] using
@@ -437,14 +441,14 @@ lemma replayChoices_pair_replayList (s : State) (ps : List Meldable.StepPlacemen
       | succ k =>
           have hk' : k < ps.length := by simpa using hk
           have hnext := nextState_replay_false s p
-          simp only [Meldable.Scan.replayList, addPairAt, pairChoicesAt, replayChoices]
+          simp only [Meldable.Decidable.replayList, addPairAt, pairChoicesAt, replayChoices]
           rw [hnext]
           simp only [Option.bind_eq_bind, Option.bind_some]
           simpa [scanState, advance, traceState] using ih (s := advance s p) k hk' hs
 
 lemma replayChoices_to_stepList {s t : State} {xs : List ℕ} {choices : List Choice}
     (h : replayChoices s xs choices = some t) :
-    ∃ ps, Meldable.Scan.stepList (scanState s) (adjustPair xs choices) =
+    ∃ ps, Meldable.Decidable.stepList (scanState s) (adjustPair xs choices) =
       some (ps, scanState t) := by
   induction xs generalizing s choices with
   | nil =>
@@ -452,7 +456,7 @@ lemma replayChoices_to_stepList {s t : State} {xs : List ℕ} {choices : List Ch
       | nil =>
           have : s = t := by simpa [replayChoices] using h
           subst t
-          exact ⟨[], by simp [adjustPair, Meldable.Scan.stepList]⟩
+          exact ⟨[], by simp [adjustPair, Meldable.Decidable.stepList]⟩
       | cons choice choices => simp [replayChoices] at h
   | cons x xs ih =>
       cases choices with
@@ -466,7 +470,7 @@ lemma replayChoices_to_stepList {s t : State} {xs : List ℕ} {choices : List Ch
               obtain ⟨p, hp⟩ := nextState_to_scanStep s next choice.takePair x hnext
               obtain ⟨ps, hps⟩ := ih hrest
               refine ⟨p :: ps, ?_⟩
-              simp [adjustPair, Meldable.Scan.stepList, hp, hps]
+              simp [adjustPair, Meldable.Decidable.stepList, hp, hps]
 
 lemma replayChoices_pair_get_of_false {s : State} {xs : List ℕ} {choices : List Choice}
     {t : State} (hs : s.pairUsed = false)
@@ -641,16 +645,16 @@ lemma dpWinning_to_winning {c : Hand n} (h : DPWinning c) : Winning c := by
   let d : Hand n := handOfList adjusted hadjusted
   have hdlist : List.ofFn d = adjusted := list_ofFn_handOfList adjusted hadjusted
   obtain ⟨ps, hstep⟩ := replayChoices_to_stepList hchoices
-  have hscan : Meldable.Scan.scan (List.ofFn d) = some ps := by
+  have hscan : Meldable.Decidable.scanList (List.ofFn d) = some ps := by
     rw [hdlist]
-    exact (Meldable.Scan.scan_eq_some_iff_stepList _ _).mpr hstep
+    exact (Meldable.Decidable.scanList_eq_some_iff_stepList _ _).mpr hstep
   have hdmeld : Meldable d := by
-    rw [Meldable.iff_meldScan]
-    have hne : Meldable.Scan.scan (List.ofFn d) ≠ none := by
+    rw [Meldable.Decidable.scanHand_iff_meldable]
+    have hne : Meldable.Decidable.scanList (List.ofFn d) ≠ none := by
       intro hnone
       rw [hscan] at hnone
       simp at hnone
-    simp only [meldScan]
+    simp only [Meldable.Decidable.scanHand]
     split
     · exact (hne ‹_›).elim
     · simp
@@ -700,22 +704,22 @@ lemma winning_to_dpWinning {c : Hand n} (h : Winning c) : DPWinning c := by
   rcases h with ⟨hcvalid, hcsize, d, i, hdmeld, hcd⟩
   refine ⟨hcvalid, hcsize, ?_⟩
   obtain ⟨p, hp, hcanonical⟩ := (Meldable.iff_exists_canonical_witness d).mp hdmeld
-  let ps := Meldable.Scan.disjoinCanonicalPlacement p hcanonical
-  have hreplay := Meldable.Scan.replayList_disjoinCanonicalPlacement p hcanonical
-  have hvalues : (Meldable.Scan.replayList (0, 0) ps).1 = List.ofFn d := by
+  let ps := Meldable.Decidable.disjoinCanonicalPlacement p hcanonical
+  have hreplay := Meldable.Decidable.replayList_disjoinCanonicalPlacement p hcanonical
+  have hvalues : (Meldable.Decidable.replayList (0, 0) ps).1 = List.ofFn d := by
     have := congrArg Prod.fst hreplay
     change p.toHand = d at hp
     rw [hp] at this
     simpa [ps] using this
-  have hfinal : (Meldable.Scan.replayList (0, 0) ps).2 = (0, 0) := by
+  have hfinal : (Meldable.Decidable.replayList (0, 0) ps).2 = (0, 0) := by
     have := congrArg Prod.snd hreplay
     simpa [ps] using this
   have hk : i.val < ps.length := by
-    simp [ps, Meldable.Scan.disjoinCanonicalPlacement]
+    simp [ps, Meldable.Decidable.disjoinCanonicalPlacement]
   let initial : State := ⟨0, 0, false⟩
   have hrun := replayChoices_pair_replayList initial ps i.val hk rfl
   have hinput :
-      addPairAt (Meldable.Scan.replayList (scanState initial) ps).1 i.val =
+      addPairAt (Meldable.Decidable.replayList (scanState initial) ps).1 i.val =
         List.ofFn c := by
     rw [show scanState initial = (0, 0) by rfl, hvalues]
     rw [← list_ofFn_add_pair d i, hcd]
@@ -737,4 +741,4 @@ theorem winCheck_correct {c : Hand n} : WinCheck c = true ↔ Winning c := by
 instance (c : Hand n) : Decidable (Winning c) :=
   decidable_of_iff (WinCheck c = true) winCheck_correct
 
-end Mahjong.Hand.Winning.Scan
+end Mahjong.Hand.Winning.Decidable
