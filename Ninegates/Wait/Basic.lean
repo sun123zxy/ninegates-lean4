@@ -1,4 +1,4 @@
-import NinegatesFormalization.Winning.Basic
+import Ninegates.Winning.Basic
 
 /-!
 ## Wait predicates

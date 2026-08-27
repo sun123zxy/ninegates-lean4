@@ -1,5 +1,5 @@
-import NinegatesFormalization.Basic
-import NinegatesFormalization.Standard
+import Ninegates.Basic
+import Ninegates.Standard
 
 namespace Mahjong.Hand.Counterexample
 

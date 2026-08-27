@@ -1,4 +1,4 @@
-import NinegatesFormalization.Meldable.Basic
+import Ninegates.Meldable.Basic
 
 /-!
 # Winning hands and waits

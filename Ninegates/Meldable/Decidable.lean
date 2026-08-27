@@ -1,4 +1,4 @@
-import NinegatesFormalization.Meldable.Canonical
+import Ninegates.Meldable.Canonical
 
 /-!
 # Verified scanning algorithm for meld decompositions

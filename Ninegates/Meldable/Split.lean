@@ -1,4 +1,4 @@
-import NinegatesFormalization.Meldable.Basic
+import Ninegates.Meldable.Basic
 
 /-!
 # Splitting a meldable hand by a zero

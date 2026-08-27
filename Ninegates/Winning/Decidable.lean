@@ -1,5 +1,5 @@
-import NinegatesFormalization.Winning.Basic
-import NinegatesFormalization.Meldable.Decidable
+import Ninegates.Winning.Basic
+import Ninegates.Meldable.Decidable
 
 namespace Mahjong.Hand.Winning.Decidable
 

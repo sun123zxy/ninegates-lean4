@@ -1,4 +1,4 @@
-import NinegatesFormalization.CounterExample.Reduction
+import Ninegates.CounterExample.Reduction
 
 namespace Mahjong.Hand
 

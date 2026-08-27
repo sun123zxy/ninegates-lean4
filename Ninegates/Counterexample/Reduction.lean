@@ -1,5 +1,5 @@
-import NinegatesFormalization.Counterexample.Basic
-import NinegatesFormalization.Positivity
+import Ninegates.Counterexample.Basic
+import Ninegates.Positivity
 
 /-!
 # Full-wait reduction

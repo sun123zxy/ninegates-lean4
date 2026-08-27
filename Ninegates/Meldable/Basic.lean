@@ -1,4 +1,4 @@
-import NinegatesFormalization.Basic
+import Ninegates.Basic
 
 /-!
 # Meld decompositions

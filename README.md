@@ -1,4 +1,4 @@
-# ninegates-formalization
+# Nine Gates: A Mahjong Game Formalization in Lean 4
 
 ## Introduction
 

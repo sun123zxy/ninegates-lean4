@@ -1,5 +1,5 @@
-import NinegatesFormalization.Meldable.Split
-import NinegatesFormalization.Wait.Basic
+import Ninegates.Meldable.Split
+import Ninegates.Wait.Basic
 
 /-!
 # Full-wait positivity

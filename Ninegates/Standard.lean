@@ -1,5 +1,5 @@
-import NinegatesFormalization.Wait.Basic
-import NinegatesFormalization.Meldable.Basic
+import Ninegates.Wait.Basic
+import Ninegates.Meldable.Basic
 
 /-!
 # Standard full-wait
