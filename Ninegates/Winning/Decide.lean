@@ -16,9 +16,9 @@ variable {n : ℕ}
 
 structure State where
   /-- Number of sequences started at the previous position. -/
-  a : Nat
+  a : Fin 3
   /-- Number of sequences started two positions ago. -/
-  b : Nat
+  b : Fin 3
   /-- Whether the pair has already been used. -/
   pairUsed : Bool
 deriving DecidableEq, Inhabited
@@ -29,13 +29,13 @@ def init : State := ⟨0, 0, false⟩
 def final : State := ⟨0, 0, true⟩
 
 def all : List State :=
-  (List.range 3).flatMap fun a ↦
-    (List.range 3).flatMap fun b ↦
+  (List.finRange 3).flatMap fun a ↦
+    (List.finRange 3).flatMap fun b ↦
       [{a := a, b := b, pairUsed := false},
         {a := a, b := b, pairUsed := true}]
 
 def encode (q : State) : Fin 18 :=
-  ⟨q.a % 3 + 3 * (q.b % 3) + if q.pairUsed then 9 else 0, by grind⟩
+  ⟨q.a.val + 3 * q.b.val + if q.pairUsed then 9 else 0, by grind⟩
 
 end State
 
@@ -51,10 +51,10 @@ def step (c : Nat) (q : State) : StateSet := Id.run do
     let pair : Bool := e == 1
     if q.pairUsed && pair then
       continue
-    let need := q.a + q.b + 2 * e
+    let need := q.a.val + q.b.val + 2 * e
     if need ≤ c then
       let rest := c - need
-      let s := rest % 3
+      let s : Fin 3 := ⟨rest % 3, by grind⟩
       result := Bitset.insert
         ({a := s, b := q.a, pairUsed := q.pairUsed || pair} : State) result
   return result
