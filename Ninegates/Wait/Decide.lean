@@ -9,7 +9,7 @@ See `Decidable` directory for specifications and proofs of correctness.
 namespace Mahjong.Hand
 
 def IsWinningTile.decide (c : Hand n) (i : Fin (3 * n)) : Bool :=
-  Winning.Decidable.decide (c + single i)
+  Winning.decide (c + single i)
 
 namespace IsFullWait.Decidable
 
@@ -22,7 +22,7 @@ def buildPrefix (count : Array Nat) : Array StateSet := Id.run do
   let mut pref := Array.replicate (n + 1) Bitset.empty
   pref := pref.set! 0 (Bitset.singleton State.init)
   for i in List.range n do
-    pref := pref.set! (i + 1) (advanceSet count[i]! pref[i]!)
+    pref := pref.set! (i + 1) (stepSet count[i]! pref[i]!)
   return pref
 
 def buildSuffix (count : Array Nat) : Array StateSet := Id.run do
@@ -40,10 +40,9 @@ def buildSuffix (count : Array Nat) : Array StateSet := Id.run do
 
 def waitsOn (count : Array Nat)
     (pref : Array StateSet) (suff : Array StateSet) (j : Nat) : Bool :=
-  if count[j]! ≥ 4 then
-    false
+  if count[j]! ≥ 4 then false
   else
-    Bitset.nonempty (Bitset.inter (advanceSet (count[j]! + 1) pref[j]!) suff[j + 1]!)
+    Bitset.nonempty (Bitset.inter (stepSet (count[j]! + 1) pref[j]!) suff[j + 1]!)
 
 def waitingTiles (count : Array Nat) : Array Bool := Id.run do
   let n := count.size

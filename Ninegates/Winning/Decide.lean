@@ -59,7 +59,7 @@ def step (c : Nat) (q : State) : StateSet := Id.run do
         ({a := s, b := q.a, pairUsed := q.pairUsed || pair} : State) result
   return result
 
-def advanceSet (c : Nat) (states : StateSet) : StateSet :=
+def stepSet (c : Nat) (states : StateSet) : StateSet :=
   State.all.foldl (fun result q ↦
     if Bitset.mem states q then Bitset.union result (step c q) else result)
     Bitset.empty
@@ -73,7 +73,7 @@ def decide (c : Hand n) : Bool := Id.run do
   if Hand.size c != 3 * n + 5 then return false
   let mut states : StateSet := Bitset.singleton State.init
   for x in List.ofFn c do
-    states := advanceSet x states
+    states := stepSet x states
   return Bitset.mem states State.final
 
 end Winning
