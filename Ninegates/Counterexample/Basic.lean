@@ -1,5 +1,6 @@
 import Ninegates.Basic
 import Ninegates.Standard
+import Ninegates.Wait.Basic
 
 namespace Mahjong.Hand.Counterexample
 

@@ -14,7 +14,7 @@ variable {n : ℕ}
 
 def IsWinningTile (c : Hand n) (i : Fin (3 * n)) : Prop := Winning (c + single i)
 
-def IsWait (c : Hand n) : Prop := ∃ i, Winning (c + single i)
+def IsWait (c : Hand n) : Prop := ∃ i, IsWinningTile c i
 
 lemma IsWait.Valid (c : Hand n) (hc : IsWait c) : Valid c := by
   obtain ⟨w, hw⟩ := hc
