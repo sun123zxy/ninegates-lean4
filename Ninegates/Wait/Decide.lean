@@ -17,41 +17,51 @@ open Winning.Decidable
 
 variable {n : ℕ}
 
-def buildPrefix (count : Array Nat) : Array StateSet := Id.run do
+def buildPrefix (count : Array Nat) :
+    Vector StateSet (count.size + 1) := Id.run do
   let n := count.size
-  let mut pref := Array.replicate (n + 1) Bitset.empty
-  pref := pref.set! 0 (Bitset.singleton State.init)
-  for i in List.range n do
-    pref := pref.set! (i + 1) (stepSet count[i]! pref[i]!)
+  let mut pref : Vector StateSet (n + 1) := Vector.replicate (n + 1) Bitset.empty
+  pref := pref.set 0 (Bitset.singleton State.init) (by omega)
+  for i in List.finRange n do
+    let c := count[i.val]'(by simp [n, i.isLt])
+    let q := pref.get ⟨i.val, by omega⟩
+    pref := pref.set (i.val + 1) (stepSet c q) (by omega)
   return pref
 
-def buildSuffix (count : Array Nat) : Array StateSet := Id.run do
+def buildSuffix (count : Array Nat) :
+    Vector StateSet (count.size + 1) := Id.run do
   let n := count.size
-  let mut suff := Array.replicate (n + 1) Bitset.empty
-  suff := suff.set! n (Bitset.singleton State.final)
-  for k in List.range n do
-    let i := n - 1 - k
+  let mut suff : Vector StateSet (n + 1) := Vector.replicate (n + 1) Bitset.empty
+  suff := suff.set n (Bitset.singleton State.final) (by omega)
+  for k in List.finRange n do
+    let i := n - 1 - k.val
+    have hi : i < count.size := by omega
     let mut good : StateSet := Bitset.empty
     for q in State.all do
-      if Bitset.nonempty (Bitset.inter (step count[i]! q) suff[i + 1]!) then
+      if Bitset.nonempty (Bitset.inter (step (count[i]'hi) q)
+          (suff.get ⟨i + 1, by omega⟩)) then
         good := Bitset.insert q good
-    suff := suff.set! i good
+    suff := suff.set i good (by omega)
   return suff
 
 def waitsOn (count : Array Nat)
-    (pref : Array StateSet) (suff : Array StateSet) (j : Nat) : Bool :=
-  if count[j]! ≥ 4 then false
+    (pref : Vector StateSet (count.size + 1))
+    (suff : Vector StateSet (count.size + 1))
+    (j : Fin count.size) : Bool :=
+  let c := count[j.val]'j.isLt
+  if c ≥ 4 then false
   else
-    Bitset.nonempty (Bitset.inter (stepSet (count[j]! + 1) pref[j]!) suff[j + 1]!)
+    Bitset.nonempty (Bitset.inter (stepSet (c + 1)
+      (pref.get ⟨j.val, by omega⟩)) (suff.get ⟨j.val + 1, by omega⟩))
 
 def waitingTiles (count : Array Nat) : Array Bool := Id.run do
   let n := count.size
   let pref := buildPrefix count
   let suff := buildSuffix count
-  let mut result := Array.replicate n false
-  for j in List.range n do
-    result := result.set! j (waitsOn count pref suff j)
-  return result
+  let mut result : Vector Bool n := Vector.replicate n false
+  for j in List.finRange n do
+    result := result.set j.val (waitsOn count pref suff j) (by omega)
+  return result.toArray
 
 end IsFullWait.Decidable
 
