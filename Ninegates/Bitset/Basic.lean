@@ -1,8 +1,9 @@
 /-!
 # Bitsets
 
-Executable bitmask operations for finite sets.  An `Encoder α` supplies the
-finite bit width and maps elements of `α` to bit indices.
+Lean 4 does not yet have a built-in bitset type, so we implement a naive one here.
+It is used to represent sets of states in dynamic programming algorithms.
+For specifications and proofs of correctness, see `Spec` directory.
 -/
 
 class Bitset.Encoder (α : Type u) where
