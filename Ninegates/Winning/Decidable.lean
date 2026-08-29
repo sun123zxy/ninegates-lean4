@@ -10,6 +10,7 @@ namespace Mahjong.Hand.Winning.Decidable
 
 variable {n : ℕ}
 
+@[grind =]
 def pairTiles (takePair : Bool) : ℕ :=
   if takePair then 2 else 0
 
@@ -31,44 +32,49 @@ def choice (x : ℕ) (s : State) (takePair : Bool) : StateSet :=
   | none => ∅
   | some t => (∅ : StateSet).insert t
 
+@[grind =]
 lemma step_eq_union (x : Nat) (s : State) :
     step x s = choice x s false ∪ choice x s true := by
   apply Std.ExtHashSet.ext_mem
   intro t
-  unfold step
-  simp only [List.forIn_cons, Id.run_bind]
-  by_cases h0 : s.a.val + s.b.val ≤ x
-  · by_cases h1 : s.pairUsed = true
-    · by_cases h2 : s.a.val + s.b.val + 2 ≤ x <;>
-        simp [emptyStateSet, choice, nextState, pairTiles, h0, h1, h2,
-          Std.ExtHashSet.mem_insert, Std.ExtHashSet.mem_union_iff,
-          Std.ExtHashSet.emptyWithCapacity_eq, beq_iff_eq]
-    · by_cases h2 : s.a.val + s.b.val + 2 ≤ x <;>
-        simp [emptyStateSet, choice, nextState, pairTiles, h0, h1, h2,
-          Std.ExtHashSet.mem_insert, Std.ExtHashSet.mem_union_iff,
-          Std.ExtHashSet.emptyWithCapacity_eq, beq_iff_eq] <;> grind
-  · by_cases h1 : s.pairUsed = true
-    · by_cases h2 : s.a.val + s.b.val + 2 ≤ x <;>
-        simp [emptyStateSet, choice, nextState, pairTiles, h0, h1, h2,
-          Std.ExtHashSet.mem_insert, Std.ExtHashSet.mem_union_iff,
-          Std.ExtHashSet.emptyWithCapacity_eq, beq_iff_eq]
-    · by_cases h2 : s.a.val + s.b.val + 2 ≤ x <;>
-        simp [emptyStateSet, choice, nextState, pairTiles, h0, h1, h2,
-          Std.ExtHashSet.mem_insert, Std.ExtHashSet.mem_union_iff,
-          Std.ExtHashSet.emptyWithCapacity_eq, beq_iff_eq]
+  simp [step, choice, nextState, pairTiles, emptyStateSet]
+  grind
 
+@[simp, grind =]
 lemma mem_choice (x : Nat) (s t : State) (takePair : Bool) :
     t ∈ choice x s takePair ↔
       nextState s takePair x = some t := by
-  cases h : nextState s takePair x with
-  | none => simp [choice, h]
-  | some u => simp [choice, h]
+  cases h : nextState s takePair x <;> simp [choice, h]
 
+@[simp, grind =]
 lemma mem_step (x : Nat) (s t : State) :
     t ∈ step x s ↔
       nextState s false x = some t ∨ nextState s true x = some t := by
-  rw [step_eq_union]
-  simp only [Std.ExtHashSet.mem_union_iff, mem_choice]
+  simp [step_eq_union]
+
+@[grind →]
+lemma mem_step_of_nextState {x : Nat} {s t : State} {takePair : Bool}
+    (h : nextState s takePair x = some t) : t ∈ step x s := by
+  cases takePair <;> simp [h]
+
+@[grind →]
+lemma exists_nextState_of_mem_step {x : Nat} {s t : State}
+    (h : t ∈ step x s) : ∃ takePair, nextState s takePair x = some t := by
+  grind
+
+@[grind →]
+lemma nextState_pairUsed {s t : State} {takePair : Bool} {x : Nat}
+    (h : nextState s takePair x = some t) :
+    t.pairUsed = (s.pairUsed || takePair) := by
+  simp [nextState] at h
+  grind
+
+@[grind →]
+lemma nextState_need {s t : State} {takePair : Bool} {x : Nat}
+    (h : nextState s takePair x = some t) :
+    s.a.val + s.b.val + pairTiles takePair ≤ x := by
+  simp [nextState] at h
+  grind
 
 lemma state_all (s : State) : s ∈ State.all := by
   rcases s with ⟨a, b, p⟩
@@ -77,13 +83,8 @@ lemma state_all (s : State) : s ∈ State.all := by
 lemma mem_fold_union (xs : List State) (f : State → StateSet) (acc : StateSet) (t : State) :
     t ∈ xs.foldl (fun r q ↦ r ∪ f q) acc ↔
       t ∈ acc ∨ ∃ q ∈ xs, t ∈ f q := by
-  induction xs generalizing acc with
-  | nil => simp
-  | cons q qs ih =>
-      simp only [List.foldl]
-      rw [ih]
-      simp only [Std.ExtHashSet.mem_union_iff, List.mem_cons]
-      grind
+  induction xs generalizing acc <;>
+    simp_all only [List.foldl, Std.ExtHashSet.mem_union_iff, List.mem_cons] <;> grind
 
 lemma mem_fold_step (xs : List State) (x : Nat) (states : StateSet)
     (acc : StateSet) (t : State) :
@@ -97,22 +98,15 @@ lemma mem_fold_step (xs : List State) (x : Nat) (states : StateSet)
   | cons q qs ih =>
       simp only [List.foldl]
       rw [ih]
-      by_cases hs : q ∈ states
-      · simp [hs]
-        grind
-      · simp [hs]
+      split <;> (simp_all <;> grind)
 
+@[grind =]
 lemma mem_stepSet (x : Nat) (states : StateSet) (t : State) :
     t ∈ stepSet x states ↔
       ∃ q : State, q ∈ states ∧ t ∈ step x q := by
   unfold stepSet
   rw [mem_fold_step]
-  constructor
-  · rintro (hacc | ⟨q, hqall, hq, hstep⟩)
-    · simp [emptyStateSet, Std.ExtHashSet.emptyWithCapacity_eq] at hacc
-    · exact ⟨q, (Std.ExtHashSet.contains_iff_mem).mp hq, hstep⟩
-  · rintro ⟨q, hq, hstep⟩
-    exact Or.inr ⟨q, state_all q, (Std.ExtHashSet.mem_iff_contains).mp hq, hstep⟩
+  simp [emptyStateSet, Std.ExtHashSet.emptyWithCapacity_eq, state_all]
 
 def replayChoices : State → List Nat → List Bool → Option State
   | s, [], [] => some s
@@ -121,6 +115,46 @@ def replayChoices : State → List Nat → List Bool → Option State
       replayChoices t xs choices
   | _, _, _ => none
 
+@[simp, grind =]
+lemma replayChoices_cons_iff (s t : State) (x : Nat) (xs : List Nat)
+    (takePair : Bool) (choices : List Bool) :
+    replayChoices s (x :: xs) (takePair :: choices) = some t ↔
+      ∃ u, nextState s takePair x = some u ∧ replayChoices u xs choices = some t := by
+  cases h : nextState s takePair x <;> simp [replayChoices, h]
+
+@[simp]
+lemma replayChoices_exists_nil_iff (s t : State) :
+    (∃ choices, replayChoices s [] choices = some t) ↔ s = t := by
+  constructor
+  · rintro ⟨choices, h⟩
+    cases choices with
+    | nil => simpa [replayChoices] using h
+    | cons takePair choices => simp [replayChoices] at h
+  · rintro rfl
+    exact ⟨[], rfl⟩
+
+grind_pattern replayChoices_exists_nil_iff => replayChoices s [] _, some t
+
+@[simp]
+lemma replayChoices_exists_cons_iff (s t : State) (x : Nat) (xs : List Nat) :
+    (∃ choices, replayChoices s (x :: xs) choices = some t) ↔
+      ∃ u, u ∈ step x s ∧ ∃ choices, replayChoices u xs choices = some t := by
+  constructor
+  · rintro ⟨choices, h⟩
+    cases choices with
+    | nil => simp [replayChoices] at h
+    | cons takePair choices =>
+        obtain ⟨u, hn, hr⟩ := (replayChoices_cons_iff s t x xs takePair choices).mp h
+        exact ⟨u, mem_step_of_nextState hn, choices, hr⟩
+  · rintro ⟨u, hu, choices, h⟩
+    obtain ⟨takePair, hn⟩ := exists_nextState_of_mem_step hu
+    exact ⟨takePair :: choices, by
+      apply (replayChoices_cons_iff s t x xs takePair choices).mpr
+      exact ⟨u, hn, h⟩⟩
+
+grind_pattern replayChoices_exists_cons_iff => replayChoices s (x :: xs) _, some t
+
+@[grind →]
 lemma replayChoices_length {s t : State} {xs : List Nat} {choices : List Bool}
     (h : replayChoices s xs choices = some t) : choices.length = xs.length := by
   induction xs generalizing s choices with
@@ -128,58 +162,25 @@ lemma replayChoices_length {s t : State} {xs : List Nat} {choices : List Bool}
   | cons x xs ih =>
       cases choices with
       | nil => simp [replayChoices] at h
-      | cons takePair choices =>
-          cases hn : nextState s takePair x with
-          | none => simp [replayChoices, hn] at h
-          | some next =>
-              have hr : replayChoices next xs choices = some t := by
-                simpa [replayChoices, hn] using h
-              simp [ih hr]
+      | cons takePair choices => grind
 
 def reachable : StateSet → List Nat → StateSet
   | states, [] => states
   | states, x :: xs => reachable (stepSet x states) xs
 
+@[grind =]
 lemma mem_reachable (states : StateSet) (xs : List Nat) (t : State) :
     t ∈ reachable states xs ↔
       ∃ s, s ∈ states ∧
         ∃ choices, replayChoices s xs choices = some t := by
   induction xs generalizing states with
   | nil =>
-      change t ∈ states ↔ _
-      constructor
-      · intro h
-        exact ⟨t, h, [], rfl⟩
-      · rintro ⟨s, hs, choices, hchoices⟩
-        cases choices with
-        | nil =>
-            have hst : s = t := by simpa [replayChoices] using hchoices
-            simpa [hst] using hs
-        | cons takePair choices => simp [replayChoices] at hchoices
+      simp only [reachable, replayChoices_exists_nil_iff]
+      grind
   | cons x xs ih =>
       rw [reachable, ih]
-      constructor
-      · rintro ⟨u, hu, choices, hrest⟩
-        obtain ⟨s, hs, hstep⟩ := (mem_stepSet x states u).mp hu
-        rcases (mem_step x s u).mp hstep with hfalse | htrue
-        · exact ⟨s, hs, false :: choices, by simp [replayChoices, hfalse, hrest]⟩
-        · exact ⟨s, hs, true :: choices, by simp [replayChoices, htrue, hrest]⟩
-      · rintro ⟨s, hs, choices, hchoices⟩
-        cases choices with
-        | nil => simp [replayChoices] at hchoices
-        | cons takePair choices =>
-            cases hn : nextState s takePair x with
-            | none => simp [replayChoices, hn] at hchoices
-            | some u =>
-                have hrest : replayChoices u xs choices = some t := by
-                  simpa [replayChoices, hn] using hchoices
-                have hmem : u ∈ step x s := by
-                  apply (mem_step x s u).mpr
-                  cases takePair
-                  · exact Or.inl hn
-                  · exact Or.inr hn
-                exact ⟨u, (mem_stepSet x states u).mpr ⟨s, hs, hmem⟩,
-                  choices, hrest⟩
+      simp only [mem_stepSet, replayChoices_exists_cons_iff]
+      grind
 
 lemma loop_reachable_from (states : StateSet) (xs : List Nat) :
     Id.run (do
@@ -234,57 +235,13 @@ lemma adjustPair_get {xs : List Nat} {choices : List Bool}
           · simp [adjustPair]
           · simpa [adjustPair] using ih (by simpa using h) j
 
+@[grind =]
 lemma list_ofFn_handOfList (xs : List Nat) (h : xs.length = 3 * n) :
     List.ofFn (handOfList xs h) = xs := by
   apply List.ext_getElem
   · simp [handOfList, h]
   · intro i hi₁ hi₂
     simp [handOfList]
-
-lemma replayChoices_pair_index {s t : State} {xs : List Nat} {choices : List Bool}
-    (hlen : choices.length = xs.length)
-    (h : replayChoices s xs choices = some t)
-    (hs : s.pairUsed = false) (ht : t.pairUsed = true) :
-    ∃ i : Fin choices.length,
-      choices.get i = true ∧ 2 ≤ xs.get ⟨i.val, by simpa [hlen] using i.isLt⟩ := by
-  induction xs generalizing s choices with
-  | nil =>
-      cases choices with
-      | nil =>
-          have hst : s = t := by
-            simpa [replayChoices] using h
-          subst t
-          simp [hs] at ht
-      | cons takePair choices =>
-          simp [replayChoices] at h
-  | cons x xs ih =>
-      cases choices with
-      | nil => simp at hlen
-      | cons takePair choices =>
-          cases takePair with
-          | false =>
-              cases hn : nextState s false x with
-              | none => simp [replayChoices, hn] at h
-              | some next =>
-                  have hrest : replayChoices next xs choices = some t := by
-                    simpa [replayChoices, hn] using h
-                  have hnext : next.pairUsed = false := by
-                    simp [nextState, hs] at hn
-                    grind
-                  obtain ⟨i, hi, hxi⟩ := ih (by simpa using hlen) hrest hnext
-                  refine ⟨Fin.succ i, ?_, ?_⟩
-                  · simpa using hi
-                  · simpa using hxi
-          | true =>
-              cases hn : nextState s true x with
-              | none => simp [replayChoices, hn] at h
-              | some next =>
-                  refine ⟨0, rfl, ?_⟩
-                  have hneed : s.a.val + s.b.val + 2 ≤ x := by
-                    simp [nextState, hs, pairTiles] at hn
-                    omega
-                  have hx : 2 ≤ x := by omega
-                  simpa using hx
 
 lemma replayChoices_all_false_of_true {s t : State} {xs : List Nat} {choices : List Bool}
     (hs : s.pairUsed = true) (h : replayChoices s xs choices = some t) :
@@ -308,18 +265,19 @@ lemma replayChoices_all_false_of_true {s t : State} {xs : List Nat} {choices : L
               | some next =>
                   have hrest : replayChoices next xs choices = some t := by
                     simpa [replayChoices, hn] using h
-                  have hnext : next.pairUsed = true := by
-                    simp [nextState, hs] at hn
-                    grind
+                  have hnext : next.pairUsed = true := by grind
                   intro i
                   refine Fin.cases ?_ (fun j => ?_) i
                   · rfl
                   · simpa using ih hnext hrest j
 
-lemma replayChoices_pair_unique {s t : State} {xs : List Nat} {choices : List Bool}
+@[grind →]
+lemma replayChoices_pair_witness {s t : State} {xs : List Nat} {choices : List Bool}
+    (hlen : choices.length = xs.length)
     (h : replayChoices s xs choices = some t)
     (hs : s.pairUsed = false) (ht : t.pairUsed = true) :
     ∃ i : Fin choices.length, choices.get i = true ∧
+      2 ≤ xs.get ⟨i.val, by simpa [hlen] using i.isLt⟩ ∧
       ∀ j, j ≠ i → choices.get j = false := by
   induction xs generalizing s choices with
   | nil =>
@@ -330,7 +288,7 @@ lemma replayChoices_pair_unique {s t : State} {xs : List Nat} {choices : List Bo
       | cons takePair choices => simp [replayChoices] at h
   | cons x xs ih =>
       cases choices with
-      | nil => simp [replayChoices] at h
+      | nil => simp at hlen
       | cons takePair choices =>
           cases takePair with
           | false =>
@@ -339,37 +297,44 @@ lemma replayChoices_pair_unique {s t : State} {xs : List Nat} {choices : List Bo
               | some next =>
                   have hrest : replayChoices next xs choices = some t := by
                     simpa [replayChoices, hn] using h
-                  have hnext : next.pairUsed = false := by
-                    simp [nextState, hs] at hn
-                    grind
-                  obtain ⟨i, hi, huniq⟩ := ih hrest hnext
-                  refine ⟨Fin.succ i, by simpa using hi, ?_⟩
+                  have hnext : next.pairUsed = false := by grind
+                  obtain ⟨i, hi, hxi, huniq⟩ :=
+                    ih (by simpa using hlen) hrest hnext
+                  refine ⟨Fin.succ i, by simpa using hi, by simpa using hxi, ?_⟩
                   intro j
-                  refine Fin.cases ?_ (fun j => ?_) j
-                  · intro _
-                    rfl
-                  · intro hj
-                    apply huniq
-                    intro heq
-                    apply hj
-                    exact congrArg Fin.succ heq
+                  refine Fin.cases (fun _ => rfl) (fun j hj => ?_) j
+                  apply huniq j
+                  intro heq
+                  exact hj (congrArg Fin.succ heq)
           | true =>
               cases hn : nextState s true x with
               | none => simp [replayChoices, hn] at h
               | some next =>
                   have hrest : replayChoices next xs choices = some t := by
                     simpa [replayChoices, hn] using h
-                  have hnext : next.pairUsed = true := by
-                    simp [nextState, hs] at hn
-                    grind
+                  have hnext : next.pairUsed = true := by grind
                   have hfalse := replayChoices_all_false_of_true hnext hrest
-                  refine ⟨0, rfl, ?_⟩
+                  refine ⟨0, rfl, by grind, ?_⟩
                   intro j
-                  refine Fin.cases ?_ (fun j => ?_) j
-                  · intro hne
-                    exact False.elim (hne rfl)
-                  · intro _
-                    simpa using hfalse j
+                  refine Fin.cases (fun hne => (hne rfl).elim) (fun j _ => ?_) j
+                  simpa using hfalse j
+
+lemma replayChoices_pair_index {s t : State} {xs : List Nat} {choices : List Bool}
+    (hlen : choices.length = xs.length)
+    (h : replayChoices s xs choices = some t)
+    (hs : s.pairUsed = false) (ht : t.pairUsed = true) :
+    ∃ i : Fin choices.length,
+      choices.get i = true ∧ 2 ≤ xs.get ⟨i.val, by simpa [hlen] using i.isLt⟩ := by
+  grind only [replayChoices_pair_witness]
+
+lemma replayChoices_pair_unique {s t : State} {xs : List Nat} {choices : List Bool}
+    (h : replayChoices s xs choices = some t)
+    (hs : s.pairUsed = false) (ht : t.pairUsed = true) :
+    ∃ i : Fin choices.length, choices.get i = true ∧
+      ∀ j, j ≠ i → choices.get j = false := by
+  have hlen := replayChoices_length h
+  obtain ⟨i, hi, _, huniq⟩ := replayChoices_pair_witness hlen h hs ht
+  exact ⟨i, hi, huniq⟩
 
 lemma nextState_to_scanStep (s t : State) (takePair : Bool) (x : Nat)
     (h : nextState s takePair x = some t) :
@@ -416,6 +381,7 @@ lemma nextState_to_scanStep (s t : State) (takePair : Bool) (x : Nat)
           simp only [hp, Bool.true_and, ite_true] at h
           cases h
 
+@[grind →]
 lemma replayChoices_to_stepList {s t : State} {xs : List Nat} {choices : List Bool}
     (h : replayChoices s xs choices = some t) :
     ∃ ps, Meldable.Decidable.stepList (scanState s) (adjustPair xs choices) =
@@ -480,7 +446,7 @@ def addPairAt : List Nat → Nat → List Nat
   | x :: xs, 0 => (x + 2) :: xs
   | x :: xs, k + 1 => x :: addPairAt xs k
 
-@[simp]
+@[simp, grind =]
 lemma addPairAt_length (xs : List Nat) (k : Nat) : (addPairAt xs k).length = xs.length := by
   induction xs generalizing k with
   | nil => simp [addPairAt]
@@ -498,6 +464,7 @@ lemma addPairAt_get (xs : List Nat) (k : Nat) (i : Fin xs.length) :
         | zero => simp [addPairAt]
         | succ k => simpa [addPairAt] using ih k i
 
+@[grind =]
 lemma list_ofFn_add_pair (d : Hand n) (i : Fin (3 * n)) :
     List.ofFn (d + pair i) = addPairAt (List.ofFn d) i.val := by
   apply List.ext_getElem
@@ -507,12 +474,12 @@ lemma list_ofFn_add_pair (d : Hand n) (i : Fin (3 * n)) :
     have hget := addPairAt_get (List.ofFn d) i.val jf
     simpa [jf, add_apply, pair_apply] using hget.symm
 
-@[simp]
+@[simp, grind =]
 lemma scanState_advance (s : State) (p : Meldable.Decidable.StepPlacement) :
     scanState (advance s p) = (Meldable.Decidable.replay (scanState s) p).2 := by
   simp [scanState, advance, Meldable.Decidable.replay]
 
-@[simp]
+@[simp, grind =]
 lemma scanState_traceState (s : State) (ps : List Meldable.Decidable.StepPlacement) :
     scanState (traceState s ps) =
       (Meldable.Decidable.replayList (scanState s) ps).2 := by
@@ -520,7 +487,7 @@ lemma scanState_traceState (s : State) (ps : List Meldable.Decidable.StepPlaceme
   | nil => simp [traceState, Meldable.Decidable.replayList]
   | cons p ps ih => simp [traceState, Meldable.Decidable.replayList, ih]
 
-@[simp]
+@[simp, grind =]
 lemma traceState_pairUsed (s : State) (ps : List Meldable.Decidable.StepPlacement) :
     (traceState s ps).pairUsed = s.pairUsed := by
   induction ps generalizing s with
@@ -643,34 +610,25 @@ lemma decide_dp (c : Hand n) :
           List.foldl (fun s x => stepSet x s) ((∅ : StateSet).insert State.init)
               (List.ofFn c) = reachable ((∅ : StateSet).insert State.init) (List.ofFn c) := by
         simpa using loop_reachable (List.ofFn c)
-      have hloop' :
-          List.foldl (fun s x => stepSet x s) ((∅ : StateSet).insert State.init)
-              (List.ofFn c) = reachable ((∅ : StateSet).insert State.init) (List.ofFn c) := hloop
       simp only [emptyStateSet, Std.ExtHashSet.emptyWithCapacity_eq]
-      rw [hloop']
+      rw [hloop]
       simp [mem_reachable, State.init, State.final]
     · simp [Mahjong.Hand.Winning.decide, DPWinning, hv, hs]
   · simp [Mahjong.Hand.Winning.decide, DPWinning, hv]
 
 lemma dpWinning_to_winning {c : Hand n} (h : DPWinning c) : Winning c := by
   rcases h with ⟨hcvalid, hcsize, choices, hchoices⟩
-  have hlen : choices.length = (List.ofFn c).length := replayChoices_length hchoices
+  have hlen : choices.length = (List.ofFn c).length := by
+    grind
   have hlen' : choices.length = 3 * n := by simpa using hlen
-  obtain ⟨i, hi, huniq⟩ := replayChoices_pair_unique hchoices rfl rfl
-  obtain ⟨i', hi', hxi'⟩ := replayChoices_pair_index hlen hchoices rfl rfl
-  have hii : i' = i := by
-    by_contra hne
-    have hfalse := huniq i' hne
-    rw [hi'] at hfalse
-    cases hfalse
-  have hi_x : i.val < (List.ofFn c).length := by simpa [hlen] using i.isLt
-  have hxi : 2 ≤ (List.ofFn c).get ⟨i.val, hi_x⟩ := by
-    simpa [hii] using hxi'
+  obtain ⟨i, hi, hxi, huniq⟩ :=
+    replayChoices_pair_witness hlen hchoices rfl rfl
   let adjusted := adjustPair (List.ofFn c) choices
   have hadjusted : adjusted.length = 3 * n := by
     simp [adjusted, adjustPair_length hlen]
   let d : Hand n := handOfList adjusted hadjusted
-  have hdlist : List.ofFn d = adjusted := list_ofFn_handOfList adjusted hadjusted
+  have hdlist : List.ofFn d = adjusted := by
+    grind only [list_ofFn_handOfList]
   obtain ⟨ps, hstep⟩ := replayChoices_to_stepList hchoices
   have hscan : Meldable.Decidable.scanList (List.ofFn d) = some ps := by
     rw [hdlist]

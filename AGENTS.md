@@ -1,0 +1,1 @@
+Please, always read `README.md` first before editing any code.
