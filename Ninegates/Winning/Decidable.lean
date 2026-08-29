@@ -1,25 +1,14 @@
 import Ninegates.Winning.Decide
-import Ninegates.Bitset.Spec
+import Std.Data.ExtHashSet.Lemmas
 import Ninegates.Meldable.Decidable
 
 /-!
 # Correctness of the winning-hand decision procedure
-
-This file records the executable specification and its correctness proof.
 -/
 
 namespace Mahjong.Hand.Winning.Decidable
 
 variable {n : ℕ}
-
-instance lawfulStateEncoder : Bitset.LawfulEncoder State where
-  encode_injective := by
-    intro x y h
-    rcases x with ⟨a, b, p⟩
-    rcases y with ⟨a', b', p'⟩
-    change State.encode ⟨a, b, p⟩ = State.encode ⟨a', b', p'⟩ at h
-    simp [State.encode] at h
-    cases p <;> cases p' <;> grind
 
 def pairTiles (takePair : Bool) : ℕ :=
   if takePair then 2 else 0
@@ -39,95 +28,91 @@ def nextState (s : State) (takePair : Bool) (x : ℕ) : Option State :=
 
 def choice (x : ℕ) (s : State) (takePair : Bool) : StateSet :=
   match nextState s takePair x with
-  | none => Bitset.empty
-  | some t => Bitset.singleton t
-
-lemma enc_iff (x y : State) :
-    Bitset.Encoder.encode x = Bitset.Encoder.encode y ↔ x = y := by
-  constructor
-  · intro h
-    exact Bitset.LawfulEncoder.encode_injective (α := State) h
-  · exact congrArg Bitset.Encoder.encode
+  | none => ∅
+  | some t => (∅ : StateSet).insert t
 
 lemma step_eq_union (x : Nat) (s : State) :
-    step x s = Bitset.union (choice x s false) (choice x s true) := by
+    step x s = choice x s false ∪ choice x s true := by
+  apply Std.ExtHashSet.ext_mem
+  intro t
   unfold step
   simp only [List.forIn_cons, Id.run_bind]
   by_cases h0 : s.a.val + s.b.val ≤ x
   · by_cases h1 : s.pairUsed = true
     · by_cases h2 : s.a.val + s.b.val + 2 ≤ x <;>
-        simp [choice, nextState, pairTiles, h0, h1, Bitset.insert,
-          Bitset.singleton, Bitset.union, Bitset.empty]
+        simp [emptyStateSet, choice, nextState, pairTiles, h0, h1, h2,
+          Std.ExtHashSet.mem_insert, Std.ExtHashSet.mem_union_iff,
+          Std.ExtHashSet.emptyWithCapacity_eq, beq_iff_eq]
     · by_cases h2 : s.a.val + s.b.val + 2 ≤ x <;>
-        simp [choice, nextState, pairTiles, h0, h1, h2, Bitset.singleton,
-          Bitset.insert, Bitset.union, Bitset.empty]
+        simp [emptyStateSet, choice, nextState, pairTiles, h0, h1, h2,
+          Std.ExtHashSet.mem_insert, Std.ExtHashSet.mem_union_iff,
+          Std.ExtHashSet.emptyWithCapacity_eq, beq_iff_eq] <;> grind
   · by_cases h1 : s.pairUsed = true
     · by_cases h2 : s.a.val + s.b.val + 2 ≤ x <;>
-        simp [choice, nextState, pairTiles, h0, h1, Bitset.insert,
-          Bitset.singleton, Bitset.union, Bitset.empty]
+        simp [emptyStateSet, choice, nextState, pairTiles, h0, h1, h2,
+          Std.ExtHashSet.mem_insert, Std.ExtHashSet.mem_union_iff,
+          Std.ExtHashSet.emptyWithCapacity_eq, beq_iff_eq]
     · by_cases h2 : s.a.val + s.b.val + 2 ≤ x <;>
-        simp [choice, nextState, pairTiles, h0, h1, h2, Bitset.insert,
-          Bitset.singleton, Bitset.union, Bitset.empty]
+        simp [emptyStateSet, choice, nextState, pairTiles, h0, h1, h2,
+          Std.ExtHashSet.mem_insert, Std.ExtHashSet.mem_union_iff,
+          Std.ExtHashSet.emptyWithCapacity_eq, beq_iff_eq]
 
 lemma mem_choice (x : Nat) (s t : State) (takePair : Bool) :
-    Bitset.mem (choice x s takePair) t = true ↔
+    t ∈ choice x s takePair ↔
       nextState s takePair x = some t := by
   cases h : nextState s takePair x with
   | none => simp [choice, h]
-  | some u => simp [choice, h, enc_iff]
+  | some u => simp [choice, h]
 
 lemma mem_step (x : Nat) (s t : State) :
-    Bitset.mem (step x s) t = true ↔
+    t ∈ step x s ↔
       nextState s false x = some t ∨ nextState s true x = some t := by
   rw [step_eq_union]
-  simp only [Bitset.mem_union_iff, mem_choice]
+  simp only [Std.ExtHashSet.mem_union_iff, mem_choice]
 
 lemma state_all (s : State) : s ∈ State.all := by
   rcases s with ⟨a, b, p⟩
   cases p <;> simp [State.all]
 
 lemma mem_fold_union (xs : List State) (f : State → StateSet) (acc : StateSet) (t : State) :
-    Bitset.mem (xs.foldl (fun r q ↦ Bitset.union r (f q)) acc) t = true ↔
-      Bitset.mem acc t = true ∨ ∃ q ∈ xs, Bitset.mem (f q) t = true := by
+    t ∈ xs.foldl (fun r q ↦ r ∪ f q) acc ↔
+      t ∈ acc ∨ ∃ q ∈ xs, t ∈ f q := by
   induction xs generalizing acc with
   | nil => simp
   | cons q qs ih =>
       simp only [List.foldl]
       rw [ih]
-      simp only [Bitset.mem_union_iff, List.mem_cons]
+      simp only [Std.ExtHashSet.mem_union_iff, List.mem_cons]
       grind
 
 lemma mem_fold_step (xs : List State) (x : Nat) (states : StateSet)
     (acc : StateSet) (t : State) :
-    Bitset.mem
-        (xs.foldl
-          (fun result q =>
-            if Bitset.mem states q = true then Bitset.union result (step x q) else result)
-          acc)
-        t = true ↔
-      Bitset.mem acc t = true ∨
-        ∃ q ∈ xs, Bitset.mem states q = true ∧ Bitset.mem (step x q) t = true := by
+    t ∈ xs.foldl
+        (fun result q =>
+          if states.contains q then result ∪ (step x q) else result)
+        acc ↔
+      t ∈ acc ∨ ∃ q ∈ xs, states.contains q ∧ t ∈ step x q := by
   induction xs generalizing acc with
   | nil => simp
   | cons q qs ih =>
       simp only [List.foldl]
       rw [ih]
-      by_cases hs : Bitset.mem states q = true
+      by_cases hs : q ∈ states
       · simp [hs]
         grind
       · simp [hs]
 
 lemma mem_stepSet (x : Nat) (states : StateSet) (t : State) :
-    Bitset.mem (stepSet x states) t = true ↔
-      ∃ q : State, Bitset.mem states q = true ∧ Bitset.mem (step x q) t = true := by
+    t ∈ stepSet x states ↔
+      ∃ q : State, q ∈ states ∧ t ∈ step x q := by
   unfold stepSet
   rw [mem_fold_step]
   constructor
   · rintro (hacc | ⟨q, hqall, hq, hstep⟩)
-    · simp at hacc
-    · exact ⟨q, hq, hstep⟩
+    · simp [emptyStateSet, Std.ExtHashSet.emptyWithCapacity_eq] at hacc
+    · exact ⟨q, (Std.ExtHashSet.contains_iff_mem).mp hq, hstep⟩
   · rintro ⟨q, hq, hstep⟩
-    exact Or.inr ⟨q, state_all q, hq, hstep⟩
+    exact Or.inr ⟨q, state_all q, (Std.ExtHashSet.mem_iff_contains).mp hq, hstep⟩
 
 def replayChoices : State → List Nat → List Bool → Option State
   | s, [], [] => some s
@@ -156,12 +141,12 @@ def reachable : StateSet → List Nat → StateSet
   | states, x :: xs => reachable (stepSet x states) xs
 
 lemma mem_reachable (states : StateSet) (xs : List Nat) (t : State) :
-    Bitset.mem (reachable states xs) t = true ↔
-      ∃ s, Bitset.mem states s = true ∧
+    t ∈ reachable states xs ↔
+      ∃ s, s ∈ states ∧
         ∃ choices, replayChoices s xs choices = some t := by
   induction xs generalizing states with
   | nil =>
-      change Bitset.mem states t = true ↔ _
+      change t ∈ states ↔ _
       constructor
       · intro h
         exact ⟨t, h, [], rfl⟩
@@ -188,7 +173,7 @@ lemma mem_reachable (states : StateSet) (xs : List Nat) (t : State) :
             | some u =>
                 have hrest : replayChoices u xs choices = some t := by
                   simpa [replayChoices, hn] using hchoices
-                have hmem : Bitset.mem (step x s) u = true := by
+                have hmem : u ∈ step x s := by
                   apply (mem_step x s u).mpr
                   cases takePair
                   · exact Or.inl hn
@@ -210,11 +195,11 @@ lemma loop_reachable_from (states : StateSet) (xs : List Nat) :
 
 lemma loop_reachable (xs : List Nat) :
     Id.run (do
-      let mut states : StateSet := Bitset.singleton State.init
+      let mut states : StateSet := (∅ : StateSet).insert State.init
       for x in xs do
         states := stepSet x states
-      return states) = reachable (Bitset.singleton State.init) xs := by
-  simpa using loop_reachable_from (Bitset.singleton State.init) xs
+      return states) = reachable ((∅ : StateSet).insert State.init) xs := by
+  simpa using loop_reachable_from ((∅ : StateSet).insert State.init) xs
 
 def scanState (s : State) : Meldable.Decidable.State := (s.a.val, s.b.val)
 
@@ -655,12 +640,15 @@ lemma decide_dp (c : Hand n) :
         ↓reduceIte, hs, bne_self_eq_false, List.forIn_pure_yield_eq_foldl,
         bind_pure_comp, map_pure, Id.run_pure, DPWinning, true_and]
       have hloop :
-          List.foldl (fun s x => stepSet x s) (Bitset.singleton State.init)
-              (List.ofFn c) = reachable (Bitset.singleton State.init) (List.ofFn c) := by
+          List.foldl (fun s x => stepSet x s) ((∅ : StateSet).insert State.init)
+              (List.ofFn c) = reachable ((∅ : StateSet).insert State.init) (List.ofFn c) := by
         simpa using loop_reachable (List.ofFn c)
-      rw [hloop]
-      rw [mem_reachable]
-      simp [State.init, State.final, enc_iff]
+      have hloop' :
+          List.foldl (fun s x => stepSet x s) ((∅ : StateSet).insert State.init)
+              (List.ofFn c) = reachable ((∅ : StateSet).insert State.init) (List.ofFn c) := hloop
+      simp only [emptyStateSet, Std.ExtHashSet.emptyWithCapacity_eq]
+      rw [hloop']
+      simp [mem_reachable, State.init, State.final]
     · simp [Mahjong.Hand.Winning.decide, DPWinning, hv, hs]
   · simp [Mahjong.Hand.Winning.decide, DPWinning, hv]
 
@@ -740,10 +728,8 @@ lemma dpWinning_to_winning {c : Hand n} (h : DPWinning c) : Winning c := by
       simp [pairTiles, hji, hval]
   exact ⟨hcvalid, hcsize, d, idx, hdmeld, hcd⟩
 
-/-- Correctness specification of the executable winning-hand decision procedure.
-
-This is the sole algorithm-specific obligation needed by the `Decidable` bridge;
-the proof is intentionally deferred while the executable structure is stabilized.
+/--
+Correctness specification of the executable winning-hand decision procedure.
 -/
 theorem decide_spec (c : Hand n) :
     Mahjong.Hand.Winning.decide c = true ↔ Winning c := by

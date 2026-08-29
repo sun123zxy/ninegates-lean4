@@ -20,8 +20,8 @@ variable {n : ℕ}
 def buildPrefix (count : Array Nat) :
     Vector StateSet (count.size + 1) := Id.run do
   let n := count.size
-  let mut pref : Vector StateSet (n + 1) := Vector.replicate (n + 1) Bitset.empty
-  pref := pref.set 0 (Bitset.singleton State.init) (by omega)
+  let mut pref : Vector StateSet (n + 1) := Vector.replicate (n + 1) emptyStateSet
+  pref := pref.set 0 (emptyStateSet.insert State.init) (by omega)
   for i in List.finRange n do
     let c := count[i.val]'(by simp [n, i.isLt])
     let q := pref.get ⟨i.val, by omega⟩
@@ -31,16 +31,15 @@ def buildPrefix (count : Array Nat) :
 def buildSuffix (count : Array Nat) :
     Vector StateSet (count.size + 1) := Id.run do
   let n := count.size
-  let mut suff : Vector StateSet (n + 1) := Vector.replicate (n + 1) Bitset.empty
-  suff := suff.set n (Bitset.singleton State.final) (by omega)
+  let mut suff : Vector StateSet (n + 1) := Vector.replicate (n + 1) emptyStateSet
+  suff := suff.set n (emptyStateSet.insert State.final) (by omega)
   for k in List.finRange n do
     let i := n - 1 - k.val
     have hi : i < count.size := by omega
-    let mut good : StateSet := Bitset.empty
+    let mut good : StateSet := emptyStateSet
     for q in State.all do
-      if Bitset.nonempty (Bitset.inter (step (count[i]'hi) q)
-          (suff.get ⟨i + 1, by omega⟩)) then
-        good := Bitset.insert q good
+      if !(step (count[i]'hi) q ∩ (suff.get ⟨i + 1, by omega⟩)).isEmpty then
+        good := good.insert q
     suff := suff.set i good (by omega)
   return suff
 
@@ -51,8 +50,8 @@ def waitsOn (count : Array Nat)
   let c := count[j.val]'j.isLt
   if c ≥ 4 then false
   else
-    Bitset.nonempty (Bitset.inter (stepSet (c + 1)
-      (pref.get ⟨j.val, by omega⟩)) (suff.get ⟨j.val + 1, by omega⟩))
+    !(stepSet (c + 1) (pref.get ⟨j.val, by omega⟩) ∩
+      (suff.get ⟨j.val + 1, by omega⟩)).isEmpty
 
 def waitingTiles (count : Array Nat) : Array Bool := Id.run do
   let n := count.size

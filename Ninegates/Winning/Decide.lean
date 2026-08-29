@@ -1,5 +1,5 @@
 import Ninegates.Winning.Basic
-import Ninegates.Bitset.Basic
+import Std.Data.ExtHashSet.Basic
 
 /-!
 Algorithms for deciding winning hands.
@@ -21,7 +21,7 @@ structure State where
   b : Fin 3
   /-- Whether the pair has already been used. -/
   pairUsed : Bool
-deriving DecidableEq, Inhabited
+deriving BEq, ReflBEq, LawfulBEq, DecidableEq, Inhabited
 
 namespace State
 
@@ -39,14 +39,16 @@ def encode (q : State) : Fin 18 :=
 
 end State
 
-instance : Bitset.Encoder State where
-  size := 18
-  encode := State.encode
+instance : Hashable State where
+  hash q := UInt64.ofNat (State.encode q).val
 
-abbrev StateSet := Bitset State
+abbrev StateSet := Std.ExtHashSet State
+
+abbrev emptyStateSet : StateSet :=
+  Std.ExtHashSet.emptyWithCapacity 32
 
 def step (c : Nat) (q : State) : StateSet := Id.run do
-  let mut result := Bitset.empty
+  let mut result := emptyStateSet
   for e in [0, 1] do
     let pair : Bool := e == 1
     if q.pairUsed && pair then
@@ -55,14 +57,14 @@ def step (c : Nat) (q : State) : StateSet := Id.run do
     if need ≤ c then
       let rest := c - need
       let s : Fin 3 := ⟨rest % 3, by grind⟩
-      result := Bitset.insert
-        ({a := s, b := q.a, pairUsed := q.pairUsed || pair} : State) result
+      result := result.insert
+        ({a := s, b := q.a, pairUsed := q.pairUsed || pair} : State)
   return result
 
 def stepSet (c : Nat) (states : StateSet) : StateSet :=
   State.all.foldl (fun result q ↦
-    if Bitset.mem states q then Bitset.union result (step c q) else result)
-    Bitset.empty
+    if states.contains q then result ∪ step c q else result)
+    emptyStateSet
 
 end Decidable
 
@@ -71,10 +73,10 @@ open Winning.Decidable
 def decide (c : Hand n) : Bool := Id.run do
   if !Valid c then return false
   if Hand.size c != 3 * n + 5 then return false
-  let mut states : StateSet := Bitset.singleton State.init
+  let mut states : StateSet := emptyStateSet |>.insert State.init
   for x in List.ofFn c do
     states := stepSet x states
-  return Bitset.mem states State.final
+  return states.contains State.final
 
 end Winning
 
