@@ -17,6 +17,11 @@ def IsWinningTile (c : Hand n) (i : Fin (3 * n)) : Prop := Winning (c + single i
 def IsLiveWinningTile (c : Hand n) (i : Fin (3 * n)) : Prop :=
   IsWinningTile c i ∧ Valid (c + single i)
 
+lemma isLiveWinningTile_iff {c : Hand n} {i : Fin (3 * n)} :
+    IsLiveWinningTile c i ↔ IsWinningTile c i ∧ Valid c ∧ c i ≤ 3 := by
+  simp [IsLiveWinningTile, IsWinningTile, Valid]
+  grind
+
 def IsWait (c : Hand n) : Prop := ∃ i, IsWinningTile c i
 
 lemma IsWait.size {c : Hand n} (hc : IsWait c) : size c = 3 * n + 4 := by
@@ -53,13 +58,10 @@ lemma IsFullWait.toIsLiveFullWait {c : Hand n} (hc : IsFullWait c)
   intro i
   exact ⟨hc i, hvalid i⟩
 
-lemma IsFullWait.toIsLiveFullWait_of_le_three {c : Hand n} (hc : IsFullWait c)
-    (hthree : ∀ i, c i ≤ 3) : IsLiveFullWait c := by
-  apply IsFullWait.toIsLiveFullWait hc
-  intro i j
-  have hj := hthree j
-  simp only [add_apply, single_apply]
-  split_ifs <;> omega
+lemma isLiveFullWait_iff_le_three {c : Hand n} :
+    IsLiveFullWait c ↔ IsFullWait c ∧ ∀ i, c i ≤ 3 := by
+  simp only [IsLiveFullWait, IsFullWait, isLiveWinningTile_iff]
+  grind
 
 lemma IsFullWait.size (hn : 0 < n) {c : Hand n} (hc : IsFullWait c) :
     size c = 3 * n + 4 := by
@@ -72,8 +74,6 @@ lemma IsLiveFullWait.size (hn : 0 < n) {c : Hand n} (hc : IsLiveFullWait c) :
   IsLiveWait.size ⟨i, hc i⟩
 
 lemma IsLiveFullWait.le_three {c : Hand n} (hc : IsLiveFullWait c) : ∀ i, c i ≤ 3 := by
-  intro i
-  have hi := (hc i).2 i
-  grind
+  exact isLiveFullWait_iff_le_three.mp hc |>.2
 
 end Mahjong.Hand

@@ -79,8 +79,8 @@ theorem IsFullWait.standardLiveFullWait (n : ℕ) (hn : 0 < n) :
 
 theorem IsLiveFullWait.standardLiveFullWait (n : ℕ) (hn : 0 < n) :
     IsLiveFullWait (standardLiveFullWait n) := by
-  apply IsFullWait.toIsLiveFullWait_of_le_three
-    (IsFullWait.standardLiveFullWait n hn)
+  apply isLiveFullWait_iff_le_three.mpr
+  refine ⟨IsFullWait.standardLiveFullWait n hn, ?_⟩
   intro p
   simp only [standardLiveFullWait_apply]
   split_ifs <;> omega
