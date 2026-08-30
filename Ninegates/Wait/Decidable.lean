@@ -11,7 +11,7 @@ namespace IsWinningTile.Decidable
 
 theorem decide_spec (c : Hand n) (i : Fin (3 * n)) :
     IsWinningTile.decide c i = true ↔ IsWinningTile c i := by
-  sorry
+  simp [IsWinningTile.decide, IsWinningTile, Winning.Decidable.decide_spec]
 
 instance (c : Hand n) (i : Fin (3 * n)) : Decidable (IsWinningTile c i) :=
   decidable_of_iff (IsWinningTile.decide c i = true) (decide_spec c i)
@@ -22,7 +22,9 @@ namespace IsLiveWinningTile.Decidable
 
 theorem decide_spec (c : Hand n) (i : Fin (3 * n)) :
     IsLiveWinningTile.decide c i = true ↔ IsLiveWinningTile c i := by
-  sorry
+  simp only [IsLiveWinningTile.decide, IsWinningTile.decide, Bool.and_eq_true,
+    Winning.Decidable.decide_spec, decide_eq_true_eq]
+  rfl
 
 instance (c : Hand n) (i : Fin (3 * n)) : Decidable (IsLiveWinningTile c i) :=
   decidable_of_iff (IsLiveWinningTile.decide c i = true) (decide_spec c i)
