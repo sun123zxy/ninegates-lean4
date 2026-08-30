@@ -68,6 +68,14 @@ end IsFullWait.Decidable
 def IsFullWait.decide (c : Hand n) : Bool :=
   (IsFullWait.Decidable.waitingTiles (Array.ofFn c)).all id
 
+def IsWait.decide (c : Hand n) : Bool :=
+  (IsFullWait.Decidable.waitingTiles (Array.ofFn c)).any id
+
+def IsLiveWait.decide (c : Hand n) : Bool :=
+  (Array.zipWith (· && ·)
+    (IsFullWait.Decidable.waitingTiles (Array.ofFn c))
+    ((Array.ofFn c).map (fun x ↦ x ≤ 3))).any id
+
 def IsLiveFullWait.decide (c : Hand n) : Bool :=
   (IsFullWait.Decidable.waitingTiles (Array.ofFn c)).all id &&
     (Array.ofFn c).all (fun x ↦ x <= 3)
