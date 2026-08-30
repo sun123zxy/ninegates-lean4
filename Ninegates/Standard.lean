@@ -79,9 +79,10 @@ theorem IsFullWait.standardLiveFullWait (n : ℕ) (hn : 0 < n) :
 
 theorem IsLiveFullWait.standardLiveFullWait (n : ℕ) (hn : 0 < n) :
     IsLiveFullWait (standardLiveFullWait n) := by
-  apply IsFullWait.toIsLiveFullWait (IsFullWait.standardLiveFullWait n hn)
-  intro p i
-  simp only [add_apply, standardLiveFullWait_apply, single_apply]
+  apply IsFullWait.toIsLiveFullWait_of_le_three
+    (IsFullWait.standardLiveFullWait n hn)
+  intro p
+  simp only [standardLiveFullWait_apply]
   split_ifs <;> omega
 
 end Mahjong.Hand

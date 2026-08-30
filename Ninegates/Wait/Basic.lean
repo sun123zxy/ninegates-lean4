@@ -53,6 +53,14 @@ lemma IsFullWait.toIsLiveFullWait {c : Hand n} (hc : IsFullWait c)
   intro i
   exact ⟨hc i, hvalid i⟩
 
+lemma IsFullWait.toIsLiveFullWait_of_le_three {c : Hand n} (hc : IsFullWait c)
+    (hthree : ∀ i, c i ≤ 3) : IsLiveFullWait c := by
+  apply IsFullWait.toIsLiveFullWait hc
+  intro i j
+  have hj := hthree j
+  simp only [add_apply, single_apply]
+  split_ifs <;> omega
+
 lemma IsFullWait.size (hn : 0 < n) {c : Hand n} (hc : IsFullWait c) :
     size c = 3 * n + 4 := by
   let i : Fin (3 * n) := ⟨0, by omega⟩

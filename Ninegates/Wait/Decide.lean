@@ -70,6 +70,6 @@ def IsFullWait.decide (c : Hand n) : Bool :=
 
 def IsLiveFullWait.decide (c : Hand n) : Bool :=
   (IsFullWait.Decidable.waitingTiles (Array.ofFn c)).all id &&
-    (Array.ofFn c).all (fun x ↦ x < 4)
+    (Array.ofFn c).all (fun x ↦ x <= 3)
 
 end Mahjong.Hand
