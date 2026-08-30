@@ -2,25 +2,25 @@ import Ninegates.Wait.Decide
 
 namespace Mahjong.Hand
 
-namespace IsWinningTile.Decidable
+namespace IsLiveWinningTile.Decidable
 
-instance (c : Hand n) (i : Fin (3 * n)) : Decidable (IsWinningTile c i) := by
+instance (c : Hand n) (i : Fin (3 * n)) : Decidable (IsLiveWinningTile c i) := by
   sorry
 
-end IsWinningTile.Decidable
+end IsLiveWinningTile.Decidable
 
-namespace IsWait.Decidable
+namespace IsLiveWait.Decidable
 
-instance (c : Hand n) : Decidable (IsWait c) := by
-  sorry -- by some sort of inferInstance directly from Decidable (IsWinningTile c i)
+instance (c : Hand n) : Decidable (IsLiveWait c) := by
+  sorry -- by some sort of inferInstance directly from Decidable (IsLiveWinningTile c i)
 
-end IsWait.Decidable
+end IsLiveWait.Decidable
 
-namespace IsFullWait.Decidable
+namespace IsLiveFullWait.Decidable
 
-instance (c : Hand n) : Decidable (IsFullWait c) := by
+instance (c : Hand n) : Decidable (IsLiveFullWait c) := by
   sorry
 
-end IsFullWait.Decidable
+end IsLiveFullWait.Decidable
 
 end Mahjong.Hand

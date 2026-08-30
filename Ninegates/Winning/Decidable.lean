@@ -548,13 +548,13 @@ lemma replayChoices_pair_replayList
           simpa [scanState, advance, traceState] using ih (s := advance s p) k hk' hs
 
 def DPWinning (c : Hand n) : Prop :=
-  Valid c ∧ Hand.size c = 3 * n + 5 ∧
+  Hand.size c = 3 * n + 5 ∧
     ∃ choices,
       replayChoices State.init (List.ofFn c) choices = some State.final
 
 lemma winning_to_dpWinning {c : Hand n} (h : Winning c) : DPWinning c := by
-  rcases h with ⟨hcvalid, hcsize, d, i, hdmeld, hcd⟩
-  refine ⟨hcvalid, hcsize, ?_⟩
+  rcases h with ⟨hcsize, d, i, hdmeld, hcd⟩
+  refine ⟨hcsize, ?_⟩
   obtain ⟨p, hp, hcanonical⟩ := (Meldable.iff_exists_canonical_witness d).mp hdmeld
   let ps := Meldable.Decidable.disjoinCanonicalPlacement p hcanonical
   have hreplay := Meldable.Decidable.replayList_disjoinCanonicalPlacement p hcanonical
@@ -601,23 +601,21 @@ lemma winning_to_dpWinning {c : Hand n} (h : Winning c) : DPWinning c := by
 
 lemma decide_dp (c : Hand n) :
     Mahjong.Hand.Winning.decide c = true ↔ DPWinning c := by
-  by_cases hv : Valid c
-  · by_cases hs : Hand.size c = 3 * n + 5
-    · simp only [decide, hv, decide_true, Bool.not_true, Bool.false_eq_true,
-        ↓reduceIte, hs, bne_self_eq_false, List.forIn_pure_yield_eq_foldl,
-        bind_pure_comp, map_pure, Id.run_pure, DPWinning, true_and]
-      have hloop :
-          List.foldl (fun s x => stepSet x s) ((∅ : StateSet).insert State.init)
-              (List.ofFn c) = reachable ((∅ : StateSet).insert State.init) (List.ofFn c) := by
-        simpa using loop_reachable (List.ofFn c)
-      simp only [emptyStateSet, Std.ExtHashSet.emptyWithCapacity_eq]
-      rw [hloop]
-      simp [mem_reachable, State.init, State.final]
-    · simp [Mahjong.Hand.Winning.decide, DPWinning, hv, hs]
-  · simp [Mahjong.Hand.Winning.decide, DPWinning, hv]
+  by_cases hs : Hand.size c = 3 * n + 5
+  · simp only [decide, hs, bne_self_eq_false,
+      List.forIn_pure_yield_eq_foldl, bind_pure_comp, map_pure, DPWinning,
+      true_and]
+    have hloop :
+        List.foldl (fun s x => stepSet x s) ((∅ : StateSet).insert State.init)
+            (List.ofFn c) = reachable ((∅ : StateSet).insert State.init) (List.ofFn c) := by
+      simpa using loop_reachable (List.ofFn c)
+    simp only [emptyStateSet, Std.ExtHashSet.emptyWithCapacity_eq]
+    rw [hloop]
+    simp [mem_reachable, State.init, State.final]
+  · simp [Mahjong.Hand.Winning.decide, DPWinning, hs]
 
 lemma dpWinning_to_winning {c : Hand n} (h : DPWinning c) : Winning c := by
-  rcases h with ⟨hcvalid, hcsize, choices, hchoices⟩
+  rcases h with ⟨hcsize, choices, hchoices⟩
   have hlen : choices.length = (List.ofFn c).length := by
     grind
   have hlen' : choices.length = 3 * n := by simpa using hlen
@@ -684,7 +682,7 @@ lemma dpWinning_to_winning {c : Hand n} (h : DPWinning c) : Winning c := by
         intro hval
         exact hji (Fin.ext hval)
       simp [pairTiles, hji, hval]
-  exact ⟨hcvalid, hcsize, d, idx, hdmeld, hcd⟩
+  exact ⟨hcsize, d, idx, hdmeld, hcd⟩
 
 /--
 Correctness specification of the executable winning-hand decision procedure.

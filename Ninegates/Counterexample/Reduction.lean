@@ -19,7 +19,7 @@ import Ninegates.Positivity
 - `IsCounterexample.of_insertSeqAt` shows that deleting an interior sequence preserves
   counterexamples.
 - `exists_insertSeqAt_of_large` finds a removable sequence in every sufficiently large full wait.
-- `full_wait_reduction` shows that a larger counterexample yields a smaller
+- `fullWait_reduction` shows that a larger counterexample yields a smaller
   counterexample in the small cases, using `exists_insertSeqAt_of_large`.
 
 ## Design notes
@@ -87,6 +87,12 @@ def insertSeqEquiv (k : Fin (3 * n)) :
 lemma insertSeqEquiv_inl_val (k : Fin (3 * n)) (i : Fin (3 * n)) :
     (insertSeqEquiv k (.inl i)).val = if i.val < k.val then i.val else i.val + 3 :=
   rfl
+
+lemma insertSeqAt_add_single (c : Hand n) (k i : Fin (3 * n)) :
+    (c + single i).insertSeqAt k =
+      c.insertSeqAt k + single (insertSeqEquiv k (.inl i)) := by
+  ext x
+  grind
 
 @[simp, grind =]
 lemma insertSeqEquiv_inr_val (k : Fin (3 * n)) (i : Fin 3) :
@@ -175,12 +181,8 @@ theorem Meldable.of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
 
 theorem Winning.of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
     (hc : Winning (c.insertSeqAt k)) : Winning c := by
-  rcases hc with ⟨hcvalid, hcsize, d, j, hd, hcd⟩
-  have hvalid : Valid c := by
-    intro i
-    have h := hcvalid (insertSeqEquiv k (.inl i))
-    grind
-  use hvalid, by grind, removeSeqAt d k
+  rcases hc with ⟨hcsize, d, j, hd, hcd⟩
+  use by grind, removeSeqAt d k
   have hj : j.val < k.val ∨ k.val + 3 ≤ j.val := by
     have hEq := congrArg (fun z : Hand (n + 1) ↦ z j) hcd
     grind
@@ -202,14 +204,26 @@ theorem Winning.of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
 theorem IsFullWait.of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
     (hc : IsFullWait (c.insertSeqAt k)) : IsFullWait c := by
   intro i
-  let j : Fin (3 * (n + 1)) :=
-    ⟨if i.val < k.val then i.val else i.val + 3, by split <;> omega⟩
-  have hcomm : (c + single i).insertSeqAt k = c.insertSeqAt k + single j := by
-    ext x; grind
-  exact Winning.of_insertSeqAt k (hcomm.symm ▸ hc j)
+  have hcomm := insertSeqAt_add_single c k i
+  exact Winning.of_insertSeqAt k
+    (hcomm.symm ▸ hc (insertSeqEquiv k (.inl i)))
 
-lemma insertSeqAt_standardFullWait (k : Fin (3 * n)) (hk₀ : 0 < k.val) :
-    (standardFullWait n).insertSeqAt k = standardFullWait (n + 1) := by
+theorem IsLiveFullWait.of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
+    (hc : IsLiveFullWait (c.insertSeqAt k)) : IsLiveFullWait c := by
+  apply IsFullWait.toIsLiveFullWait
+    (IsFullWait.of_insertSeqAt k (fun i ↦ (hc i).1))
+  intro i
+  have hcomm := insertSeqAt_add_single c k i
+  have hvalid : Valid (c + single i) := by
+    intro x
+    have h := (hc (insertSeqEquiv k (.inl i))).2 (insertSeqEquiv k (.inl x))
+    have hEq := congrArg (fun z : Hand (n + 1) ↦ z (insertSeqEquiv k (.inl x))) hcomm
+    simp only [insertSeqAt_apply, insertSeqEquiv_inl_val] at hEq
+    grind
+  exact hvalid
+
+lemma insertSeqAt_standardLiveFullWait (k : Fin (3 * n)) (hk₀ : 0 < k.val) :
+    (standardLiveFullWait n).insertSeqAt k = standardLiveFullWait (n + 1) := by
   ext i; grind
 
 private lemma sum_comp_le_sum_of_injective {α β : Type*} [Fintype α] [Fintype β]
@@ -270,21 +284,34 @@ theorem exists_insertSeqAt_of_large (hn : 6 < n) {c : Hand (n + 1)} (hc : IsFull
     grind [hc 0, hc 1, hc 2]
   exact hseq.exists_insertSeqAt hk₀
 
+theorem IsLiveFullWait.exists_insertSeqAt_of_large (hn : 6 < n)
+    {c : Hand (n + 1)} (hc : IsLiveFullWait c) :
+    ∃ d : Hand n, ∃ k : Fin (3 * n), 0 < k.val ∧ c = d.insertSeqAt k := by
+  exact Mahjong.Hand.exists_insertSeqAt_of_large hn (fun i ↦ (hc i).1)
+
 section
 
 open Counterexample
 
-lemma Counterexample.IsCE_of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
+-- lemma Counterexample.IsCE_of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
+--     (hk₀ : 0 < k.val)
+--     (hc : IsCE (c.insertSeqAt k)) : IsCE c
+
+lemma Counterexample.IsLiveCE_of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
     (hk₀ : 0 < k.val)
-    (hc : IsCE (c.insertSeqAt k)) : IsCE c := by
+    (hc : IsLiveCE (c.insertSeqAt k)) : IsLiveCE c := by
   constructor
-  · exact IsFullWait.of_insertSeqAt k hc.1
+  · exact IsLiveFullWait.of_insertSeqAt k hc.1
   · intro hstandard
     apply hc.2
-    simpa only [hstandard] using insertSeqAt_standardFullWait k hk₀
+    simpa only [hstandard] using insertSeqAt_standardLiveFullWait k hk₀
 
-theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n} (hc : IsCE c) :
-    ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ HasCE m := by
+-- theorem fullWait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n} (hc : IsCE c) :
+--     ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ HasCE m
+
+theorem liveFullWait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n}
+    (hc : IsLiveCE c) :
+    ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ HasLiveCE m := by
   induction n using Nat.strong_induction_on with
   | h n ih =>
       by_cases hsmall : n ≤ 7
@@ -293,8 +320,8 @@ theorem full_wait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n} (hc : IsCE c) 
         | zero => omega
         | succ m =>
             obtain ⟨d, k, hk₀, hcd⟩ :=
-              exists_insertSeqAt_of_large (n := m) (by omega) hc.1
-            have hd := IsCE_of_insertSeqAt k hk₀ (hcd ▸ hc)
+              IsLiveFullWait.exists_insertSeqAt_of_large (n := m) (by omega) hc.1
+            have hd := Counterexample.IsLiveCE_of_insertSeqAt k hk₀ (hcd ▸ hc)
             exact ih m (by omega) (by omega) hd
 
 end

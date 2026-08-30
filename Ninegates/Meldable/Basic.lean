@@ -38,7 +38,8 @@ We design `toHand_apply` automation as follows:
 
   TODO: Actually analyze the grind trace to confirm this.
 
-The effectiveness of this design is verified by the neat proof of `IsFullWait.standardFullWait`.
+The effectiveness of this design is verified by the neat proof of
+`IsLiveFullWait.standardLiveFullWait`.
 -/
 
 namespace Mahjong.Hand

@@ -10,17 +10,17 @@ This file defines the standard full-wait and proves that it is indeed a full wai
 namespace Mahjong.Hand
 
 @[grind =]
-def standardFullWait (n : ℕ) : Hand n :=
+def standardLiveFullWait (n : ℕ) : Hand n :=
   ⟨fun i ↦ if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1⟩
 
 @[simp, grind =]
-lemma standardFullWait_apply (n : ℕ) (i : Fin (3 * n)) :
-    standardFullWait n i = if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1 := by rfl
+lemma standardLiveFullWait_apply (n : ℕ) (i : Fin (3 * n)) :
+    standardLiveFullWait n i = if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1 := by rfl
 
 @[simp, grind =]
-lemma size_standardFullWait (n : ℕ) (hn : 0 < n) :
-    size (standardFullWait n) = 3 * n + 4 := by
-  simp only [size_eq_sum, standardFullWait_apply]
+lemma size_standardLiveFullWait (n : ℕ) (hn : 0 < n) :
+    size (standardLiveFullWait n) = 3 * n + 4 := by
+  simp only [size_eq_sum, standardLiveFullWait_apply]
   have hsplit (i : Fin (3 * n)) :
       (if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1) =
         1 + (if i.val = 0 then 2 else 0) +
@@ -30,15 +30,12 @@ lemma size_standardFullWait (n : ℕ) (hn : 0 < n) :
     rw [Finset.sum_eq_single ⟨k, hk⟩] <;> grind
   simp [hsplit, Finset.sum_add_distrib, hsingle 0 (by omega), hsingle (3 * n - 1) (by omega)]
 
-theorem IsFullWait.standardFullWait (n : ℕ) (hn : 0 < n) :
-    IsFullWait (standardFullWait n) := by
+theorem IsFullWait.standardLiveFullWait (n : ℕ) (hn : 0 < n) :
+    IsFullWait (standardLiveFullWait n) := by
   have mod_three_cases (x : ℕ) : x % 3 = 0 ∨ x % 3 = 1 ∨ x % 3 = 2 := by omega
   intro p
-  split_ands
-  · intro i
-    simp only [add_apply, standardFullWait_apply, single_apply]
-    split_ifs <;> omega
-  · rw [map_add, size_single, size_standardFullWait]
+  constructor
+  · rw [map_add, size_single, size_standardLiveFullWait]
     exact hn
   · rcases mod_three_cases p.val with hp | hp | hp
     on_goal 1 =>
@@ -70,7 +67,7 @@ theorem IsFullWait.standardFullWait (n : ℕ) (hn : 0 < n) :
       use q.toHand, ⟨0, by omega⟩, ⟨q, rfl⟩
     all_goals
       ext i
-      simp only [standardFullWait_apply, add_apply, pair_apply, single_apply]
+      simp only [standardLiveFullWait_apply, add_apply, pair_apply, single_apply]
       by_cases hi₀ : i.val = 0; · grind
       by_cases hi₁ : i.val = 1; · simp_all; grind
       by_cases hi₂ : i.val = 3 * n - 1; · grind
@@ -79,5 +76,12 @@ theorem IsFullWait.standardFullWait (n : ℕ) (hn : 0 < n) :
       by_cases hi₅ : i.val = p.val; · grind
       rcases mod_three_cases i.val with himod | himod | himod
       all_goals simp_all; grind
+
+theorem IsLiveFullWait.standardLiveFullWait (n : ℕ) (hn : 0 < n) :
+    IsLiveFullWait (standardLiveFullWait n) := by
+  apply IsFullWait.toIsLiveFullWait (IsFullWait.standardLiveFullWait n hn)
+  intro p i
+  simp only [add_apply, standardLiveFullWait_apply, single_apply]
+  split_ifs <;> omega
 
 end Mahjong.Hand

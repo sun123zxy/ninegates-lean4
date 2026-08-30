@@ -11,6 +11,9 @@ namespace Mahjong.Hand
 def IsWinningTile.decide (c : Hand n) (i : Fin (3 * n)) : Bool :=
   Winning.decide (c + single i)
 
+def IsLiveWinningTile.decide (c : Hand n) (i : Fin (3 * n)) : Bool :=
+  IsWinningTile.decide c i && Decidable.decide (Valid (c + single i))
+
 namespace IsFullWait.Decidable
 
 open Winning.Decidable
@@ -46,12 +49,10 @@ def buildSuffix (count : Array Nat) :
 def waitsOn (count : Array Nat)
     (pref : Vector StateSet (count.size + 1))
     (suff : Vector StateSet (count.size + 1))
-    (j : Fin count.size) : Bool :=
+  (j : Fin count.size) : Bool :=
   let c := count[j.val]'j.isLt
-  if c ≥ 4 then false
-  else
-    !(stepSet (c + 1) (pref.get ⟨j.val, by omega⟩) ∩
-      (suff.get ⟨j.val + 1, by omega⟩)).isEmpty
+  !(stepSet (c + 1) (pref.get ⟨j.val, by omega⟩) ∩
+    (suff.get ⟨j.val + 1, by omega⟩)).isEmpty
 
 def waitingTiles (count : Array Nat) : Array Bool := Id.run do
   let n := count.size
@@ -65,7 +66,10 @@ def waitingTiles (count : Array Nat) : Array Bool := Id.run do
 end IsFullWait.Decidable
 
 def IsFullWait.decide (c : Hand n) : Bool :=
-  Decidable.decide c.Valid &&
-    (IsFullWait.Decidable.waitingTiles (Array.ofFn c)).all id
+  (IsFullWait.Decidable.waitingTiles (Array.ofFn c)).all id
+
+def IsLiveFullWait.decide (c : Hand n) : Bool :=
+  (IsFullWait.Decidable.waitingTiles (Array.ofFn c)).all id &&
+    (Array.ofFn c).all (fun x ↦ x < 4)
 
 end Mahjong.Hand

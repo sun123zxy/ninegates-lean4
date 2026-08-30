@@ -71,7 +71,6 @@ end Decidable
 open Winning.Decidable
 
 def decide (c : Hand n) : Bool := Id.run do
-  if !Valid c then return false
   if Hand.size c != 3 * n + 5 then return false
   let mut states : StateSet := emptyStateSet |>.insert State.init
   for x in List.ofFn c do
