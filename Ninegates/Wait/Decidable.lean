@@ -35,11 +35,13 @@ namespace IsFullWait.Decidable
 
 open Winning.Decidable
 
+@[simp, grind =]
 private lemma vector_set_get_eq {α : Type} {m : Nat} (v : Vector α m) (i : Fin m)
     (x : α) : (v.set i.val x).get i = x := by
   change (v.toArray.set i.val x)[i.val] = x
   simp
 
+@[simp, grind =]
 private lemma vector_set_get_ne {α : Type} {m : Nat} (v : Vector α m) (i j : Fin m)
     (x : α) (h : i ≠ j) : (v.set i.val x).get j = v.get j := by
   change (v.toArray.set i.val x)[j.val] = v.toArray[j.val]
@@ -48,6 +50,7 @@ private lemma vector_set_get_ne {α : Type} {m : Nat} (v : Vector α m) (i j : F
   · exact (h (Fin.ext ‹_›)).elim
   · rfl
 
+@[simp, grind =]
 private lemma finRange_append_last (k : Nat) :
     List.finRange (k + 1) =
       (List.finRange k).map Fin.castSucc ++ [(⟨k, by omega⟩ : Fin (k + 1))] := by
@@ -78,16 +81,20 @@ private def prefixSem (m : Nat) (f : Fin m → Nat) (j : Nat) : StateSet :=
   reachable ((∅ : StateSet).insert State.init)
     ((List.ofFn f).take j)
 
+@[simp, grind =]
 private lemma prefixIndices_succ (m k : Nat) (hk : k + 1 ≤ m) :
     prefixIndices m (k + 1) hk = prefixIndices m k (by omega) ++
       [⟨k, by omega⟩] := by
-  simp [prefixIndices, finRange_append_last]
+  simp [prefixIndices]
 
-private lemma prefixFold_succ (m : Nat) (f : Fin m → Nat) (k : Nat) (hk : k + 1 ≤ m) :
+@[simp, grind =]
+private lemma prefixFold_succ (m : Nat) (f : Fin m → Nat) (k : Nat)
+    (hk : k + 1 ≤ m) :
     prefixFold m f (k + 1) hk =
       prefixUpdate m f (prefixFold m f k (by omega)) ⟨k, by omega⟩ := by
-  simp [prefixFold, prefixIndices_succ, List.foldl_append]
+  simp [prefixFold, List.foldl_append]
 
+@[grind =]
 private lemma prefixFold_get : ∀ (m : Nat) (f : Fin m → Nat) (k : Nat) (hk : k ≤ m),
     ∀ j (hj : j ≤ k),
       (prefixFold m f k hk).get ⟨j, by omega⟩ = prefixSem m f j := by
@@ -138,6 +145,7 @@ private lemma prefixFold_get : ∀ (m : Nat) (f : Fin m → Nat) (k : Nat) (hk :
               simpa [z, q] using hv.symm)
         simpa [prefixUpdate, z, q] using (hz.trans (ih (by omega) j hjk))
 
+@[grind =]
 private lemma buildPrefix_eq_prefixFold (count : Array Nat) :
     buildPrefix count = prefixFold count.size
       (fun i => count[i.val]'i.isLt) count.size le_rfl := by
@@ -153,13 +161,9 @@ private lemma mem_fold_insert_if (xs : List Winning.Decidable.State)
   | nil => simp
   | cons x xs ih =>
     simp only [List.foldl]
-    by_cases hp : p x = true
-    · simp only [hp, ↓reduceIte, ih, Std.ExtHashSet.mem_insert, List.mem_cons]
-      simp only [beq_iff_eq]
-      grind
-    · simp only [hp, ↓reduceIte, ih, List.mem_cons]
-      grind
+    split <;> simp_all [Std.ExtHashSet.mem_insert, beq_iff_eq] <;> grind
 
+@[grind =]
 private lemma nonempty_iff_exists (s : Winning.Decidable.StateSet) :
     s.isEmpty = false ↔ ∃ q, q ∈ s := by
   rw [Std.ExtHashSet.isEmpty_eq_false_iff]
@@ -172,8 +176,8 @@ private lemma nonempty_iff_exists (s : Winning.Decidable.StateSet) :
     intro q
     simp [hn q]
   · rintro ⟨q, hq⟩ hs
-    have : q ∈ (∅ : Winning.Decidable.StateSet) := by simpa [hs] using hq
-    simpa using this
+    rw [hs] at hq
+    exact Std.ExtHashSet.not_mem_empty hq
 
 private def predecessor (x : Nat) (states : Winning.Decidable.StateSet) :
     Winning.Decidable.StateSet :=
@@ -181,6 +185,7 @@ private def predecessor (x : Nat) (states : Winning.Decidable.StateSet) :
     if !(Winning.Decidable.step x q ∩ states).isEmpty then good.insert q else good)
     Winning.Decidable.emptyStateSet
 
+@[grind =]
 private lemma predecessor_spec (x : Nat) (states : Winning.Decidable.StateSet)
     (q : Winning.Decidable.State) :
     q ∈ predecessor x states ↔
@@ -226,11 +231,13 @@ private def suffixSemList : List Nat → Winning.Decidable.StateSet
 private def suffixSem (m : Nat) (f : Fin m → Nat) (j : Nat) :
     Winning.Decidable.StateSet := suffixSemList ((List.ofFn f).drop j)
 
+@[simp, grind =]
 private lemma suffixIndices_succ (m k : Nat) (hk : k + 1 ≤ m) :
     suffixIndices m (k + 1) hk = suffixIndices m k (by omega) ++
       [⟨m - 1 - k, by omega⟩] := by
-  simp [suffixIndices, finRange_append_last]
+  simp [suffixIndices]
 
+@[simp, grind =]
 private lemma suffixSem_succ (m : Nat) (f : Fin m → Nat) (j : Nat) (hj : j < m) :
     suffixSem m f j = predecessor (f ⟨j, hj⟩) (suffixSem m f (j + 1)) := by
   unfold suffixSem
@@ -242,51 +249,41 @@ private lemma suffixSem_succ (m : Nat) (f : Fin m → Nat) (j : Nat) (hj : j < m
   rw [htake]
   rfl
 
+@[grind =]
 private lemma suffixSemList_spec (xs : List Nat) (q : Winning.Decidable.State) :
     q ∈ suffixSemList xs ↔
-      ∃ choices, Winning.Decidable.replayChoices q xs choices = some Winning.Decidable.State.final := by
+      ∃ choices,
+        Winning.Decidable.replayChoices q xs choices = some Winning.Decidable.State.final := by
   induction xs generalizing q with
   | nil =>
       change q ∈ Winning.Decidable.emptyStateSet.insert Winning.Decidable.State.final ↔ _
       rw [Winning.Decidable.replayChoices_exists_nil_iff]
-      simp only [Winning.Decidable.State.final]
-      constructor
-      · intro h
-        rcases Std.ExtHashSet.mem_insert.mp h with h | h
-        · exact (beq_iff_eq.mp h).symm
-        · simp at h
-      · intro h
-        subst q
-        exact Std.ExtHashSet.mem_insert.mpr (Or.inl (by simp))
+      simp only [Std.ExtHashSet.mem_insert, beq_iff_eq,
+        Winning.Decidable.emptyStateSet, Std.ExtHashSet.emptyWithCapacity_eq,
+        Std.ExtHashSet.not_mem_empty, or_false]
+      exact eq_comm
   | cons x xs ih =>
     simp only [suffixSemList, predecessor_spec, Winning.Decidable.replayChoices_exists_cons_iff]
     grind
 
-private lemma mem_singleton_state (s q : Winning.Decidable.State) :
-    s ∈ (∅ : Winning.Decidable.StateSet).insert q ↔ s = q := by
-  simp only [Std.ExtHashSet.mem_insert, beq_iff_eq, Std.ExtHashSet.not_mem_empty, or_false]
-  exact eq_comm
-
+@[grind =]
 private lemma suffixSemList_reachable (xs : List Nat) (q : Winning.Decidable.State) :
       q ∈ suffixSemList xs ↔
       Winning.Decidable.State.final ∈
         Winning.Decidable.reachable ((∅ : Winning.Decidable.StateSet).insert q) xs := by
   rw [suffixSemList_spec, Winning.Decidable.mem_reachable]
-  constructor
-  · rintro ⟨choices, hchoices⟩
-    exact ⟨q, mem_singleton_state q q |>.mpr rfl, choices, hchoices⟩
-  · rintro ⟨s, hs, choices, hchoices⟩
-    have hs' : s = q := (mem_singleton_state s q).mp hs
-    subst s
-    exact ⟨choices, hchoices⟩
+  grind
 
-private lemma suffixFold_succ (m : Nat) (f : Fin m → Nat) (k : Nat) (hk : k + 1 ≤ m) :
+@[simp, grind =]
+private lemma suffixFold_succ (m : Nat) (f : Fin m → Nat) (k : Nat)
+    (hk : k + 1 ≤ m) :
     suffixFold m f (k + 1) hk =
       suffixUpdate m f (suffixFold m f k (by omega)) ⟨m - 1 - k, by omega⟩ := by
-  simp [suffixFold, suffixIndices_succ, List.foldl_append]
+  simp [suffixFold, List.foldl_append]
 
+@[grind =]
 private lemma suffixFold_get : ∀ (m : Nat) (f : Fin m → Nat) (k : Nat) (hk : k ≤ m),
-    ∀ j (hjlo : m - k ≤ j) (hjhi : j ≤ m),
+    ∀ j (_hjlo : m - k ≤ j) (hjhi : j ≤ m),
       (suffixFold m f k hk).get ⟨j, by omega⟩ = suffixSem m f j := by
   intro m f k
   induction k with
@@ -369,6 +366,7 @@ private def suffixDoUpdate (count : Array Nat)
   let good ← suffixDoInner count v k
   return v.set i good (by omega)
 
+@[grind =]
 private lemma suffixDoInner_eq (count : Array Nat)
     (v : Vector Winning.Decidable.StateSet (count.size + 1)) (k : Fin count.size) :
     suffixDoInner count v k = predecessor (count[count.size - 1 - k.val]'(by omega))
@@ -387,23 +385,14 @@ private lemma foldlM_id {α β : Type} (f : β → α → Id β) (b : β) (xs : 
 private def updateAt (xs : List Nat) (i : Nat) (hi : i < xs.length) : List Nat :=
   xs.set i (xs.get ⟨i, hi⟩ + 1)
 
+@[grind =]
 private lemma list_ofFn_add_single (c : Hand n) (i : Fin (3 * n)) :
     List.ofFn (c + single i) = updateAt (List.ofFn c) i.val (by simp) := by
   apply List.ext_getElem
   · simp only [updateAt, List.length_set, List.length_ofFn]
-  · intro j hj₁ hj₂
-    simp only [updateAt, List.getElem_set, List.getElem_ofFn]
-    by_cases hji : i.val = j
-    · have heq : (⟨j, by simpa using hj₁⟩ : Fin (3 * n)) = i := by
-        apply Fin.ext
-        exact hji.symm
-      simp [hji, heq, add_apply, single]
-    · have hne : (⟨j, by simpa using hj₁⟩ : Fin (3 * n)) ≠ i := by
-        intro heq
-        apply hji
-        simpa using congrArg Fin.val heq.symm
-      simp [hji, hne, add_apply, single]
+  · intros; simp [updateAt]; grind
 
+@[grind =]
 private lemma updateAt_eq_take (xs : List Nat) (i : Nat) (hi : i < xs.length) :
     updateAt xs i hi = xs.take i ++ [xs.get ⟨i, hi⟩ + 1] ++ xs.drop (i + 1) := by
   induction xs generalizing i with
@@ -445,6 +434,7 @@ private lemma fold_set_get {α : Type} : ∀ (N m : Nat) (hm : m ≤ N) (v : Vec
             omega)
         simpa [v'] using (hset.trans hv)
 
+@[grind =]
 private lemma buildSuffix_eq_suffixFold (count : Array Nat) :
     buildSuffix count = suffixFold count.size
       (fun i => count[i.val]'i.isLt) count.size le_rfl := by
@@ -472,12 +462,14 @@ private lemma buildSuffix_eq_suffixFold (count : Array Nat) :
     simp [suffixUpdate, init, f, g, suffixDoInner_eq]
     rfl
 
+@[simp, grind =]
 theorem waitingTiles_size (count : Array Nat) :
     (waitingTiles count).size = count.size := by
   simp [waitingTiles]
 
+@[grind =]
 private lemma waitingTiles_get (count : Array Nat) (j : Fin count.size) :
-    (waitingTiles count)[j.val]'(by simp [waitingTiles_size]) =
+    (waitingTiles count)[j.val]'(by simp) =
       waitsOn count (buildPrefix count) (buildSuffix count) j := by
   simp only [waitingTiles, Id.run_bind, Id.run_pure]
   simp only [List.forIn_pure_yield_eq_foldl]
@@ -485,60 +477,34 @@ private lemma waitingTiles_get (count : Array Nat) (j : Fin count.size) :
     (Vector.replicate count.size false)
     (waitsOn count (buildPrefix count) (buildSuffix count)) j
 
+@[grind =]
 private lemma reachable_append_mem_iff (states : Winning.Decidable.StateSet)
     (xs : List Nat) (ys : List Nat) (t : Winning.Decidable.State) :
-    t ∈ Winning.Decidable.reachable states (xs ++ ys) ↔
+  t ∈ Winning.Decidable.reachable states (xs ++ ys) ↔
       ∃ q, q ∈ Winning.Decidable.reachable states xs ∧
         t ∈ Winning.Decidable.reachable ((∅ : Winning.Decidable.StateSet).insert q) ys := by
   rw [Winning.Decidable.reachable_append, Winning.Decidable.mem_reachable]
-  constructor
-  · rintro ⟨q, hq, choices, hchoices⟩
-    exact ⟨q, hq, by
-      rw [Winning.Decidable.mem_reachable]
-      exact ⟨q, mem_singleton_state q q |>.mpr rfl, choices, hchoices⟩⟩
-  · rintro ⟨q, hq, ht⟩
-    rw [Winning.Decidable.mem_reachable] at ht
-    obtain ⟨q', hq', choices, hchoices⟩ := ht
-    have hqq' : q' = q := (mem_singleton_state q' q).mp hq'
-    subst q'
-    exact ⟨q, hq, choices, hchoices⟩
+  grind
 
+@[grind =]
 private lemma reachable_from_set_iff (states : Winning.Decidable.StateSet)
     (xs : List Nat) (t : Winning.Decidable.State) :
     t ∈ Winning.Decidable.reachable states xs ↔
       ∃ q, q ∈ states ∧
         t ∈ Winning.Decidable.reachable ((∅ : Winning.Decidable.StateSet).insert q) xs := by
   rw [Winning.Decidable.mem_reachable]
-  constructor
-  · rintro ⟨q, hq, choices, hchoices⟩
-    exact ⟨q, hq, by
-      rw [Winning.Decidable.mem_reachable]
-      exact ⟨q, mem_singleton_state q q |>.mpr rfl, choices, hchoices⟩⟩
-  · rintro ⟨q, hq, ht⟩
-    rw [Winning.Decidable.mem_reachable] at ht
-    obtain ⟨q', hq', choices, hchoices⟩ := ht
-    have hqq' : q' = q := (mem_singleton_state q' q).mp hq'
-    subst q'
-    exact ⟨q, hq, choices, hchoices⟩
+  grind
 
+@[grind =]
 private lemma reachable_singleton_cons_iff (q : Winning.Decidable.State) (x : Nat)
     (xs : List Nat) (t : Winning.Decidable.State) :
-    t ∈ Winning.Decidable.reachable ((∅ : Winning.Decidable.StateSet).insert q) (x :: xs) ↔
+  t ∈ Winning.Decidable.reachable ((∅ : Winning.Decidable.StateSet).insert q) (x :: xs) ↔
       ∃ u, u ∈ Winning.Decidable.step x q ∧
         t ∈ Winning.Decidable.reachable ((∅ : Winning.Decidable.StateSet).insert u) xs := by
   rw [Winning.Decidable.reachable, reachable_from_set_iff]
-  constructor
-  · rintro ⟨u, hu, ht⟩
-    rw [Winning.Decidable.mem_stepSet] at hu
-    obtain ⟨q', hq', huq⟩ := hu
-    have hqq' : q' = q := (mem_singleton_state q' q).mp hq'
-    subst q'
-    exact ⟨u, huq, ht⟩
-  · rintro ⟨u, hu, ht⟩
-    exact ⟨u, by
-      rw [Winning.Decidable.mem_stepSet]
-      exact ⟨q, mem_singleton_state q q |>.mpr rfl, hu⟩, ht⟩
+  grind
 
+@[grind =]
 private lemma waitsOn_reachable (count : Array Nat) (j : Fin count.size) :
     waitsOn count (buildPrefix count) (buildSuffix count) j = true ↔
       Winning.Decidable.State.final ∈
@@ -607,11 +573,11 @@ private lemma waitsOn_reachable (count : Array Nat) (j : Fin count.size) :
       simpa [hs] using hsem
 
 theorem waitingTiles_spec (c : Hand n) (hc : Hand.size c = 3 * n + 4) (i : Fin (3 * n)) :
-    (waitingTiles (Array.ofFn c))[i.val]'(by simp [waitingTiles_size]) = true ↔
+    (waitingTiles (Array.ofFn c))[i.val]'(by simp) = true ↔
       IsWinningTile c i := by
-  let j : Fin (Array.ofFn c).size := ⟨i.val, by simp [hc]⟩
+  let j : Fin (Array.ofFn c).size := ⟨i.val, by simp⟩
   have hget := waitingTiles_get (Array.ofFn c) j
-  rw [show (waitingTiles (Array.ofFn c))[i.val]'(by simp [waitingTiles_size]) =
+  rw [show (waitingTiles (Array.ofFn c))[i.val]'(by simp) =
       waitsOn (Array.ofFn c) (buildPrefix (Array.ofFn c)) (buildSuffix (Array.ofFn c)) j by
     simpa [j] using hget]
   rw [waitsOn_reachable]
@@ -660,12 +626,12 @@ theorem decide_spec (c : Hand n) :
   constructor
   · rintro ⟨hsize, ⟨j, hj, h⟩⟩
     have hcsize : Hand.size c = 3 * n + 4 := by simpa using hsize
-    let i : Fin (3 * n) := ⟨j, by simpa [IsFullWait.Decidable.waitingTiles_size] using hj⟩
+    let i : Fin (3 * n) := ⟨j, by simpa using hj⟩
     exact ⟨i, IsFullWait.Decidable.waitingTiles_spec c hcsize i |>.mp h⟩
   · rintro ⟨i, hi⟩
     have hcsize := IsWait.size ⟨i, hi⟩
     refine ⟨by simpa using hcsize, i.val, ?_, ?_⟩
-    · simp [IsFullWait.Decidable.waitingTiles_size]
+    · simp
     · exact IsFullWait.Decidable.waitingTiles_spec c hcsize i |>.mpr hi
 
 instance (c : Hand n) : Decidable (IsWait c) :=
@@ -688,12 +654,11 @@ theorem decide_spec (c : Hand n) :
     let i : Fin (3 * n) := ⟨j, by
       have := hj
       have h' : j < 3 * n := by
-        simpa [Array.size_zipWith, Array.size_map,
-          IsFullWait.Decidable.waitingTiles_size] using this
+        simpa [Array.size_zipWith, Array.size_map] using this
       exact h'⟩
     have hwait :
         (IsFullWait.Decidable.waitingTiles (Array.ofFn c))[i.val]'(by
-          simp [IsFullWait.Decidable.waitingTiles_size]) = true := by
+          simp) = true := by
       simpa [i] using hwaitRaw
     have hcount : c i ≤ 3 := by
       simpa [i, Array.getElem_map] using hcountRaw
@@ -712,8 +677,7 @@ theorem decide_spec (c : Hand n) :
       have hjv := hvalid ⟨j, hj'⟩
       simpa using hjv
     · refine ⟨i.val, ?_, ?_⟩
-      · simp [Array.size_zipWith,
-          IsFullWait.Decidable.waitingTiles_size]
+      · simp [Array.size_zipWith]
       · have hwait := IsFullWait.Decidable.waitingTiles_spec c hcsize i |>.mpr hw
         have hcnt :
             Decidable.decide ((Array.ofFn c)[i.val]'(by simp) ≤ 3) = true := by
@@ -748,14 +712,14 @@ theorem decide_spec (c : Hand n) :
       have hcsize : Hand.size c = 3 * (n + 1) + 4 := by
         have hsize' := hsize.resolve_left (by simp)
         simpa using hsize'
-      have hi := hwait i.val (by simp [IsFullWait.Decidable.waitingTiles_size])
+      have hi := hwait i.val (by simp)
       exact IsFullWait.Decidable.waitingTiles_spec c hcsize i |>.mp hi
     · intro h
       have hcsize := IsFullWait.size (Nat.succ_pos n) h
       refine ⟨Or.inr (by simpa using hcsize), ?_⟩
       intro i hi
       let j : Fin (3 * (n + 1)) := ⟨i, by
-        simpa [IsFullWait.Decidable.waitingTiles_size] using hi⟩
+        simpa using hi⟩
       exact IsFullWait.Decidable.waitingTiles_spec c hcsize j |>.mpr (h j)
 
 instance (c : Hand n) : Decidable (IsFullWait c) :=
@@ -789,7 +753,7 @@ theorem decide_spec (c : Hand n) :
       apply isLiveFullWait_iff_le_three.mpr
       refine ⟨?_, ?_⟩
       · intro i
-        have hi := hwait i.val (by simp [IsFullWait.Decidable.waitingTiles_size])
+        have hi := hwait i.val (by simp)
         exact IsFullWait.Decidable.waitingTiles_spec c hcsize i |>.mp hi
       · intro i
         have hi := hcount i.val (by simp)
@@ -800,7 +764,7 @@ theorem decide_spec (c : Hand n) :
       refine ⟨⟨Or.inr (by simpa using hcsize), ?_⟩, ?_⟩
       · intro i hi
         let j : Fin (3 * (n + 1)) := ⟨i, by
-          simpa [IsFullWait.Decidable.waitingTiles_size] using hi⟩
+          simpa using hi⟩
         exact IsFullWait.Decidable.waitingTiles_spec c hcsize j |>.mpr (hfull j)
       · intro i hi
         have hi' := hcount ⟨i, by simpa using hi⟩
