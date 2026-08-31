@@ -202,6 +202,14 @@ lemma loop_reachable (xs : List Nat) :
       return states) = reachable ((∅ : StateSet).insert State.init) xs := by
   simpa using loop_reachable_from ((∅ : StateSet).insert State.init) xs
 
+lemma reachable_append (states : StateSet) (xs ys : List Nat) :
+    reachable states (xs ++ ys) = reachable (reachable states xs) ys := by
+  induction xs generalizing states with
+  | nil => simp [reachable]
+  | cons x xs ih =>
+      simp only [List.cons_append, reachable]
+      exact ih (states := stepSet x states)
+
 def scanState (s : State) : Meldable.Decidable.State := (s.a.val, s.b.val)
 
 def adjustPair : List Nat → List Bool → List Nat
