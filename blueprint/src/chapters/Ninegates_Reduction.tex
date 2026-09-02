@@ -1,0 +1,798 @@
+\chapter{Interior positivity and deletion}
+
+Throughout this chapter, the start \(j\) of a deleted block is zero-based:
+the removed mathematical ranks are \(j+1,j+2,j+3\).  The hypotheses
+\(1\leq j\) and \(j+3<n\) say exactly that all three removed ranks are
+internal.
+
+\begin{definition}\leanok
+[Index embedding after deletion]
+  \label{def:delete_index}
+  \lean{Ninegates.deleteIndex}
+  % SOURCE: half-formal.qmd, equation (8) preceding #lem-delete (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “定义保留点数的嵌入 $\iota_j:\{1,\ldots,n-3\}\to\{1,\ldots,n\}$ 为 $$ \iota_j(r)= \begin{cases} r,&r<j,\\ r+3,&r\ge j. \end{cases} \tag{8} $$ 它的像恰好是 $\{1,\ldots,n\}\setminus\{j,j+1,j+2\}$。”
+  \textit{Source: half-formal.qmd, equation (8) preceding Lemma
+  \texttt{\#lem-delete}.}
+  For a zero-based block start \(j\) satisfying \(j+3\leq n\), embed the
+  retained indices of a vector of length \(n-3\) into the original vector
+  by
+  \[
+    \iota_j(r)=
+    \begin{cases}
+      r,&r<j,\\
+      r+3,&r\geq j.
+    \end{cases}
+  \]
+\end{definition}
+
+\begin{definition}\leanok
+[Deleting three coordinates]
+  \label{def:delete_three}
+  \lean{Ninegates.deleteThree}
+  \uses{def:counts,def:delete_index}
+  % SOURCE: half-formal.qmd, text following equation (8) (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “对长度为 $n$ 的向量 $v$，定义删除算子 $\operatorname{del}_j(v)_r=v_{\iota_j(r)}$，其中 $1\le r\le n-3$。”
+  \textit{Source: half-formal.qmd, text following equation (8).}
+  For a count vector \(v\) of length \(n\), define
+  \(\operatorname{del}_j(v)\) of length \(n-3\) by
+  \[
+    \operatorname{del}_j(v)_r=v_{\iota_j(r)}.
+  \]
+\end{definition}
+
+\begin{lemma}
+
+\leanok
+[A zero total has zero terms]
+  \label{lem:red_eq_zero_of_sum_eq_zero}
+  \lean{Ninegates.eq_zero_of_sum_eq_zero}
+  In a finite sum of natural numbers, if the total is \(0\), then each
+  summand is \(0\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Each summand is bounded above by the whole finite sum.  If the whole
+  sum is \(0\), antisymmetry in \(\mathbb N\) forces the chosen summand
+  to be \(0\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Canceling a drawn tile from residue two]
+  \label{lem:modEq_of_add_one_modEq_two}
+  \lean{Ninegates.modEq_of_add_one_modEq_two}
+  If \(a+1\equiv2\pmod3\), then \(a\equiv1\pmod3\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Subtract the same residue \(1\) from both sides of the congruence.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Canceling a drawn tile from residue zero]
+  \label{lem:modEq_of_add_one_modEq_zero}
+  \lean{Ninegates.modEq_of_add_one_modEq_zero}
+  If \(a+1\equiv0\pmod3\), then \(a\equiv2\pmod3\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Rewrite \(0\) as \(2+1\) modulo \(3\), then cancel the common residue
+  \(1\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Unweighted contribution of one run]
+  \label{lem:red_run_count_sum}
+  \lean{Ninegates.run_count_sum}
+  \uses{lem:sum_if_fin_val_eq}
+  A run beginning at zero-based start \(j\) contributes exactly three
+  tiles to the unweighted total, counted with its multiplicity.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Split the finite sum into the three coordinates \(j,j+1,j+2\).  The
+  singleton finite-sum lemma evaluates those three terms and all other
+  coordinates contribute \(0\).
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[Total left of a cut]
+  \label{def:left_total}
+  \lean{Ninegates.leftTotal}
+  \uses{def:counts}
+  For a cut coordinate \(k\), \(A_k(c)\) is the total multiplicity of
+  all ranks strictly left of \(k\).
+\end{definition}
+
+\begin{definition}
+
+\leanok
+[Total right of a cut]
+  \label{def:right_total}
+  \lean{Ninegates.rightTotal}
+  \uses{def:counts}
+  For a cut coordinate \(k\), \(B_k(c)\) is the total multiplicity of
+  all ranks strictly right of \(k\).
+\end{definition}
+
+\begin{definition}
+
+\leanok
+[Weighted rank sum left of a cut]
+  \label{def:left_rank_sum}
+  \lean{Ninegates.leftRankSum}
+  \uses{def:counts}
+  For a cut coordinate \(k\), \(S^L_k(c)\) is the one-based weighted
+  rank sum of the coordinates strictly left of \(k\).
+\end{definition}
+
+\begin{definition}
+
+\leanok
+[Weighted rank sum right of a cut]
+  \label{def:right_rank_sum}
+  \lean{Ninegates.rightRankSum}
+  \uses{def:counts}
+  For a cut coordinate \(k\), \(S^R_k(c)\) is the one-based weighted
+  rank sum of the coordinates strictly right of \(k\).
+\end{definition}
+
+\begin{lemma}
+
+\leanok
+[Filtered totals are additive]
+  \label{lem:filtered_total_add}
+  \lean{Ninegates.filteredTotal_add}
+  For any predicate \(P\) on the finite coordinate set, the sum of
+  \(a_i+b_i\) over the coordinates satisfying \(P\) is the sum over
+  \(a_i\) plus the sum over \(b_i\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Distribute addition inside each selected summand, then split the finite
+  sum into the two component sums.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Filtered rank sums are additive]
+  \label{lem:filtered_rank_add}
+  \lean{Ninegates.filteredRank_add}
+  For any predicate \(P\), the weighted filtered rank sum of
+  \(a_i+b_i\) is the sum of the two weighted filtered rank sums.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  On selected coordinates distribute the weight over \(a_i+b_i\), and
+  then split the finite sum.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Filtered total of a basis vector]
+  \label{lem:filtered_total_basis}
+  \lean{Ninegates.filteredTotal_basis}
+  \uses{def:basis}
+  A multiple of the basis vector at \(x\) contributes \(m\) to a filtered
+  total exactly when \(x\) satisfies the filter, and contributes \(0\)
+  otherwise.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  If \(x\) satisfies the filter, the finite sum has the single nonzero
+  coordinate \(x\).  If it does not, every selected coordinate has zero
+  basis value.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Filtered rank sum of a basis vector]
+  \label{lem:filtered_rank_basis}
+  \lean{Ninegates.filteredRank_basis}
+  \uses{def:basis}
+  A multiple of the basis vector at \(x\) contributes the weighted value
+  \((x+1)m\) to a filtered rank sum exactly when \(x\) satisfies the
+  filter, and contributes \(0\) otherwise.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  The only possible nonzero coordinate is \(x\).  When it is selected the
+  weight is its one-based rank; otherwise no selected coordinate
+  contributes.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Filtered total after a draw]
+  \label{lem:filtered_total_add_basis}
+  \lean{Ninegates.filteredTotal_add_basis}
+  \uses{lem:filtered_total_add,lem:filtered_total_basis}
+  Adding one tile at \(x\) increases a filtered total by \(1\) if \(x\)
+  satisfies the filter, and by \(0\) otherwise.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Apply filtered additivity to split off the basis vector, then evaluate
+  that filtered basis contribution.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Filtered rank sum after a draw]
+  \label{lem:filtered_rank_add_basis}
+  \lean{Ninegates.filteredRank_add_basis}
+  \uses{lem:filtered_rank_add,lem:filtered_rank_basis}
+  Adding one tile at \(x\) increases a filtered rank sum by the
+  one-based rank of \(x\) if \(x\) satisfies the filter, and by \(0\)
+  otherwise.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Split the draw as a basis vector and evaluate the basis contribution in
+  the weighted filtered sum.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Filtered total after removing a pair]
+  \label{lem:filtered_total_remove_pair_add_pair}
+  \lean{Ninegates.filteredTotal_removePair_add_pair}
+  \uses{def:remove_pair,def:basis,lem:filtered_total_add,lem:filtered_total_basis}
+  If \(w_p\ge2\), then the filtered total of \(w-2e_p\), plus the two
+  removed tiles when \(p\) is selected by the filter, equals the filtered
+  total of \(w\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Coordinatewise, adding two basis tiles at \(p\) back to \(w-2e_p\)
+  recovers \(w\).  Apply filtered additivity and the filtered basis
+  evaluation.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Filtered rank sum after removing a pair]
+  \label{lem:filtered_rank_remove_pair_add_pair}
+  \lean{Ninegates.filteredRank_removePair_add_pair}
+  \uses{def:remove_pair,def:basis,lem:filtered_rank_add,lem:filtered_rank_basis}
+  If \(w_p\ge2\), then the filtered rank sum of \(w-2e_p\), plus twice
+  the weighted rank of \(p\) when \(p\) is selected, equals the filtered
+  rank sum of \(w\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Add back the two basis tiles at \(p\) coordinatewise.  The weighted
+  filtered additivity and basis lemmas evaluate the correction term.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Total split at a cut]
+  \label{lem:total_split_at}
+  \lean{Ninegates.total_split_at}
+  \uses{def:total,def:left_total,def:right_total,lem:sum_if_fin_val_eq}
+  The total count is the sum of the counts strictly left of \(k\), at
+  \(k\), and strictly right of \(k\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Partition every coordinate into the trichotomy \(i<k\), \(i=k\), or
+  \(k<i\).  The middle singleton sum evaluates to \(c_k\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Rank sum split at a cut]
+  \label{lem:rank_sum_split_at}
+  \lean{Ninegates.rankSum_split_at}
+  \uses{def:rank_sum,def:left_rank_sum,def:right_rank_sum,lem:sum_if_fin_val_eq}
+  The rank sum is the weighted sum strictly left of \(k\), plus the
+  contribution of \(k\), plus the weighted sum strictly right of \(k\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Use the same left/equal/right partition as for totals, now with each
+  coordinate multiplied by its one-based rank.  The middle singleton sum
+  is \((k+1)c_k\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Meldable total is divisible by three]
+  \label{lem:meldable_total_mod}
+  \lean{Ninegates.meldable_total_mod}
+  \uses{def:meldable,def:total,lem:red_run_count_sum,lem:sum_modEq_zero}
+  The total multiplicity of any meldable vector is congruent to
+  \(0\pmod3\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  In a meldable decomposition, triplets contribute multiples of \(3\).
+  Each run contributes three tiles by
+  Lemma~\ref{lem:red_run_count_sum}.  Summing these divisible
+  contributions gives total residue \(0\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[A run crossing a zero coordinate has zero count]
+  \label{lem:run_eq_zero_of_zero_coord}
+  \lean{Ninegates.run_eq_zero_of_zero_coord}
+  \uses{def:meldable,lem:red_eq_zero_of_sum_eq_zero}
+  In a meldable coordinate equation, if coordinate \(k\) has value \(0\),
+  then every run whose support contains \(k\) has multiplicity \(0\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  At coordinate \(k\), the triplet contribution and all covering run
+  contributions are natural numbers summing to \(0\).  Hence each
+  covering run term is \(0\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Left total contribution of one run across a zero cut]
+  \label{lem:run_left_count_mod}
+  \lean{Ninegates.run_left_count_mod}
+  \uses{lem:red_run_count_sum}
+  If every run crossing a cut \(k\) has multiplicity \(0\), then the
+  contribution of any single run to the total strictly left of \(k\) is
+  congruent to \(0\pmod3\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  A run wholly left of the cut contributes all three of its tiles; a run
+  crossing the cut contributes \(0\) by hypothesis; a run wholly right of
+  the cut contributes nothing to the left side.  Each case has residue
+  \(0\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Left rank contribution of one run across a zero cut]
+  \label{lem:run_left_rank_mod}
+  \lean{Ninegates.run_left_rank_mod}
+  \uses{lem:run_weight_sum}
+  If every run crossing a cut \(k\) has multiplicity \(0\), then the
+  contribution of any single run to the rank sum strictly left of \(k\)
+  is congruent to \(0\pmod3\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  A run wholly left of the cut contributes the weighted sum of three
+  consecutive ranks, divisible by \(3\).  A crossing run has zero
+  multiplicity, and a wholly right run contributes nothing.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Left total of a meldable vector with a zero cut]
+  \label{lem:meldable_left_total_mod_zero}
+  \lean{Ninegates.meldable_leftTotal_mod_of_zero}
+  \uses{def:left_total,lem:run_eq_zero_of_zero_coord,lem:run_left_count_mod,lem:sum_modEq_zero}
+  If a meldable vector has value \(0\) at \(k\), then its total strictly
+  left of \(k\) is congruent to \(0\pmod3\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  In a meldable decomposition, all runs crossing \(k\) vanish.  Triplets
+  on the left are multiples of \(3\), and each remaining run contribution
+  to the left total is congruent to \(0\) by
+  Lemma~\ref{lem:run_left_count_mod}.  Sum the congruences.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Left rank sum of a meldable vector with a zero cut]
+  \label{lem:meldable_left_rank_mod_zero}
+  \lean{Ninegates.meldable_leftRank_mod_of_zero}
+  \uses{def:left_rank_sum,lem:run_eq_zero_of_zero_coord,lem:run_left_rank_mod,lem:sum_modEq_zero}
+  If a meldable vector has value \(0\) at \(k\), then its weighted rank
+  sum strictly left of \(k\) is congruent to \(0\pmod3\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Crossing runs vanish.  Triplet contributions on the left are weighted
+  multiples of \(3\), and each noncrossing run contributes rank sum
+  divisible by \(3\).  The filtered finite sum therefore has residue
+  \(0\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Right total of a meldable vector with a zero cut]
+  \label{lem:meldable_right_total_mod_zero}
+  \lean{Ninegates.meldable_rightTotal_mod_of_zero}
+  \uses{def:right_total,lem:meldable_total_mod,lem:meldable_left_total_mod_zero,lem:total_split_at}
+  If a meldable vector has value \(0\) at \(k\), then its total strictly
+  right of \(k\) is congruent to \(0\pmod3\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Split the whole total into left, middle, and right parts.  The whole
+  total and left total are both \(0\) modulo \(3\), and the middle value
+  is \(0\), so the right total is also \(0\) modulo \(3\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Right rank sum of a meldable vector with a zero cut]
+  \label{lem:meldable_right_rank_mod_zero}
+  \lean{Ninegates.meldable_rightRank_mod_of_zero}
+  \uses{def:right_rank_sum,lem:meldable_rank_sum,lem:meldable_left_rank_mod_zero,lem:rank_sum_split_at}
+  If a meldable vector has value \(0\) at \(k\), then its weighted rank
+  sum strictly right of \(k\) is congruent to \(0\pmod3\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Split the whole rank sum into left, middle, and right parts.  The whole
+  rank sum and left rank sum are \(0\) modulo \(3\), and the middle
+  contribution is \(0\), so the right rank sum has residue \(0\).
+\end{proof}
+
+\begin{theorem}\leanok
+[Interior coordinates are positive]
+  \label{thm:interior_positive}
+  \lean{Ninegates.interior_positive}
+  \uses{def:live_wait,lem:meldable_left_total_mod_zero,lem:meldable_right_total_mod_zero,lem:meldable_left_rank_mod_zero,lem:meldable_right_rank_mod_zero,lem:filtered_total_add_basis,lem:filtered_total_remove_pair_add_pair,lem:filtered_rank_add_basis,lem:filtered_rank_remove_pair_add_pair,lem:modEq_of_add_one_modEq_two,lem:modEq_of_add_one_modEq_zero}
+  % SOURCE: half-formal.qmd, #lem-interior-positive (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “设 $n\ge6$ 且 $3\mid n$。若 $c$ 是非空听的 $n$ 面听清一色牌型，则对每个内部点数 $k\in\{2,\ldots,n-1\}$ 都有 $c_k\ge1$。”
+  \textit{Source: half-formal.qmd, Lemma
+  \texttt{\#lem-interior-positive}.}
+  Let \(n\geq6\) with \(3\mid n\).  If \(c\) is a live all-rank wait,
+  then \(c_k\geq1\) for every internal rank \(2\leq k\leq n-1\).
+\end{theorem}
+% SOURCE QUOTE PROOF: “固定一个内部点数 $k$，反设 $c_k=0$。把牌型分成点数小于 $k$ 的左部与点数大于 $k$ 的右部，并记两侧总张数为 $A=\sum_{i=1}^{k-1}c_i$ 与 $B=\sum_{i=k+1}^{n}c_i$。因为 $k$ 是内部点数，左右两侧都非空：左侧至少含点数 $1$，右侧至少含点数 $n$。因此可以分别选取进张 $y<k$ 与 $z>k$。先考虑摸入左侧点数 $y$。完整牌型 $c+e_y$ 在点数 $k$ 处的重数仍为 $0$。任何跨越左右边界的顺子都必须含有点数 $k$： - 从 $k-2$ 开始的顺子为 $(k-2,k-1,k)$； - 从 $k-1$ 开始的顺子为 $(k-1,k,k+1)$； - 从 $k$ 开始的顺子为 $(k,k+1,k+2)$。由于没有点数 $k$，这些顺子都不可能出现。因此，和牌分解中的每个面子都完全位于左侧或完全位于右侧，雀头也完全位于其中一侧。全局只有一个雀头，所以恰有一侧由“一个雀头加若干面子”组成，另一侧完全由面子组成。任何纯面子牌型的总张数都是 $3$ 的倍数；任何“一个雀头加若干面子”的总张数模 $3$ 等于 $2$。摸入 $y$ 后，左右总张数分别为 $A+1$ 与 $B$，故 $$(A+1,B)\equiv(2,0)\quad\text{或}\quad(0,2)\pmod3.$$ 分别减去进张贡献，得到 $$(A,B)\equiv(1,0)\quad\text{或}\quad(2,2)\pmod3. \tag{3}$$ 再考虑摸入右侧点数 $z$。同样因为点数 $k$ 缺失，左右不能通过顺子相连。这时左右总张数分别为 $A$ 与 $B+1$，所以 $$(A,B+1)\equiv(2,0)\quad\text{或}\quad(0,2)\pmod3,$$ 从而 $$(A,B)\equiv(2,2)\quad\text{或}\quad(0,1)\pmod3. \tag{4}$$ 式 (3) 与式 (4) 必须同时成立。比较两个二元剩余类集合，它们唯一的公共元素是 $(2,2)$，所以 $$A\equiv2\pmod3,\qquad B\equiv2\pmod3. \tag{5}$$ 现在重新考虑任意左侧进张 $y<k$。由式 (5)，摸牌后 $A+1\equiv0\pmod3$，而 $B\equiv2\pmod3$。因此左侧不可能含雀头，右侧必须含唯一的雀头。于是，对每个 $y<k$，左侧向量 $L+e_y=(c_1,\ldots,c_{k-1})+e_y$ 都可面子分解。如果左侧至少有两个不同点数，即 $k-1\ge2$，则进张 $1$ 与进张 $2$ 都存在。令 $S_L=\sum_{i=1}^{k-1}i\,c_i$ 为左侧原牌型的点数和。由于 $L+e_1$ 与 $L+e_2$ 都可面子分解， @lem-rank-sum 分别给出 $$S_L+1\equiv0\pmod3,\qquad S_L+2\equiv0\pmod3.$$ 两式相减得到 $1\equiv0\pmod3$，矛盾。因此 $$k-1\le1. \tag{6}$$ 对右侧作完全对称的论证。由式 (5)，任意右侧进张 $z>k$ 后，右侧总张数 $B+1$ 被 $3$ 整除，所以雀头必须在左侧，而右侧向量 $R+e_z=(c_{k+1},\ldots,c_n)+e_z$ 可面子分解。如果右侧至少有两个不同点数，即 $n-k\ge2$，就可取 $z=k+1$ 与 $z=k+2$。记 $S_R=\sum_{i=k+1}^{n}i\,c_i$。由 @lem-rank-sum， $$S_R+(k+1)\equiv0\pmod3,\qquad S_R+(k+2)\equiv0\pmod3,$$ 再次相减得到矛盾。因此 $$n-k\le1. \tag{7}$$ 由式 (6) 与式 (7)，$n=(k-1)+1+(n-k)\le3$，这与 $n\ge6$ 矛盾。”
+\begin{proof}
+
+\leanok
+  Fix an internal \(k\) and suppose \(c_k=0\).  Let \(A\) and \(B\)
+  be the total multiplicities strictly left and strictly right of \(k\).
+  Since a run crossing the cut would contain rank \(k\), every complete
+  decomposition after a draw separates into left and right pieces, with
+  the unique pair on exactly one side.
+
+  Drawing on the left shows
+  \[
+    (A,B)\equiv(1,0)\ \text{or}\ (2,2)\pmod3,
+  \]
+  and drawing on the right shows
+  \[
+    (A,B)\equiv(2,2)\ \text{or}\ (0,1)\pmod3.
+  \]
+  Hence \(A\equiv B\equiv2\pmod3\).  It follows that after every
+  left-side draw the left piece is purely meldable.  If the left side had
+  two ranks, drawing its first and second ranks would produce two meldable
+  vectors whose rank sums differ by \(1\), contradicting
+  Lemma~\ref{lem:meldable_rank_sum}.  Thus the left side has at most one
+  rank.  The symmetric argument gives the same conclusion on the right.
+  Therefore \(n\leq3\), contradicting \(n\geq6\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Option fold over appended lists]
+  \label{lem:foldlM_append_option}
+  \lean{Ninegates.foldlM_append_option}
+  For a fold in the \(\mathrm{Option}\) monad, folding over an appended
+  list is the same as folding over the prefix and, if that succeeds,
+  continuing the fold over the suffix from the produced state.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Induct on the prefix.  The empty prefix is immediate.  For a nonempty
+  prefix, expose the first monadic step; if it fails both sides fail, and
+  if it succeeds the induction hypothesis applies to the tail.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Deleting a successful singleton scan block]
+  \label{lem:scan_delete_three_ones_block}
+  \lean{Ninegates.scan_delete_three_ones_block}
+  \uses{lem:foldlM_append_option,def:scan_step,def:scan,lem:scan_three_ones}
+  If a scan of \(\mathit{pref}\,[1,1,1]\,\mathit{suff}\) from state
+  \(\sigma\) succeeds with final state \(\tau\), then the scan of
+  \(\mathit{pref}\,\mathit{suff}\) from \(\sigma\) also succeeds with
+  final state \(\tau\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Split the successful scan at the prefix using
+  Lemma~\ref{lem:foldlM_append_option}.  The prefix cannot have failed.
+  Inspect the three scans of the entries \(1,1,1\); since the full scan
+  succeeds, all three steps succeed.  They form the length-three scan of
+  the constant-one vector, so Lemma~\ref{lem:scan_three_ones} says that
+  the state after the block is the same as the state before it.  The
+  suffix therefore starts from the same state with or without the block.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[List form of a three-coordinate deletion]
+  \label{lem:ofFn_deleteThree_eq_take_drop}
+  \lean{Ninegates.ofFn_deleteThree_eq_take_drop}
+  \uses{def:delete_three,def:delete_index}
+  The list underlying \(\operatorname{del}_j(d)\) is obtained from the
+  list underlying \(d\) by taking the first \(j\) entries and appending
+  the entries after position \(j+2\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Compare the two lists element by element.  An index before \(j\) is
+  embedded unchanged by \(\iota_j\), while an index at or after \(j\) is
+  embedded by adding \(3\).  Out-of-range lookups are out of range on
+  both sides.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Splitting off three singleton entries]
+  \label{lem:ofFn_eq_take_ones_drop}
+  \lean{Ninegates.ofFn_eq_take_ones_drop}
+  \uses{def:counts}
+  If the three coordinates \(j,j+1,j+2\) of \(d\) are all \(1\), then
+  the list underlying \(d\) is its prefix before \(j\), followed by
+  \([1,1,1]\), followed by its suffix after \(j+2\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Start from the identity \(l=\operatorname{take}_j(l)\) followed by
+  \(\operatorname{drop}_j(l)\).  Repeatedly expose the first element of
+  the remaining drop at positions \(j,j+1,j+2\), and use the singleton
+  hypotheses to identify those exposed entries as \(1\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Total as the sum of the underlying list]
+  \label{lem:total_eq_list_sum}
+  \lean{Ninegates.total_eq_list_sum}
+  \uses{def:total,def:counts}
+  The finite total of a count vector equals the sum of the entries of its
+  underlying list.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Induct on the vector length.  In the successor case, split the finite
+  sum into the head coordinate and the sum over successor coordinates,
+  and identify the list tail with the list of the shortened successor
+  vector.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[The retained-index embedding is injective]
+  \label{lem:deleteIndex_injective}
+  \lean{Ninegates.deleteIndex_injective}
+  \uses{def:delete_index}
+  The map \(\iota_j\) from retained indices into the original coordinate
+  set is injective.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Split two retained indices according to whether they lie before the
+  deleted block.  On the left side \(\iota_j\) is the identity; on the
+  right side it is translation by \(3\); and the mixed cases cannot have
+  equal images because the deleted block separates the two ranges.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Retained indices avoid the deleted block]
+  \label{lem:deleteIndex_not_deleted}
+  \lean{Ninegates.deleteIndex_not_deleted}
+  \uses{def:delete_index}
+  No value in the image of \(\iota_j\) lies in the deleted interval
+  \([j,j+3)\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  If the retained index is before \(j\), its image is before the deleted
+  interval.  Otherwise its image is at least \(j+3\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Every nondeleted index has a retained preimage]
+  \label{lem:deleteIndex_preimage_of_not_deleted}
+  \lean{Ninegates.deleteIndex_preimage_of_not_deleted}
+  \uses{def:delete_index}
+  Every original index outside the deleted interval \([j,j+3)\) is in
+  the image of \(\iota_j\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  If the original index is before \(j\), use the same value as the
+  retained preimage.  Otherwise, being outside the deleted interval means
+  it is at least \(j+3\), so subtract \(3\) and use that retained index.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Basis vectors commute with retained-index embedding]
+  \label{lem:basis_deleteIndex}
+  \lean{Ninegates.basis_deleteIndex}
+  \uses{def:basis,def:delete_index,lem:deleteIndex_injective}
+  Pulling a basis vector back along \(\iota_j\) gives the corresponding
+  basis vector on the retained coordinate set.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  At the distinguished retained coordinate both sides are \(1\).  At any
+  other retained coordinate, injectivity of \(\iota_j\) shows that the
+  embedded coordinates are distinct, so both basis values are \(0\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Deleting after a retained draw and retained pair removal]
+  \label{lem:deleteThree_removePair_add_basis}
+  \lean{Ninegates.deleteThree_removePair_add_basis}
+  \uses{def:delete_three,def:remove_pair,lem:basis_deleteIndex}
+  Deleting after drawing a retained tile \(x'\) and removing a retained
+  pair \(p'\) agrees coordinatewise with first deleting and then drawing
+  \(x'\) and removing \(p'\) in the shortened coordinate set.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Evaluate both vectors at an arbitrary retained coordinate.  The
+  underlying hand is compared by the definition of deletion, pair removal
+  is evaluated at the embedded pair coordinate, and the basis-vector
+  contribution is transported by Lemma~\ref{lem:basis_deleteIndex}.
+\end{proof}
+
+\begin{lemma}\leanok
+[Deleting three singletons preserves meldability]
+  \label{lem:delete_three_meldable}
+  \lean{Ninegates.delete_three_meldable}
+  \uses{def:delete_three,thm:meldable_iff_scan,lem:ofFn_deleteThree_eq_take_drop,lem:ofFn_eq_take_ones_drop,lem:scan_delete_three_ones_block}
+  % SOURCE: half-formal.qmd, proof of #lem-delete, scan-preservation paragraph (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “现在要证明 $\operatorname{del}_j(d)$ 可面子分解。由 $d$ 可面子分解以及 @lem-recurrence，它的规范扫描从 $(0,0)$ 出发，不会失败，并在读完全部 $n$ 个坐标后回到 $(0,0)$。由于进张与雀头都不在被删区间，$d$ 在三个被删坐标上的重数仍为 $d_j=d_{j+1}=d_{j+2}=1$。设扫描在读入坐标 $j$ 之前的状态为 $\sigma$。原扫描能够顺利读完上述三个 $1$，所以 @lem-three-ones-state 适用，并说明读完坐标 $j,j+1,j+2$ 后状态仍为 $\sigma$。删除这三个坐标后，缩短向量的扫描在读完原坐标 $j-1$ 时同样处于 $\sigma$；它接下来直接读取原坐标 $j+3$。这与原扫描读完三个 $1$ 后读取 $j+3$ 时的状态完全相同。因此，从该处直到末尾，缩短扫描与原扫描逐步产生相同的状态。原扫描不失败并最终回到 $(0,0)$，所以缩短扫描也不失败并最终回到 $(0,0)$。再次使用 @lem-recurrence，得到 $\operatorname{del}_j(d)$ 可面子分解。”
+  \textit{Source: half-formal.qmd, proof of Lemma
+  \texttt{\#lem-delete}.}
+  If \(d\) is meldable and its three coordinates beginning at \(j\) are
+  all \(1\), then \(\operatorname{del}_j(d)\) is meldable.
+\end{lemma}
+% SOURCE QUOTE PROOF: “设扫描在读入坐标 $j$ 之前的状态为 $\sigma$。原扫描能够顺利读完上述三个 $1$，所以 @lem-three-ones-state 适用，并说明读完坐标 $j,j+1,j+2$ 后状态仍为 $\sigma$。删除这三个坐标后，缩短向量的扫描在读完原坐标 $j-1$ 时同样处于 $\sigma$；它接下来直接读取原坐标 $j+3$。这与原扫描读完三个 $1$ 后读取 $j+3$ 时的状态完全相同。因此，从该处直到末尾，缩短扫描与原扫描逐步产生相同的状态。原扫描不失败并最终回到 $(0,0)$，所以缩短扫描也不失败并最终回到 $(0,0)$。”
+\begin{proof}
+
+\leanok
+  By Theorem~\ref{thm:meldable_iff_scan}, the scan of \(d\) succeeds from
+  zero to zero.  Let \(\sigma\) be the state just before the three
+  singleton coordinates.  Lemma~\ref{lem:scan_three_ones} says that the
+  state just after them is again \(\sigma\).  The shortened scan has the
+  same prefix state and then reads exactly the same suffix, so it also
+  succeeds and finishes at zero.  Apply
+  Theorem~\ref{thm:meldable_iff_scan} again.
+\end{proof}
+
+\begin{theorem}\leanok
+[Deletion preserves a live all-rank wait]
+  \label{thm:delete_three_live_wait}
+  \lean{Ninegates.delete_three_live_wait}
+  \uses{def:live_wait,def:delete_three,lem:delete_three_meldable,lem:total_eq_list_sum,lem:ofFn_deleteThree_eq_take_drop,lem:ofFn_eq_take_ones_drop,lem:deleteIndex_not_deleted,lem:deleteIndex_preimage_of_not_deleted,lem:basis_deleteIndex,lem:deleteThree_removePair_add_basis}
+  % SOURCE: half-formal.qmd, #lem-delete (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “设 $n\ge9$ 且 $3\mid n$，并设 $c$ 是非空听的 $n$ 面听牌型。假设存在 $j$ 满足 $2\le j\le n-3$ 以及 $c_j=c_{j+1}=c_{j+2}=1$。令 $c'=\operatorname{del}_j(c)$。则 $c'$ 是非空听的 $(n-3)$ 面听牌型。”
+  \textit{Source: half-formal.qmd, Lemma \texttt{\#lem-delete}.}
+  Let \(n\geq9\), \(3\mid n\), and let \(c\) be a live all-rank wait.
+  If the three internal coordinates beginning at \(j\) all have
+  multiplicity \(1\), then \(\operatorname{del}_j(c)\) is a live
+  all-rank wait of length \(n-3\).
+\end{theorem}
+% SOURCE QUOTE PROOF: “先验证 $c'$ 满足牌数与非空听的基本条件。由三个被删坐标的重数均为 $1$，它们总共恰有三张牌，因此 $$\sum_{r=1}^{n-3}c'_r=\sum_{i=1}^{n}c_i-(c_j+c_{j+1}+c_{j+2})=(n+4)-3=(n-3)+4.$$ 又因为 $c'$ 的每个坐标都直接取自 $c$ 的一个保留坐标，而 $0\le c_i\le3$，所以对所有 $r$ 都有 $0\le c'_r\le3$。特别地，$c'$ 中每一种候选进张都不是空听。剩下只需证明：对每个新点数 $x'\in\{1,\ldots,n-3\}$，摸入 $x'$ 后都能和牌。令 $x=\iota_j(x')$。这里 $x$ 是原牌型中与 $x'$ 对应的保留点数，所以 $x\notin\{j,j+1,j+2\}$。因为 $c$ 是 $n$ 面听，$c+e_x$ 是完整牌型。故存在某个雀头点数 $p\in\{1,\ldots,n\}$，使得 $d=c+e_x-2e_p$ 可面子分解。我们先证明雀头不在被删区间内。由假设，被删区间中的每个点数原本都只有一张；进张 $x$ 又不在该区间，所以在 $c+e_x$ 中仍有 $(c+e_x)_j=(c+e_x)_{j+1}=(c+e_x)_{j+2}=1$。雀头需要同一点数的两张牌，因此 $p\notin\{j,j+1,j+2\}$。因此存在唯一的新点数 $p'\in\{1,\ldots,n-3\}$ 满足 $\iota_j(p')=p$。而且删除算子与这次进张、雀头删除相容： $$\operatorname{del}_j(d)=c'+e_{x'}-2e_{p'}. \tag{9}$$ 式 (9) 可以逐坐标验证：在 $x'$ 坐标增加一张，在 $p'$ 坐标删除两张，其余保留坐标不变。现在要证明 $\operatorname{del}_j(d)$ 可面子分解。由 $d$ 可面子分解以及 @lem-recurrence，它的规范扫描从 $(0,0)$ 出发，不会失败，并在读完全部 $n$ 个坐标后回到 $(0,0)$。由于进张与雀头都不在被删区间，$d$ 在三个被删坐标上的重数仍为 $d_j=d_{j+1}=d_{j+2}=1$。设扫描在读入坐标 $j$ 之前的状态为 $\sigma$。原扫描能够顺利读完上述三个 $1$，所以 @lem-three-ones-state 适用，并说明读完坐标 $j,j+1,j+2$ 后状态仍为 $\sigma$。删除这三个坐标后，缩短向量的扫描在读完原坐标 $j-1$ 时同样处于 $\sigma$；它接下来直接读取原坐标 $j+3$。这与原扫描读完三个 $1$ 后读取 $j+3$ 时的状态完全相同。因此，从该处直到末尾，缩短扫描与原扫描逐步产生相同的状态。原扫描不失败并最终回到 $(0,0)$，所以缩短扫描也不失败并最终回到 $(0,0)$。再次使用 @lem-recurrence，得到 $\operatorname{del}_j(d)$ 可面子分解。结合式 (9)，$c'+e_{x'}$ 可以分解为雀头 $2e_{p'}$ 与若干面子，所以它是完整牌型。由于 $x'$ 是任意的新点数，$c'$ 对所有 $n-3$ 种进张都能和牌，故 $c'$ 是非空听的 $(n-3)$ 面听。”
+\begin{proof}
+
+\leanok
+  The deleted coordinates contain exactly three tiles, so the shortened
+  total is \((n+4)-3=(n-3)+4\).  Every retained coordinate still has
+  multiplicity at most \(3\).
+
+  Fix a new draw \(x'\), and let \(x=\iota_j(x')\).  Choose a complete
+  decomposition of \(c+e_x\), with pair at \(p\) and meldable remainder
+  \(d\).  Since \(x\) is retained, the three deleted coordinates still
+  have multiplicity \(1\), so the pair cannot lie among them.  Hence
+  \(p=\iota_j(p')\) for a unique retained \(p'\).  Coordinatewise
+  calculation gives
+  \[
+    \operatorname{del}_j(d)
+      =\operatorname{del}_j(c)+e_{x'}-2e_{p'}.
+  \]
+  The left side is meldable by
+  Lemma~\ref{lem:delete_three_meldable}.  Thus every draw completes the
+  shortened hand, proving the live-wait condition.
+\end{proof}
+
+\begin{theorem}\leanok
+[Deletion detects the standard hand]
+  \label{thm:delete_three_standard}
+  \lean{Ninegates.delete_three_standard_iff}
+  \uses{def:standard,def:delete_three}
+  % SOURCE: half-formal.qmd, final assertion of #lem-delete (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “此外，$c=(3,1,\ldots,1,3)$ 当且仅当 $c'=(3,1,\ldots,1,3)$。”
+  \textit{Source: half-formal.qmd, final assertion of Lemma
+  \texttt{\#lem-delete}.}
+  If the deleted block is internal and consists of three singleton
+  coordinates, then
+  \[
+    c=G_n\quad\Longleftrightarrow\quad
+    \operatorname{del}_j(c)=G_{n-3}.
+  \]
+\end{theorem}
+% SOURCE QUOTE PROOF: “因为 $j\ge2$ 且 $j+2\le n-1$，被删的三个坐标都是内部坐标，两个端点均被保留。删除的三个重数又全部等于 $1$。因此： - 如果 $c=(3,1,\ldots,1,3)$，删除三个内部的 $1$ 后显然仍有 $c'=(3,1,\ldots,1,3)$； - 如果 $c'=(3,1,\ldots,1,3)$，把三个重数为 $1$ 的内部坐标插回原位置后，两端仍为 $3$，全部内部坐标仍为 $1$，所以 $c=(3,1,\ldots,1,3)$。”
+\begin{proof}
+
+\leanok
+  The deleted positions are internal, both endpoints are retained, and the
+  removed multiplicities are all \(1\).  Deleting them from \(G_n\)
+  therefore gives \(G_{n-3}\).  Conversely, if the retained vector is
+  \(G_{n-3}\), reinserting three internal \(1\)'s leaves endpoint
+  multiplicities \(3\) and makes every internal multiplicity \(1\), so the
+  original vector is \(G_n\).
+\end{proof}

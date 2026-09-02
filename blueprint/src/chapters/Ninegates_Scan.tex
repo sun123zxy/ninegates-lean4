@@ -1,0 +1,651 @@
+\chapter{Rank sums and the canonical scan}
+
+\begin{definition}\leanok
+[Rank sum]
+  \label{def:rank_sum}
+  \lean{Ninegates.rankSum}
+  \uses{def:counts}
+  % SOURCE: half-formal.qmd, “点数和的模 3 不变量” (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “对长度为 $m$ 的重数向量 $d$，定义它的**点数和** $\operatorname{rankSum}(d)=\sum_{i=1}^m i\,d_i$。”
+  \textit{Source: half-formal.qmd, rank-sum invariant section.}
+  For a count vector \(d\) of length \(m\), define
+  \[
+    \operatorname{rankSum}(d)=\sum_{i=1}^{m}i\,d_i.
+  \]
+\end{definition}
+
+\begin{definition}\leanok
+[Scan state]
+  \label{def:scan_state}
+  \lean{Ninegates.ScanState}
+  % SOURCE: half-formal.qmd, #def-canonical-scan (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “扫描状态由两个数 $(a,b)\in\{0,1,2\}^2$ 组成，其中： - $a$ 是从前两点开始、将在当前点使用一张牌的顺子数； - $b$ 是从前一点开始、将在当前点使用一张牌的顺子数。”
+  \textit{Source: half-formal.qmd, Definition \texttt{\#def-canonical-scan}.}
+  A scan state is a pair \((a,b)\in\{0,1,2\}^2\).  The entries count
+  runs started two and one positions earlier that must consume the current
+  rank.
+\end{definition}
+
+\begin{definition}\leanok
+[One scan step]
+  \label{def:scan_step}
+  \lean{Ninegates.scanStep}
+  \uses{def:scan_state}
+  % SOURCE: half-formal.qmd, #def-canonical-scan (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “在当前坐标读到重数 $z$ 时： 1. 若 $a+b>z$，扫描失败； 2. 若 $a+b\le z$，令 $$u=z-a-b,\qquad s=u\bmod3,$$ 其中 $s\in\{0,1,2\}$ 是最小非负余数，并把状态更新为 $$(a,b)\longmapsto(b,s).$$”
+  \textit{Source: half-formal.qmd, Definition \texttt{\#def-canonical-scan}.}
+  On input multiplicity \(z\), the step from \((a,b)\) fails when
+  \(a+b>z\).  Otherwise put \(u=z-a-b\), let \(s\) be the least
+  nonnegative residue of \(u\) modulo \(3\), and return \((b,s)\).
+\end{definition}
+
+\begin{definition}\leanok
+[Scanning a count vector]
+  \label{def:scan}
+  \lean{Ninegates.scan}
+  \uses{def:counts,def:scan_state,def:scan_step}
+  % SOURCE: half-formal.qmd, #def-canonical-scan (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “扫描从状态 $(0,0)$ 开始。读完全部坐标后，若状态回到 $(0,0)$，称扫描接受 $d$。”
+  \textit{Source: half-formal.qmd, Definition \texttt{\#def-canonical-scan}.}
+  Scan a count vector from left to right by repeated application of the
+  one-step transition.  The result records either the first failure or the
+  final state.  The operation may also be started from an arbitrary state,
+  which is needed when a middle block is removed.
+\end{definition}
+
+\begin{definition}\leanok
+[Scan acceptance]
+  \label{def:scan_accepts}
+  \lean{Ninegates.ScanAccepts}
+  \uses{def:scan,def:scan_state}
+  A count vector is accepted when its scan starts at \((0,0)\), never
+  fails, and finishes at \((0,0)\).
+\end{definition}
+
+\begin{lemma}
+
+\leanok
+[Singleton finite sum by finite value]
+  \label{lem:sum_if_fin_val_eq}
+  \lean{Ninegates.sum_if_fin_val_eq}
+  For a function on a finite interval, the sum that keeps only entries
+  whose index has natural value \(i\) is the corresponding entry when
+  \(i\) is in range, and is \(0\) otherwise.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  If \(i\) is in range, exactly one finite index has that natural value,
+  so the sum has one nonzero term.  If \(i\) is out of range, no index can
+  satisfy the equality, so every summand is zero.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Weight of one run in the rank sum]
+  \label{lem:run_weight_sum}
+  \lean{Ninegates.run_weight_sum}
+  \uses{def:rank_sum,lem:sum_if_fin_val_eq}
+  A run beginning at zero-based start \(j\) contributes the three
+  one-based ranks \((j+1),(j+2),(j+3)\).  Hence its weighted contribution
+  is \(3(j+2)\) times the run multiplicity.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Split the finite sum into the three possible coordinates of the run.
+  The singleton-sum lemma evaluates those three terms, and their weights
+  add to \((j+1)+(j+2)+(j+3)=3(j+2)\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Finite sum of zero congruence terms]
+  \label{lem:sum_modEq_zero}
+  \lean{Ninegates.sum_modEq_zero}
+  If every term in a finite sum is congruent to \(0\) modulo \(3\), then
+  the whole sum is congruent to \(0\) modulo \(3\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Induct over the finite set of summation indices.  The empty sum is zero,
+  and adjoining one term preserves congruence to zero under addition.
+\end{proof}
+
+\begin{lemma}\leanok
+[Rank sum of a meldable vector]
+  \label{lem:meldable_rank_sum}
+  \lean{Ninegates.meldable_rankSum_mod}
+  \uses{def:meldable,def:rank_sum,lem:run_weight_sum,lem:sum_modEq_zero}
+  % SOURCE: half-formal.qmd, #lem-rank-sum (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “若 $d$ 可面子分解，则 $\operatorname{rankSum}(d)\equiv0\pmod3$。”
+  \textit{Source: half-formal.qmd, Lemma \texttt{\#lem-rank-sum}.}
+  If \(d\) is meldable, then
+  \(\operatorname{rankSum}(d)\equiv0\pmod3\).
+\end{lemma}
+% SOURCE QUOTE PROOF: “设 $d$ 的一个面子分解由刻子数 $t_i$ 和顺子数 $r_i$ 给出。一个点数 $i$ 的刻子对点数和的贡献是 $3i$，它能被 $3$ 整除。一个从点数 $i$ 开始的顺子贡献 $i+(i+1)+(i+2)=3i+3$，也能被 $3$ 整除。把所有刻子与顺子的贡献相加，得到 $$ \operatorname{rankSum}(d) =\sum_i 3i\,t_i+\sum_i(3i+3)r_i \equiv0\pmod3.$$”
+\begin{proof}
+
+\leanok
+  Choose triplet counts \(t_i\) and run counts \(r_i\) witnessing
+  meldability.  A triplet at \(i\) contributes \(3i\) to the rank sum,
+  while a run starting at \(i\) contributes
+  \(i+(i+1)+(i+2)=3i+3\).  Every contribution is divisible by \(3\);
+  summing them proves the congruence.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Rank sum is additive]
+  \label{lem:rankSum_add}
+  \lean{Ninegates.rankSum_add}
+  \uses{def:rank_sum}
+  The rank sum of a pointwise sum of two count vectors equals the sum of
+  their rank sums.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Expand the weighted finite sum and distribute multiplication over
+  coordinatewise addition, then separate the finite sum into the two
+  component sums.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Rank sum of two basis tiles]
+  \label{lem:rankSum_two_basis}
+  \lean{Ninegates.rankSum_two_basis}
+  \uses{def:rank_sum,def:basis}
+  Two copies of the basis vector at \(p\) have rank sum equal to twice the
+  one-based rank of \(p\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  All coordinates except \(p\) vanish.  The remaining coordinate has
+  multiplicity \(2\), so the weighted sum is \(2(p+1)\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Rank sum of one basis tile]
+  \label{lem:rankSum_basis}
+  \lean{Ninegates.rankSum_basis}
+  \uses{def:rank_sum,def:basis}
+  The basis vector at \(p\) has rank sum equal to the one-based rank of
+  \(p\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  The basis vector has exactly one nonzero coordinate, at \(p\), with
+  multiplicity \(1\).  The weighted sum is therefore \(p+1\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Adding one basis tile]
+  \label{lem:rankSum_add_basis}
+  \lean{Ninegates.rankSum_add_basis}
+  \uses{lem:rankSum_add,lem:rankSum_basis}
+  Adding one tile at \(x\) increases the rank sum by the one-based rank
+  of \(x\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Apply additivity of the rank sum to \(c+e_x\), then evaluate the rank
+  sum of the basis vector.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Rank sum after removing a pair]
+  \label{lem:removePair_rankSum_add_pair}
+  \lean{Ninegates.removePair_rankSum_add_pair}
+  \uses{def:remove_pair,def:basis,lem:rankSum_add,lem:rankSum_two_basis}
+  If \(w_p\geq2\), then the rank sum of \(w-2e_p\), plus twice the
+  one-based rank of \(p\), is the rank sum of \(w\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Coordinatewise, adding back two basis tiles at \(p\) to the pair-removed
+  vector recovers \(w\).  Additivity and the two-basis evaluation then
+  give the displayed rank-sum identity.
+\end{proof}
+
+\begin{lemma}\leanok
+[Rank sum after choosing the pair]
+  \label{lem:complete_rank_sum}
+  \lean{Ninegates.complete_rankSum_mod}
+  \uses{def:basis,def:remove_pair,def:meldable,def:rank_sum,lem:meldable_rank_sum,lem:rankSum_add_basis,lem:removePair_rankSum_add_pair}
+  % SOURCE: half-formal.qmd, #lem-rank-sum (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “进一步，设 $c$ 是长度为 $n$ 的牌型，并记 $S=\operatorname{rankSum}(c)$。如果进张 $x$ 后，$c+e_x$ 存在一个以点数 $p$ 为雀头的和牌分解，则 $S+x\equiv2p\pmod3$。”
+  \textit{Source: half-formal.qmd, Lemma \texttt{\#lem-rank-sum}.}
+  If \(c+e_x\) has a complete decomposition whose pair is at \(p\),
+  then
+  \[
+    \operatorname{rankSum}(c)+x\equiv2p\pmod3.
+  \]
+\end{lemma}
+% SOURCE QUOTE PROOF: “现在设 $c+e_x$ 以 $p$ 为雀头。按照 @def-complete， $d=c+e_x-2e_p$ 可面子分解，故 $\operatorname{rankSum}(d)\equiv0\pmod3$。另一方面，点数和对向量加减是线性的，所以 $\operatorname{rankSum}(d)=S+x-2p$。因此 $S+x-2p\equiv0\pmod3$，等价地，$S+x\equiv2p\pmod3$。”
+\begin{proof}
+
+\leanok
+  Removing the chosen pair gives the meldable vector
+  \(d=c+e_x-2e_p\).  Its rank sum is divisible by \(3\) by
+  Lemma~\ref{lem:meldable_rank_sum}.  Directly expanding the finite sum
+  gives
+  \(\operatorname{rankSum}(d)=\operatorname{rankSum}(c)+x-2p\);
+  rearranging modulo \(3\) gives the claim.
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[Extended start lookup]
+  \label{def:scan_start_at}
+  \lean{Ninegates.scanStartAt}
+  \uses{def:counts}
+  Given normalized run-start counts, extend them to all natural indices by
+  returning the indexed count in range and \(0\) out of range.
+\end{definition}
+
+\begin{definition}
+
+\leanok
+[Cons for count vectors]
+  \label{def:counts_cons}
+  \lean{Ninegates.countsCons}
+  \uses{def:counts}
+  A count vector can be obtained by placing a head value before a tail
+  vector, with indices described by their natural values.
+\end{definition}
+
+\begin{definition}
+
+\leanok
+[First incoming run component]
+  \label{def:scan_prev2}
+  \lean{Ninegates.scanPrev2}
+  \uses{def:scan_state,def:counts,def:scan_start_at}
+  At coordinate \(i\), the first incoming scan component is the initial
+  state's first component at \(i=0\), the initial state's second component
+  at \(i=1\), and otherwise the start count at \(i-2\).
+\end{definition}
+
+\begin{definition}
+
+\leanok
+[Second incoming run component]
+  \label{def:scan_prev1}
+  \lean{Ninegates.scanPrev1}
+  \uses{def:scan_state,def:counts,def:scan_start_at}
+  At coordinate \(i\), the second incoming scan component is the initial
+  state's second component at \(i=0\), and otherwise the start count at
+  \(i-1\).
+\end{definition}
+
+\begin{definition}
+
+\leanok
+[First final scan component]
+  \label{def:scan_out1}
+  \lean{Ninegates.scanOut1}
+  \uses{def:scan_state,def:counts}
+  The first component of the final scan state is the initial first
+  component for the empty vector, the initial second component for length
+  one, and the penultimate start count for longer vectors.
+\end{definition}
+
+\begin{definition}
+
+\leanok
+[Second final scan component]
+  \label{def:scan_out2}
+  \lean{Ninegates.scanOut2}
+  \uses{def:scan_state,def:counts}
+  The second component of the final scan state is the initial second
+  component for the empty vector, and the final start count for nonempty
+  vectors.
+\end{definition}
+
+\begin{lemma}
+
+\leanok
+[Output shift after adding a head, first component]
+  \label{lem:scan_out1_cons}
+  \lean{Ninegates.scanOut1_cons}
+  \uses{def:scan_out1,def:counts_cons}
+  If a first scan step changes the initial state from \(\sigma\) to
+  \(\sigma'\), then adding that head start before a tail preserves the
+  computed final first component.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Check the possible lengths of the tail.  For length zero and one the
+  claim is exactly the relation between \(\sigma\) and \(\sigma'\); for
+  longer tails both sides select the same shifted start count.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Output shift after adding a head, second component]
+  \label{lem:scan_out2_cons}
+  \lean{Ninegates.scanOut2_cons}
+  \uses{def:scan_out2,def:counts_cons}
+  Adding a head start before a tail preserves the computed final second
+  component after updating the scan state.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  By cases on the tail length, the formula either reads the updated
+  initial component or the same final shifted start count.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Output shift after removing a head, first component]
+  \label{lem:scan_out1_tail}
+  \lean{Ninegates.scanOut1_tail}
+  \uses{def:scan_out1}
+  Removing the head of the normalized starts shifts the first final output
+  component exactly as a successful first scan step does.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Compare the formulas by the remaining length.  The boundary cases read
+  the updated initial state, and the longer case reads the same shifted
+  penultimate start count.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Output shift after removing a head, second component]
+  \label{lem:scan_out2_tail}
+  \lean{Ninegates.scanOut2_tail}
+  \uses{def:scan_out2}
+  Removing the head of the normalized starts shifts the second final
+  output component exactly as a successful first scan step does.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  The empty tail reads the updated second component.  A nonempty tail reads
+  the same shifted final start count on both sides.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Incoming first component under cons]
+  \label{lem:scan_prev2_cons_succ}
+  \lean{Ninegates.scanPrev2_cons_succ}
+  \uses{def:scan_prev2,def:scan_start_at,def:counts_cons}
+  After adding a head start, the first incoming component at a successor
+  coordinate agrees with the corresponding first incoming component in the
+  tail scan.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Split the successor coordinate into the first two boundary positions and
+  the remaining positions.  In the remaining case the extended lookup
+  shifts from \(i-2\) in the longer vector to the corresponding tail
+  index.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Incoming second component under cons]
+  \label{lem:scan_prev1_cons_succ}
+  \lean{Ninegates.scanPrev1_cons_succ}
+  \uses{def:scan_prev1,def:scan_start_at,def:counts_cons}
+  After adding a head start, the second incoming component at a successor
+  coordinate agrees with the corresponding second incoming component in
+  the tail scan.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  The first successor coordinate is the boundary case reading the updated
+  state.  All later coordinates read the same shifted start count.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Incoming first component under tail]
+  \label{lem:scan_prev2_tail}
+  \lean{Ninegates.scanPrev2_tail}
+  \uses{def:scan_prev2,def:scan_start_at}
+  Removing a head start shifts the first incoming component on every tail
+  coordinate to the first incoming component at the successor coordinate
+  of the original scan.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  The first two tail coordinates are the boundary components of the
+  updated state.  Every later coordinate reduces to the same shifted
+  extended start lookup.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Incoming second component under tail]
+  \label{lem:scan_prev1_tail}
+  \lean{Ninegates.scanPrev1_tail}
+  \uses{def:scan_prev1,def:scan_start_at}
+  Removing a head start shifts the second incoming component on every tail
+  coordinate to the second incoming component at the successor coordinate
+  of the original scan.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  The first coordinate reads the updated state component; every later
+  coordinate reads the same shifted extended start lookup.
+\end{proof}
+
+\begin{definition}
+
+\leanok
+[General scan decomposition]
+  \label{def:scan_decomp}
+  \lean{Ninegates.ScanDecomp}
+  \uses{def:counts,def:scan_state,def:scan_prev2,def:scan_prev1,def:scan_out1,def:scan_out2}
+  A decomposition from initial state \(\sigma\) to final state \(\tau\)
+  consists of triplet counts and normalized start counts \(s_i<3\), such
+  that \(\tau\) is the state predicted by the starts and every coordinate
+  equals the two incoming starts, the new start, and three times a triplet
+  count.
+\end{definition}
+
+\begin{lemma}
+
+\leanok
+[One scan step from a coordinate decomposition]
+  \label{lem:scan_step_of_coord}
+  \lean{Ninegates.scan_step_of_coord}
+  \uses{def:scan_step}
+  If a coordinate has the form \(a+b+s+3t\), where \((a,b)\) is the
+  incoming state and \(s<3\), then one scan step succeeds and outputs
+  \((b,s)\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  The coordinate is at least \(a+b\), so the step cannot fail.  After
+  subtracting the incoming components, the remainder is \(s+3t\), whose
+  residue modulo \(3\) is \(s\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Coordinate decomposition from one scan step]
+  \label{lem:coord_of_scan_step}
+  \lean{Ninegates.coord_of_scan_step}
+  \uses{def:scan_step}
+  A successful scan step from \(\sigma\) on input \(z\) to \(\tau\)
+  provides a triplet count \(t\) such that
+  \(z=\sigma_1+\sigma_2+\tau_2+3t\), and the first component of
+  \(\tau\) is the second component of \(\sigma\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Success means \(z\) is at least the two incoming components.  Divide the
+  residual by \(3\); the quotient is \(t\), and the remainder is exactly
+  the new run-start component.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Scan equals generalized decomposition]
+  \label{lem:scan_iff_scan_decomp}
+  \lean{Ninegates.scan_iff_scanDecomp}
+  \uses{def:scan,def:scan_decomp,def:counts_cons,lem:scan_step_of_coord,lem:coord_of_scan_step,lem:scan_out1_cons,lem:scan_out2_cons,lem:scan_out1_tail,lem:scan_out2_tail,lem:scan_prev2_cons_succ,lem:scan_prev1_cons_succ,lem:scan_prev2_tail,lem:scan_prev1_tail}
+  A scan of a vector from \(\sigma\) to \(\tau\) succeeds if and only if
+  the vector admits the generalized coordinate decomposition from
+  \(\sigma\) to \(\tau\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Induct on the vector length.  The empty case records that the initial
+  and final states coincide.  For a nonempty vector, a successful first
+  scan step gives the head triplet count and head start; the induction
+  hypothesis handles the tail, and the shift lemmas translate tail
+  coordinates and final outputs back to the original vector.  Conversely,
+  the head coordinate decomposition forces the first scan step to succeed,
+  and the tail shift lemmas provide the decomposition needed by the
+  induction hypothesis.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Run cover at one coordinate]
+  \label{lem:run_cover_at}
+  \lean{Ninegates.run_cover_at}
+  \uses{lem:sum_if_fin_val_eq}
+  For any coordinate \(i\), the finite sum over all run starts whose
+  length-three window covers \(i\) has only the three possible
+  contributors starting at \(i\), \(i-1\), and \(i-2\), with any
+  out-of-range contributor interpreted as zero.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  A start \(j\) covers \(i\) precisely when \(j\leq i\leq j+2\), which is
+  equivalent to \(j\in\{i,i-1,i-2\}\).  Split the sum into these singleton
+  possibilities and use the out-of-range case of the singleton-sum lemma
+  for nonexistent starts.
+\end{proof}
+
+\begin{theorem}\leanok
+[Canonical scan characterizes meldability]
+  \label{thm:meldable_iff_scan}
+  \lean{Ninegates.meldable_iff_scanAccepts}
+  \uses{def:meldable,def:scan_accepts,def:scan_decomp,lem:scan_iff_scan_decomp,lem:run_cover_at}
+  % SOURCE: half-formal.qmd, #lem-recurrence (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “非负整数向量 $d=(d_1,\ldots,d_m)$ 可面子分解，当且仅当 @def-canonical-scan 中的规范扫描接受 $d$。”
+  \textit{Source: half-formal.qmd, Lemma \texttt{\#lem-recurrence}.}
+  A count vector is meldable if and only if its canonical scan is
+  accepted.
+\end{theorem}
+% SOURCE QUOTE PROOF: “假设 $d$ 可面子分解。于是存在刻子计数 $t_i$ 与顺子计数 $r_i$，满足 @def-meldable 中的逐坐标等式。首先把这个分解规范化。若某个 $r_i\ge3$，则三组相同的顺子 $(i,i+1,i+2)$ 可以替换为三个刻子 $(i,i,i)$、$(i+1,i+1,i+1)$、$(i+2,i+2,i+2)$。这个替换不改变任何点数的总张数，并把 $r_i$ 减少 $3$。对每个顺子起点 $i$ 重复这一操作，最终得到另一个分解，使得 $0\le r_i\le2$ 对所有 $i$ 成立。这个过程必然终止，因为每次替换都会使非负整数 $\sum_i r_i$ 减少 $3$。现在从左到右考察这个规范分解。在点数 $i$ 处，从 $i-2$ 与 $i-1$ 开始的顺子已经确定占用 $r_{i-2}+r_{i-1}$ 张点数 $i$。因为这是一个合法分解，必有 $r_{i-2}+r_{i-1}\le d_i$。去掉这些已经承诺给早先顺子的牌，剩余牌数为 $u_i=d_i-r_{i-2}-r_{i-1}$。剩余牌只能用于两类面子：点数 $i$ 的刻子，以及从 $i$ 开始的顺子。因此 $u_i=3t_i+r_i$。又因为 $0\le r_i\le2$，所以 $r_i$ 必定等于 $u_i$ 除以 $3$ 的最小非负余数。也就是说，只要扫描在此前各坐标产生了 $s_{i-2}=r_{i-2}$ 与 $s_{i-1}=r_{i-1}$，它在当前坐标就必然产生 $s_i=r_i$。从初始条件 $s_{-1}=s_0=r_{-1}=r_0=0$ 出发，用归纳法得到扫描在每一步都不会失败，而且对所有 $i$ 都有 $s_i=r_i$。顺子不能从点数 $m-1$ 或 $m$ 开始，因此按下标约定， $r_{m-1}=r_m=0$。于是 $s_{m-1}=s_m=0$，扫描接受 $d$。反过来，假设扫描接受 $d$。对每个 $i$，扫描未失败保证 $u_i=d_i-s_{i-2}-s_{i-1}\ge0$。由于 $s_i$ 是 $u_i$ 除以 $3$ 的余数， $u_i-s_i$ 是非负的 $3$ 的倍数。因此 $t_i=(u_i-s_i)/3$ 是非负整数。整理 $u_i$ 的定义可得 $$d_i=3t_i+s_i+s_{i-1}+s_{i-2}. \tag{2}$$ 扫描接受还给出 $s_{m-1}=s_m=0$。因此可以把 $s_i$ 视为从 $i$ 开始的顺子数：在最后两个点数处没有顺子越出范围。式 (2) 正是 @def-meldable 所要求的逐坐标等式，所以 $t_i$ 与 $s_i$ 构成 $d$ 的一个合法面子分解。”
+\begin{proof}
+
+\leanok
+  First suppose a meld decomposition is given.  At each run start, replace
+  groups of three identical runs by one triplet at each of their three
+  ranks.  This preserves the count vector and leaves every run count in
+  \(\{0,1,2\}\).  Inducting from left to right, the two incoming run counts
+  are exactly the scan state.  After subtracting them, the residual is
+  \(3t_i+r_i\), so its residue modulo \(3\) is the normalized run count
+  \(r_i\).  The scan therefore follows these run counts, never fails, and
+  ends at zero because no run starts in either of the final two positions.
+
+  Conversely, suppose the scan accepts.  At coordinate \(i\), let \(s_i\)
+  be the new second state component and let
+  \(u_i=d_i-s_{i-2}-s_{i-1}\).  Nonfailure gives \(u_i\geq0\), and the
+  transition rule makes \(u_i-s_i\) a nonnegative multiple of \(3\).
+  Set \(t_i=(u_i-s_i)/3\).  Then
+  \[
+    d_i=3t_i+s_i+s_{i-1}+s_{i-2}.
+  \]
+  Acceptance says the final two run counts are zero, so these \(t_i,s_i\)
+  form a legal meld decomposition.
+
+  In the finite-vector implementation, package the recurrence as the
+  generalized decomposition from Lemma~\ref{lem:scan_iff_scan_decomp}.  In
+  the forward direction, replace every original run count \(r_j\) by its
+  residue \(r_j\bmod 3\) plus \(3\lfloor r_j/3\rfloor\); the quotient
+  contributions are absorbed into the triplet counts.  In the reverse
+  direction, Lemma~\ref{lem:run_cover_at} rewrites the original meldability
+  cover sum at coordinate \(i\) as exactly the incoming starts from
+  \(i-2\), \(i-1\), and \(i\).  The final two output equalities ensure
+  that no run starts in the two invalid right-end positions.
+\end{proof}
+
+\begin{lemma}\leanok
+[Reading one singleton]
+  \label{lem:scan_step_one}
+  \lean{Ninegates.scanStep_one}
+  \uses{def:scan_state,def:scan_step}
+  % SOURCE: half-formal.qmd, #lem-three-ones-state (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “规范扫描读入一个重数为 $1$ 的坐标时，可行输入状态恰好是 $(0,0),(0,1),(1,0)$，相应的状态转移为 $$(0,0)\longmapsto(0,1),\qquad (0,1)\longmapsto(1,0),\qquad (1,0)\longmapsto(0,0).$$”
+  \textit{Source: half-formal.qmd, Lemma \texttt{\#lem-three-ones-state}.}
+  A scan step on input \(1\) succeeds exactly from
+  \((0,0),(0,1),(1,0)\), and maps these states respectively to
+  \((0,1),(1,0),(0,0)\).
+\end{lemma}
+% SOURCE QUOTE PROOF: “设当前输入状态为 $(a,b)$，当前重数为 $1$。可行性要求 $a+b\le1$。又因为规范扫描中的状态分量属于 $\{0,1,2\}$，满足此不等式的状态只有 $(0,0),(0,1),(1,0)$。逐一代入 @def-canonical-scan： - 从 $(0,0)$ 出发，$u=1$，新顺子数为 $1\bmod3=1$，故输出 $(0,1)$； - 从 $(0,1)$ 出发，$u=0$，新顺子数为 $0$，故输出 $(1,0)$； - 从 $(1,0)$ 出发，$u=0$，新顺子数为 $0$，故输出 $(0,0)$。”
+\begin{proof}
+
+\leanok
+  Success requires \(a+b\leq1\).  Since both components lie in
+  \(\{0,1,2\}\), this leaves exactly the three displayed states.
+  Substitution in the transition formula gives the stated three-cycle.
+\end{proof}
+
+\begin{lemma}\leanok
+[Three singletons preserve scan state]
+  \label{lem:scan_three_ones}
+  \lean{Ninegates.scan_three_ones}
+  \uses{def:scan,lem:scan_step_one}
+  % SOURCE: half-formal.qmd, #lem-three-ones-state (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “因此，如果从某一状态开始能够连续读入三个重数 $1$，那么读完后回到原状态。换言之，单词 $(1,1,1)$ 在其可行状态域上作用为恒等映射。”
+  \textit{Source: half-formal.qmd, Lemma \texttt{\#lem-three-ones-state}.}
+  If a scan starting from state \(\sigma\) can read three consecutive
+  inputs \(1,1,1\), its state after those inputs is again \(\sigma\).
+\end{lemma}
+% SOURCE QUOTE PROOF: “这三个状态组成一个长度为 $3$ 的循环，所以连续应用三次后回到原状态。”
+\begin{proof}
+
+\leanok
+  By Lemma~\ref{lem:scan_step_one}, every successful state belongs to the
+  displayed three-cycle.  Applying that cycle three times is the identity.
+\end{proof}

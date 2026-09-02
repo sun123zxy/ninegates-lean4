@@ -1,0 +1,239 @@
+\chapter{Reduction to finitely many sizes}
+
+\begin{definition}\leanok
+[Nonstandard counterexample at a size]
+  \label{def:counterexample_at}
+  \lean{Ninegates.CounterexampleAt}
+  \uses{def:live_wait,def:standard}
+  % SOURCE: half-formal.qmd, “把任意反例压缩到有限规模” (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “称一个非空听的 $n$ 面听牌型为**非标准牌型**，如果它不等于 $G_n=(3,1,\ldots,1,3)$。”
+  \textit{Source: half-formal.qmd, finite-size reduction section.}
+  A counterexample at size \(n\) is a count vector \(c\) that is a live
+  all-rank wait and is not equal to \(G_n\).
+\end{definition}
+
+\begin{definition}\leanok
+[The finite set of small sizes]
+  \label{def:small_sizes}
+  \lean{Ninegates.smallSizes}
+  % SOURCE: half-formal.qmd, #lem-bound (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “那么存在 $n_0\in\{6,9,12,15,18,21\}$，以及一个非标准的非空听 $n_0$ 面听牌型。”
+  \textit{Source: half-formal.qmd, Lemma \texttt{\#lem-bound}.}
+  Define
+  \[
+    \mathcal S=\{6,9,12,15,18,21\}.
+  \]
+\end{definition}
+
+\begin{definition}
+
+\leanok
+[Internal-coordinate embedding]
+  \label{def:internal_embedding}
+  \lean{Ninegates.internalEmbedding}
+  For \(n\) ranks, the internal coordinate indexed by \(r\in\{0,\ldots,n-3\}\)
+  is the original coordinate \(r+1\).  This gives an injective map from
+  \(n-2\) auxiliary indices into the coordinates of the original hand.
+\end{definition}
+
+\begin{definition}
+
+\leanok
+[The finite set of internal coordinates]
+  \label{def:internal_indices}
+  \lean{Ninegates.internalIndices}
+  \uses{def:internal_embedding}
+  The set of internal coordinates is the image of the preceding embedding.
+  Equivalently, it is the finite set of coordinates strictly between the two
+  endpoints.
+\end{definition}
+
+\begin{lemma}
+
+\leanok
+[Membership in the internal-coordinate set]
+  \label{lem:mem_internal_indices}
+  \lean{Ninegates.mem_internalIndices}
+  \uses{def:internal_indices,def:internal_embedding}
+  A coordinate \(i\) belongs to the internal-coordinate set exactly when
+  \(1\leq i\) and \(i+1<n\), in zero-based indexing.
+\end{lemma}
+\begin{proof}
+
+\leanok
+  If \(i\) is in the image, then \(i=r+1\), so it is not the first coordinate
+  and the bound on \(r\) shows it is not the last.  Conversely, from
+  \(1\leq i\) and \(i+1<n\), the auxiliary index \(i-1\) lies in
+  \(\{0,\ldots,n-3\}\) and maps back to \(i\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Cardinality of the internal-coordinate set]
+  \label{lem:card_internal_indices}
+  \lean{Ninegates.card_internalIndices}
+  \uses{def:internal_indices,def:internal_embedding}
+  The number of internal coordinates is \(n-2\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  The internal-coordinate set is the image of an injective map from a finite
+  type with \(n-2\) elements, so its cardinality is \(n-2\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Small admissible sizes are exactly the listed sizes below twenty-three]
+  \label{lem:small_sizes_mem_of_admissible_le_22}
+  \lean{Ninegates.smallSizes_mem_of_admissible_le_22}
+  \uses{def:small_sizes}
+  If \(6\leq n\), \(3\mid n\), and \(n\leq22\), then
+  \(n\in\mathcal S=\{6,9,12,15,18,21\}\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Write \(n=3k\).  The inequalities give \(2\leq k\leq7\), and checking these
+  six possible values of \(k\) gives precisely the six elements of
+  \(\mathcal S\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[The total internal excess is at most six]
+  \label{lem:internal_excess_le_six}
+  \lean{Ninegates.internal_excess_le_six}
+  \uses{def:internal_indices,lem:mem_internal_indices,lem:card_internal_indices,def:live_wait,def:total,thm:interior_positive}
+  Let \(c\) be a live all-rank wait at an admissible size \(n\).  Then
+  \[
+    \sum_{\text{internal }i}(c_i-1)\leq6.
+  \]
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Interior positivity gives \(1\leq c_i\) on every internal coordinate, hence
+  \((c_i-1)+1=c_i\) there.  Therefore
+  \[
+    \sum_{\text{internal }i}(c_i-1)+(n-2)
+      =\sum_{\text{internal }i}c_i.
+  \]
+  The internal sum is bounded by the total tile count, which is \(n+4\) for a
+  live all-rank wait.  Subtracting the \(n-2\) internal coordinates gives the
+  bound \(6\).
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Exceptional internal coordinates are bounded by internal excess]
+  \label{lem:exception_card_le_internal_excess}
+  \lean{Ninegates.exception_card_le_internal_excess}
+  \uses{def:internal_indices}
+  Suppose every internal coordinate of \(c\) has multiplicity at least \(1\).
+  Then the number of internal coordinates with \(c_i\ne1\) is at most
+  \[
+    \sum_{\text{internal }i}(c_i-1).
+  \]
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Let \(E\) be the internal coordinates where \(c_i\ne1\).  Each \(i\in E\)
+  has \(c_i\geq1\) and is not equal to \(1\), so \(c_i-1\geq1\).  Summing over
+  \(E\) gives \(|E|\leq\sum_{i\in E}(c_i-1)\), and enlarging the finite set to
+  all internal coordinates can only increase the nonnegative sum.
+\end{proof}
+
+\begin{lemma}
+
+\leanok
+[Seven fixed blocks force seven exceptional coordinates]
+  \label{lem:seven_le_exception_card_of_no_three}
+  \lean{Ninegates.seven_le_exception_card_of_no_three}
+  \uses{def:internal_indices,lem:mem_internal_indices}
+  If \(24\leq n\) and there is no internal block of three consecutive
+  coordinates all equal to \(1\), then at least seven internal coordinates
+  satisfy \(c_i\ne1\).
+\end{lemma}
+\begin{proof}
+
+\leanok
+  Consider the seven disjoint internal blocks
+  \([1,4),[4,7),\ldots,[19,22)\) in zero-based coordinates.  Each block is
+  contained in the internal coordinates when \(24\leq n\).  Since no block of
+  length three is entirely made of \(1\)'s, choose one coordinate in each block
+  where \(c_i\ne1\).  The blocks are disjoint, so these seven choices are
+  distinct exceptional internal coordinates.
+\end{proof}
+
+\begin{theorem}\leanok
+[Minimal counterexample size bound]
+  \label{thm:counterexample_size_bound}
+  \lean{Ninegates.counterexample_size_bound}
+  \uses{def:counterexample_at,def:small_sizes,lem:small_sizes_mem_of_admissible_le_22,lem:mem_internal_indices,lem:internal_excess_le_six,lem:exception_card_le_internal_excess,lem:seven_le_exception_card_of_no_three,thm:interior_positive,thm:delete_three_live_wait,thm:delete_three_standard}
+  % SOURCE: half-formal.qmd, #lem-bound (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “假设存在某个 $n\ge6$，其中 $3\mid n$，并存在一个非标准的非空听 $n$ 面听牌型。那么存在 $n_0\in\{6,9,12,15,18,21\}$，以及一个非标准的非空听 $n_0$ 面听牌型。”
+  \textit{Source: half-formal.qmd, Lemma \texttt{\#lem-bound}.}
+  If there is a counterexample at some \(n\geq6\) divisible by \(3\),
+  then there is an \(n_0\in\mathcal S\) at which a counterexample exists.
+\end{theorem}
+% SOURCE QUOTE PROOF: “假设反例集合非空。考虑所有出现反例的规模 $$\mathcal N=\left\{n\in\mathbb N:n\ge6,\ 3\mid n,\ \text{存在一个规模为 $n$ 的非标准全听牌型}\right\}.$$ 由自然数的良序性，$\mathcal N$ 有最小元素。记这个最小规模为 $n$，并固定一个规模为 $n$ 的非标准全听牌型 $c=(c_1,\ldots,c_n)$。如果 $n=6$，那么结论已经成立。以下设 $n>6$。由于 $3\mid n$，必有 $n\ge9$，所以 @lem-delete 可以用于 $c$。由 @lem-interior-positive，对每个内部坐标 $i\in\{2,\ldots,n-1\}$，都有 $1\le c_i\le3$。我们断言，内部序列 $c_2,c_3,\ldots,c_{n-1}$ 不含三个连续的 $1$。反设存在 $j$ 满足 $2\le j\le n-3$ 且 $c_j=c_{j+1}=c_{j+2}=1$。由 @lem-delete，删除这三个坐标得到一个非空听的 $(n-3)$ 面听牌型 $c'$。又因为 $n-3\ge6$、$3\mid(n-3)$，而 $n$ 是出现反例的最小规模，所以 $c'$ 不可能是非标准牌型，即 $c'=(3,1,\ldots,1,3)$。但 @lem-delete 的最后一个等价性随即推出 $c=(3,1,\ldots,1,3)$，与 $c$ 非标准矛盾。因此内部确实不存在三个连续的 $1$。下面估计内部长度。定义内部异常坐标集合 $E=\{i\in\{2,\ldots,n-1\}:c_i\ne1\}$，并令 $k=\#E$。由内部正性，对每个内部坐标都有 $c_i-1\ge0$；而当 $i\in E$ 时，$c_i\in\{2,3\}$，所以 $c_i-1\ge1$。因此 $$k\le\sum_{i=2}^{n-1}(c_i-1). \tag{10}$$ 利用总牌数条件计算右侧： $$\begin{aligned} \sum_{i=2}^{n-1}(c_i-1) &=\sum_{i=2}^{n-1}c_i-(n-2)\\ &=\left(\sum_{i=1}^{n}c_i-c_1-c_n\right)-(n-2)\\ &=(n+4-c_1-c_n)-(n-2)\\ &=6-c_1-c_n\\ &\le6. \end{aligned}$$ 最后一步使用 $c_1,c_n\ge0$。结合式 (10)，得到 $k\le6$。将内部序列按 $k$ 个异常坐标切开。若这些异常坐标依次为 $i_1<i_2<\cdots<i_k$，则内部的 $1$ 被分成至多 $k+1$ 段： 1. $i_1$ 之前的一段； 2. 每两个相邻异常坐标之间的一段，共 $k-1$ 段； 3. $i_k$ 之后的一段。当 $k=0$ 时，整个内部序列本身视为唯一的一段。因为已经证明不存在三个连续的 $1$，每一段的长度都至多为 $2$。所以内部坐标总数满足 $$n-2\le\underbrace{k}_{\text{异常坐标}}+\underbrace{2(k+1)}_{\text{至多 }k+1\text{ 段，每段至多两个 }1}=3k+2.$$ 由于 $k\le6$，可得 $n-2\le3\cdot6+2=20$，从而 $n\le22$。最后结合 $n\ge6$、$3\mid n$ 与 $n\le22$，可知 $n\in\{6,9,12,15,18,21\}$。我们选取的最小反例本身已经落在这个集合中，因此结论成立。”
+\begin{proof}
+
+\leanok
+  Choose the least size \(n\geq6\), divisible by \(3\), at which a
+  counterexample \(c\) exists.  If \(n=6\), there is nothing to prove.
+  Otherwise \(n\geq9\).
+
+  Every internal coordinate lies between \(1\) and \(3\) by
+  Theorem~\ref{thm:interior_positive}.  There cannot be three consecutive
+  internal coordinates equal to \(1\): deleting such a block would give a
+  live all-rank wait of size \(n-3\).  Minimality would force the shortened
+  hand to be standard, and
+  Theorem~\ref{thm:delete_three_standard} would then force \(c\) itself to
+  be standard, a contradiction.
+
+  Let \(E\) be the set of internal coordinates whose multiplicity is not
+  \(1\), and put \(k=|E|\).  Positivity and the upper bound \(3\) imply
+  that every member of \(E\) contributes at least \(1\) to
+  \(\sum_{i=2}^{n-1}(c_i-1)\).  Hence
+  \[
+    k\leq\sum_{i=2}^{n-1}(c_i-1)
+      =(n+4-c_1-c_n)-(n-2)
+      =6-c_1-c_n\leq6.
+  \]
+  The \(k\) exceptional positions divide the remaining \(1\)'s into at
+  most \(k+1\) blocks.  Since no block has length \(3\), each has length
+  at most \(2\), and therefore
+  \[
+    n-2\leq k+2(k+1)=3k+2\leq20.
+  \]
+  Thus \(n\leq22\).  Combining \(6\leq n\), \(3\mid n\), and
+  \(n\leq22\) yields \(n\in\{6,9,12,15,18,21\}\), as required.
+\end{proof}
+
+\begin{corollary}\leanok
+[Small-size exclusion implies global exclusion]
+  \label{cor:no_counterexample}
+  \lean{Ninegates.no_counterexample_of_small}
+  \uses{def:counterexample_at,def:small_sizes,thm:counterexample_size_bound}
+  % SOURCE: half-formal.qmd, equivalent form following #lem-bound (read from references/half-formal.qmd)
+  % SOURCE QUOTE: “等价地说：若在所有 $n\in\{6,9,12,15,18,21\}$ 中都不存在反例，则在任何满足 $n\ge6$ 且 $3\mid n$ 的规模中都不存在反例。”
+  \textit{Source: half-formal.qmd, equivalent form following Lemma
+  \texttt{\#lem-bound}.}
+  If no size in \(\mathcal S\) admits a counterexample, then no
+  \(n\geq6\) divisible by \(3\) admits one.
+\end{corollary}
+% SOURCE QUOTE PROOF: “等价地说：若在所有 $n\in\{6,9,12,15,18,21\}$ 中都不存在反例，则在任何满足 $n\ge6$ 且 $3\mid n$ 的规模中都不存在反例。”
+\begin{proof}
+
+\leanok
+  If a counterexample existed at an admissible size, apply
+  Theorem~\ref{thm:counterexample_size_bound} to obtain one at a size in
+  \(\mathcal S\), contradicting the hypothesis.
+\end{proof}

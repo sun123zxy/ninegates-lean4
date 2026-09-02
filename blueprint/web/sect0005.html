@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+  MathJax = { 
+    tex: {
+		    inlineMath: [['$','$'], ['\\(','\\)']]
+	} }
+</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<meta name="generator" content="plasTeX" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Reduction to finitely many sizes</title>
+<link rel="next" href="sect0006.html" title="Root module" />
+<link rel="prev" href="sect0004.html" title="Interior positivity and deletion" />
+<link rel="up" href="index.html" title="ninegates" />
+<link rel="stylesheet" href="styles/theme-white.css" />
+<link rel="stylesheet" href="styles/amsthm.css" />
+<link rel="stylesheet" href="styles/showmore.css" />
+<link rel="stylesheet" href="styles/blueprint.css" />
+<link rel="stylesheet" href="styles/extra_styles.css" />
+</head>
+
+<body>
+<header>
+<svg  id="toc-toggle" class="icon icon-list-numbered "><use xlink:href="symbol-defs.svg#icon-list-numbered"></use></svg>
+<h1 id="doc_title"><a href="index.html">ninegates</a></h1>
+</header>
+
+<div class="wrapper">
+<nav class="toc">
+<ul class="sub-toc-0">
+<li class="">
+  <a href="sect0001.html"><span class="toc_ref">1</span> <span class="toc_entry">Legacy starter module</span></a>
+ </li>
+<li class="">
+  <a href="sect0002.html"><span class="toc_ref">2</span> <span class="toc_entry">The finite tile-count model</span></a>
+ </li>
+<li class="">
+  <a href="sect0003.html"><span class="toc_ref">3</span> <span class="toc_entry">Rank sums and the canonical scan</span></a>
+ </li>
+<li class="">
+  <a href="sect0004.html"><span class="toc_ref">4</span> <span class="toc_entry">Interior positivity and deletion</span></a>
+ </li>
+<li class=" active current">
+  <a href="sect0005.html"><span class="toc_ref">5</span> <span class="toc_entry">Reduction to finitely many sizes</span></a>
+ </li>
+<li class="">
+  <a href="sect0006.html"><span class="toc_ref">6</span> <span class="toc_entry">Root module</span></a>
+ </li>
+<li ><a href="dep_graph_document.html">Dependency graph</a></li>
+</ul>
+</nav>
+
+<div class="content">
+<div class="content-wrapper">
+
+
+<div class="main-text">
+<h1 id="a0000000006">5 Reduction to finitely many sizes</h1>
+<div class="definition_thmwrapper theorem-style-definition" id="def:counterexample_at">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">88</span>
+    <div class="thm_header_extras">
+
+    
+    ✓
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="sect0005.html#def:counterexample_at">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="sect0002.html#def:live_wait">Definition 7</a></li>
+          
+          <li><a href="sect0002.html#def:standard">Definition 8</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="/find/#doc/Ninegates.CounterexampleAt" class="lean_decl">Ninegates.CounterexampleAt</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>[Nonstandard counterexample at a size]    <i class="itshape">Source: half-formal.qmd, finite-size reduction section.</i> A counterexample at size \(n\) is a count vector \(c\) that is a live all-rank wait and is not equal to \(G_n\). </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:small_sizes">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">89</span>
+    <div class="thm_header_extras">
+
+    
+    ✓
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="sect0005.html#def:small_sizes">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="/find/#doc/Ninegates.smallSizes" class="lean_decl">Ninegates.smallSizes</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>[The finite set of small sizes]   <i class="itshape">Source: half-formal.qmd, Lemma <span class="ttfamily">#lem-bound</span>.</i> Define </p>
+<div class="displaymath" id="a0000000080">
+  \[  \mathcal S=\{ 6,9,12,15,18,21\} .  \]
+</div>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:internal_embedding">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">90</span>
+    <div class="thm_header_extras">
+
+    
+    ✓
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="sect0005.html#def:internal_embedding">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="/find/#doc/Ninegates.internalEmbedding" class="lean_decl">Ninegates.internalEmbedding</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>[Internal-coordinate embedding]   For \(n\) ranks, the internal coordinate indexed by \(r\in \{ 0,\ldots ,n-3\} \) is the original coordinate \(r+1\). This gives an injective map from \(n-2\) auxiliary indices into the coordinates of the original hand. </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:internal_indices">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">91</span>
+    <div class="thm_header_extras">
+
+    
+    ✓
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="sect0005.html#def:internal_indices">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="sect0005.html#def:internal_embedding">Definition 90</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="/find/#doc/Ninegates.internalIndices" class="lean_decl">Ninegates.internalIndices</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>[The finite set of internal coordinates]    The set of internal coordinates is the image of the preceding embedding. Equivalently, it is the finite set of coordinates strictly between the two endpoints. </p>
+
+  </div>
+</div>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:mem_internal_indices">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">92</span>
+    <div class="thm_header_extras">
+
+    
+    ✓
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="sect0005.html#lem:mem_internal_indices">#</a>
+    
+    <a class="icon proof" href="sect0005.html#a0000000081"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="sect0005.html#def:internal_indices">Definition 91</a></li>
+          
+          <li><a href="sect0005.html#def:internal_embedding">Definition 90</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="/find/#doc/Ninegates.mem_internalIndices" class="lean_decl">Ninegates.mem_internalIndices</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p>[Membership in the internal-coordinate set]    A coordinate \(i\) belongs to the internal-coordinate set exactly when \(1\leq i\) and \(i+1{\lt}n\), in zero-based indexing. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000081">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>If \(i\) is in the image, then \(i=r+1\), so it is not the first coordinate and the bound on \(r\) shows it is not the last. Conversely, from \(1\leq i\) and \(i+1{\lt}n\), the auxiliary index \(i-1\) lies in \(\{ 0,\ldots ,n-3\} \) and maps back to \(i\). </p>
+
+  </div>
+</div>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:card_internal_indices">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">93</span>
+    <div class="thm_header_extras">
+
+    
+    ✓
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="sect0005.html#lem:card_internal_indices">#</a>
+    
+    <a class="icon proof" href="sect0005.html#a0000000082"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="sect0005.html#def:internal_indices">Definition 91</a></li>
+          
+          <li><a href="sect0005.html#def:internal_embedding">Definition 90</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="/find/#doc/Ninegates.card_internalIndices" class="lean_decl">Ninegates.card_internalIndices</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p>[Cardinality of the internal-coordinate set]    The number of internal coordinates is \(n-2\). </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000082">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>The internal-coordinate set is the image of an injective map from a finite type with \(n-2\) elements, so its cardinality is \(n-2\). </p>
+
+  </div>
+</div>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:small_sizes_mem_of_admissible_le_22">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">94</span>
+    <div class="thm_header_extras">
+
+    
+    ✓
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="sect0005.html#lem:small_sizes_mem_of_admissible_le_22">#</a>
+    
+    <a class="icon proof" href="sect0005.html#a0000000083"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="sect0005.html#def:small_sizes">Definition 89</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="/find/#doc/Ninegates.smallSizes_mem_of_admissible_le_22" class="lean_decl">Ninegates.smallSizes_mem_of_admissible_le_22</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p>[Small admissible sizes are exactly the listed sizes below twenty-three]    If \(6\leq n\), \(3\mid n\), and \(n\leq 22\), then \(n\in \mathcal S=\{ 6,9,12,15,18,21\} \). </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000083">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Write \(n=3k\). The inequalities give \(2\leq k\leq 7\), and checking these six possible values of \(k\) gives precisely the six elements of \(\mathcal S\). </p>
+
+  </div>
+</div>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:internal_excess_le_six">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">95</span>
+    <div class="thm_header_extras">
+
+    
+    ✓
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="sect0005.html#lem:internal_excess_le_six">#</a>
+    
+    <a class="icon proof" href="sect0005.html#a0000000084"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="sect0005.html#def:internal_indices">Definition 91</a></li>
+          
+          <li><a href="sect0005.html#lem:mem_internal_indices">Lemma 92</a></li>
+          
+          <li><a href="sect0005.html#lem:card_internal_indices">Lemma 93</a></li>
+          
+          <li><a href="sect0002.html#def:live_wait">Definition 7</a></li>
+          
+          <li><a href="sect0002.html#def:total">Definition 3</a></li>
+          
+          <li><a href="sect0004.html#thm:interior_positive">Theorem 74</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="/find/#doc/Ninegates.internal_excess_le_six" class="lean_decl">Ninegates.internal_excess_le_six</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p>[The total internal excess is at most six]    Let \(c\) be a live all-rank wait at an admissible size \(n\). Then </p>
+<div class="displaymath" id="a0000000085">
+  \[  \sum _{\text{internal }i}(c_i-1)\leq 6.  \]
+</div>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000084">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Interior positivity gives \(1\leq c_i\) on every internal coordinate, hence \((c_i-1)+1=c_i\) there. Therefore </p>
+<div class="displaymath" id="a0000000086">
+  \[  \sum _{\text{internal }i}(c_i-1)+(n-2) =\sum _{\text{internal }i}c_i.  \]
+</div>
+<p> The internal sum is bounded by the total tile count, which is \(n+4\) for a live all-rank wait. Subtracting the \(n-2\) internal coordinates gives the bound \(6\). </p>
+
+  </div>
+</div>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:exception_card_le_internal_excess">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">96</span>
+    <div class="thm_header_extras">
+
+    
+    ✓
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="sect0005.html#lem:exception_card_le_internal_excess">#</a>
+    
+    <a class="icon proof" href="sect0005.html#a0000000087"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="sect0005.html#def:internal_indices">Definition 91</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="/find/#doc/Ninegates.exception_card_le_internal_excess" class="lean_decl">Ninegates.exception_card_le_internal_excess</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p>[Exceptional internal coordinates are bounded by internal excess]    Suppose every internal coordinate of \(c\) has multiplicity at least \(1\). Then the number of internal coordinates with \(c_i\ne 1\) is at most </p>
+<div class="displaymath" id="a0000000088">
+  \[  \sum _{\text{internal }i}(c_i-1).  \]
+</div>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000087">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Let \(E\) be the internal coordinates where \(c_i\ne 1\). Each \(i\in E\) has \(c_i\geq 1\) and is not equal to \(1\), so \(c_i-1\geq 1\). Summing over \(E\) gives \(|E|\leq \sum _{i\in E}(c_i-1)\), and enlarging the finite set to all internal coordinates can only increase the nonnegative sum. </p>
+
+  </div>
+</div>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:seven_le_exception_card_of_no_three">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">97</span>
+    <div class="thm_header_extras">
+
+    
+    ✓
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="sect0005.html#lem:seven_le_exception_card_of_no_three">#</a>
+    
+    <a class="icon proof" href="sect0005.html#a0000000089"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="sect0005.html#def:internal_indices">Definition 91</a></li>
+          
+          <li><a href="sect0005.html#lem:mem_internal_indices">Lemma 92</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="/find/#doc/Ninegates.seven_le_exception_card_of_no_three" class="lean_decl">Ninegates.seven_le_exception_card_of_no_three</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p>[Seven fixed blocks force seven exceptional coordinates]    If \(24\leq n\) and there is no internal block of three consecutive coordinates all equal to \(1\), then at least seven internal coordinates satisfy \(c_i\ne 1\). </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000089">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Consider the seven disjoint internal blocks \([1,4),[4,7),\ldots ,[19,22)\) in zero-based coordinates. Each block is contained in the internal coordinates when \(24\leq n\). Since no block of length three is entirely made of \(1\)’s, choose one coordinate in each block where \(c_i\ne 1\). The blocks are disjoint, so these seven choices are distinct exceptional internal coordinates. </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:counterexample_size_bound">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">98</span>
+    <div class="thm_header_extras">
+
+    
+    ✓
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="sect0005.html#thm:counterexample_size_bound">#</a>
+    
+    <a class="icon proof" href="sect0005.html#a0000000090"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="sect0005.html#def:counterexample_at">Definition 88</a></li>
+          
+          <li><a href="sect0005.html#def:small_sizes">Definition 89</a></li>
+          
+          <li><a href="sect0005.html#lem:small_sizes_mem_of_admissible_le_22">Lemma 94</a></li>
+          
+          <li><a href="sect0005.html#lem:mem_internal_indices">Lemma 92</a></li>
+          
+          <li><a href="sect0005.html#lem:internal_excess_le_six">Lemma 95</a></li>
+          
+          <li><a href="sect0005.html#lem:exception_card_le_internal_excess">Lemma 96</a></li>
+          
+          <li><a href="sect0005.html#lem:seven_le_exception_card_of_no_three">Lemma 97</a></li>
+          
+          <li><a href="sect0004.html#thm:interior_positive">Theorem 74</a></li>
+          
+          <li><a href="sect0004.html#thm:delete_three_live_wait">Theorem 86</a></li>
+          
+          <li><a href="sect0004.html#thm:delete_three_standard">Theorem 87</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="/find/#doc/Ninegates.counterexample_size_bound" class="lean_decl">Ninegates.counterexample_size_bound</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>[Minimal counterexample size bound]    <i class="itshape">Source: half-formal.qmd, Lemma <span class="ttfamily">#lem-bound</span>.</i> If there is a counterexample at some \(n\geq 6\) divisible by \(3\), then there is an \(n_0\in \mathcal S\) at which a counterexample exists. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000090">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Choose the least size \(n\geq 6\), divisible by \(3\), at which a counterexample \(c\) exists. If \(n=6\), there is nothing to prove. Otherwise \(n\geq 9\). </p>
+<p>Every internal coordinate lies between \(1\) and \(3\) by Theorem&#160;<a href="sect0004.html#thm:interior_positive">74</a>. There cannot be three consecutive internal coordinates equal to \(1\): deleting such a block would give a live all-rank wait of size \(n-3\). Minimality would force the shortened hand to be standard, and Theorem&#160;<a href="sect0004.html#thm:delete_three_standard">87</a> would then force \(c\) itself to be standard, a contradiction. </p>
+<p>Let \(E\) be the set of internal coordinates whose multiplicity is not \(1\), and put \(k=|E|\). Positivity and the upper bound \(3\) imply that every member of \(E\) contributes at least \(1\) to \(\sum _{i=2}^{n-1}(c_i-1)\). Hence </p>
+<div class="displaymath" id="a0000000091">
+  \[  k\leq \sum _{i=2}^{n-1}(c_i-1) =(n+4-c_1-c_n)-(n-2) =6-c_1-c_n\leq 6.  \]
+</div>
+<p> The \(k\) exceptional positions divide the remaining \(1\)’s into at most \(k+1\) blocks. Since no block has length \(3\), each has length at most \(2\), and therefore </p>
+<div class="displaymath" id="a0000000092">
+  \[  n-2\leq k+2(k+1)=3k+2\leq 20.  \]
+</div>
+<p> Thus \(n\leq 22\). Combining \(6\leq n\), \(3\mid n\), and \(n\leq 22\) yields \(n\in \{ 6,9,12,15,18,21\} \), as required. </p>
+
+  </div>
+</div>
+<div class="corollary_thmwrapper theorem-style-plain" id="cor:no_counterexample">
+  <div class="corollary_thmheading">
+    <span class="corollary_thmcaption">
+    Corollary
+    </span>
+    <span class="corollary_thmlabel">99</span>
+    <div class="thm_header_extras">
+
+    
+    ✓
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="sect0005.html#cor:no_counterexample">#</a>
+    
+    <a class="icon proof" href="sect0005.html#a0000000093"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="sect0005.html#def:counterexample_at">Definition 88</a></li>
+          
+          <li><a href="sect0005.html#def:small_sizes">Definition 89</a></li>
+          
+          <li><a href="sect0005.html#thm:counterexample_size_bound">Theorem 98</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="/find/#doc/Ninegates.no_counterexample_of_small" class="lean_decl">Ninegates.no_counterexample_of_small</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="corollary_thmcontent">
+  <p>[Small-size exclusion implies global exclusion]    <i class="itshape">Source: half-formal.qmd, equivalent form following Lemma <span class="ttfamily">#lem-bound</span>.</i> If no size in \(\mathcal S\) admits a counterexample, then no \(n\geq 6\) divisible by \(3\) admits one. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000093">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>If a counterexample existed at an admissible size, apply Theorem&#160;<a href="sect0005.html#thm:counterexample_size_bound">98</a> to obtain one at a size in \(\mathcal S\), contradicting the hypothesis. </p>
+
+  </div>
+</div>
+
+</div> <!--main-text -->
+</div> <!-- content-wrapper -->
+</div> <!-- content -->
+</div> <!-- wrapper -->
+
+<nav class="prev_up_next">
+  <svg  id="showmore-minus" class="icon icon-eye-minus showmore"><use xlink:href="symbol-defs.svg#icon-eye-minus"></use></svg>
+
+  <svg  id="showmore-plus" class="icon icon-eye-plus showmore"><use xlink:href="symbol-defs.svg#icon-eye-plus"></use></svg>
+
+  <a href="sect0004.html" title="Interior positivity and deletion"><svg  class="icon icon-arrow-left "><use xlink:href="symbol-defs.svg#icon-arrow-left"></use></svg>
+</a>
+  <a href="index.html" title="ninegates"><svg  class="icon icon-arrow-up "><use xlink:href="symbol-defs.svg#icon-arrow-up"></use></svg>
+</a>
+  <a href="sect0006.html" title="Root module"><svg  class="icon icon-arrow-right "><use xlink:href="symbol-defs.svg#icon-arrow-right"></use></svg>
+</a>
+</nav>
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/plastex.js"></script>
+<script type="text/javascript" src="js/svgxuse.js"></script>
+<script type="text/javascript" src="js/js.cookie.min.js"></script>
+<script type="text/javascript" src="js/showmore.js"></script>
+</body>
+</html>

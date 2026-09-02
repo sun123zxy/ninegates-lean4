@@ -1,0 +1,3121 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dependency graph</title>
+  <meta name="generator" content="plasTeX" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles/theme-white.css" />
+  <link rel="stylesheet" href="styles/dep_graph.css" />
+  
+  <script type="text/x-mathjax-config">
+  
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+  
+  </script>
+
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">  </script>
+
+
+<link rel="stylesheet" href="styles/extra_styles.css" />
+
+</head>
+
+<body>
+<header>
+  <a class="toc" href="index.html">Home</a>
+  <h1 id="doc_title">Dependencies</h1>
+</header>
+<div class="wrapper">
+<div class="content">
+  <div id="Legend">
+    <span id="legend_title" class="title">Legend
+    <div class="btn">
+       <div class="bar"></div>
+       <div class="bar"></div>
+       <div class="bar"></div>
+    </div></span> 
+    <dl class="legend">
+      
+      <dt>Boxes</dt><dd>definitions</dd>
+      
+      <dt>Ellipses</dt><dd>theorems and lemmas</dd>
+      
+      <dt>Blue border</dt><dd>the <em>statement</em> of this result is ready to be formalized; all prerequisites are done</dd>
+      
+      <dt>Orange border</dt><dd>the <em>statement</em> of this result is not ready to be formalized; the blueprint needs more work</dd>
+      
+      <dt>Blue background</dt><dd>the <em>proof</em> of this result is ready to be formalized; all prerequisites are done</dd>
+      
+      <dt>Green border</dt><dd>the <em>statement</em> of this result is formalized</dd>
+      
+      <dt>Green background</dt><dd>the <em>proof</em> of this result is formalized</dd>
+      
+      <dt>Dark green background</dt><dd>the <em>proof</em> of this result and all its ancestors are formalized</dd>
+      
+      <dt>Dark green border</dt><dd>this is in Mathlib</dd>
+      
+    </dl>
+  </div>
+    <div id="graph"></div>
+<div id="statements">
+
+    
+    <div class="dep-modal-container" id="cor:no_counterexample_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="cor:no_counterexample" style="display: none">
+    <div class="thm_thmheading">
+      <span class="corollary_thmcaption">
+      Corollary
+      </span>
+      <span class="corollary_thmlabel">99</span></div>
+    <div class="thm_thmcontent"><p>[Small-size exclusion implies global exclusion]    <i class="itshape">Source: half-formal.qmd, equivalent form following Lemma <span class="ttfamily">#lem-bound</span>.</i> If no size in \(\mathcal S\) admits a counterexample, then no \(n\geq 6\) divisible by \(3\) admits one. </p>
+</div>
+
+    <a class="latex_link" href="sect0005.html#cor:no_counterexample">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.no_counterexample_of_small">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:basis_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:basis" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">2</span></div>
+    <div class="thm_thmcontent"><p>[Basis count vector]    <i class="itshape">Source: half-formal.qmd, notation conventions.</i> For \(i\in [n]\), the vector \(e_i\) has value \(1\) at \(i\) and value \(0\) at every other rank. </p>
+</div>
+
+    <a class="latex_link" href="sect0002.html#def:basis">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.basis">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:complete_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:complete" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">6</span></div>
+    <div class="thm_thmcontent"><p>[Complete hand]    <i class="itshape">Source: half-formal.qmd, Definition <span class="ttfamily">#def-complete</span>.</i> A count vector \(w\) is complete if some \(p\in [n]\) satisfies \(w_p\geq 2\) and \(w-2e_p\) is meldable. </p>
+</div>
+
+    <a class="latex_link" href="sect0002.html#def:complete">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.Complete">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:counterexample_at_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:counterexample_at" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">88</span></div>
+    <div class="thm_thmcontent"><p>[Nonstandard counterexample at a size]    <i class="itshape">Source: half-formal.qmd, finite-size reduction section.</i> A counterexample at size \(n\) is a count vector \(c\) that is a live all-rank wait and is not equal to \(G_n\). </p>
+</div>
+
+    <a class="latex_link" href="sect0005.html#def:counterexample_at">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.CounterexampleAt">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:counts_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:counts" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">1</span></div>
+    <div class="thm_thmcontent"><p>[Count vectors]   <i class="itshape">Source: half-formal.qmd, notation conventions.</i> A count vector of length \(n\) is a function \(c:[n]\to \mathbb N\). Its value \(c_i\) is the multiplicity of rank \(i\). </p>
+</div>
+
+    <a class="latex_link" href="sect0002.html#def:counts">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.Counts">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:counts_cons_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:counts_cons" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">25</span></div>
+    <div class="thm_thmcontent"><p>[Cons for count vectors]    A count vector can be obtained by placing a head value before a tail vector, with indices described by their natural values. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#def:counts_cons">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.countsCons">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:delete_index_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:delete_index" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">46</span></div>
+    <div class="thm_thmcontent"><p>[Index embedding after deletion]   <i class="itshape">Source: half-formal.qmd, equation (8) preceding Lemma <span class="ttfamily">#lem-delete</span>.</i> For a zero-based block start \(j\) satisfying \(j+3\leq n\), embed the retained indices of a vector of length \(n-3\) into the original vector by </p>
+<div class="displaymath" id="a0000000038">
+  \[  \iota _j(r)= \begin{cases}  r,& r{\lt}j,\\ r+3,& r\geq j. \end{cases}  \]
+</div>
+</div>
+
+    <a class="latex_link" href="sect0004.html#def:delete_index">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.deleteIndex">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:delete_three_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:delete_three" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">47</span></div>
+    <div class="thm_thmcontent"><p>[Deleting three coordinates]    <i class="itshape">Source: half-formal.qmd, text following equation (8).</i> For a count vector \(v\) of length \(n\), define \(\operatorname {del}_j(v)\) of length \(n-3\) by </p>
+<div class="displaymath" id="a0000000039">
+  \[  \operatorname {del}_j(v)_r=v_{\iota _j(r)}.  \]
+</div>
+</div>
+
+    <a class="latex_link" href="sect0004.html#def:delete_three">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.deleteThree">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:internal_embedding_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:internal_embedding" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">90</span></div>
+    <div class="thm_thmcontent"><p>[Internal-coordinate embedding]   For \(n\) ranks, the internal coordinate indexed by \(r\in \{ 0,\ldots ,n-3\} \) is the original coordinate \(r+1\). This gives an injective map from \(n-2\) auxiliary indices into the coordinates of the original hand. </p>
+</div>
+
+    <a class="latex_link" href="sect0005.html#def:internal_embedding">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.internalEmbedding">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:internal_indices_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:internal_indices" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">91</span></div>
+    <div class="thm_thmcontent"><p>[The finite set of internal coordinates]    The set of internal coordinates is the image of the preceding embedding. Equivalently, it is the finite set of coordinates strictly between the two endpoints. </p>
+</div>
+
+    <a class="latex_link" href="sect0005.html#def:internal_indices">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.internalIndices">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:left_rank_sum_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:left_rank_sum" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">54</span></div>
+    <div class="thm_thmcontent"><p>[Weighted rank sum left of a cut]    For a cut coordinate \(k\), \(S^L_k(c)\) is the one-based weighted rank sum of the coordinates strictly left of \(k\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#def:left_rank_sum">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.leftRankSum">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:left_total_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:left_total" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">52</span></div>
+    <div class="thm_thmcontent"><p>[Total left of a cut]    For a cut coordinate \(k\), \(A_k(c)\) is the total multiplicity of all ranks strictly left of \(k\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#def:left_total">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.leftTotal">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:live_wait_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:live_wait" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">7</span></div>
+    <div class="thm_thmcontent"><p>[Live all-rank wait]    <i class="itshape">Source: half-formal.qmd, Definition <span class="ttfamily">#def-live-wait</span>.</i> A count vector \(c\) is a live all-rank wait if: every coordinate is at most \(3\), its total is \(n+4\), and \(c+e_x\) is complete for every \(x\in [n]\). </p>
+</div>
+
+    <a class="latex_link" href="sect0002.html#def:live_wait">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.LiveWait">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:meldable_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:meldable" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">5</span></div>
+    <div class="thm_thmcontent"><p>[Meldability]    <i class="itshape">Source: half-formal.qmd, Definition <span class="ttfamily">#def-meldable</span>.</i> A count vector \(d\) of length \(m\) is meldable if there are nonnegative triplet counts \(t_i\) and run-start counts \(r_i\) such that </p>
+<div class="displaymath" id="a0000000009">
+  \[  d_i=3t_i+r_i+r_{i-1}+r_{i-2}  \]
+</div>
+<p> for every \(i\in [m]\). Run counts outside \(1,\ldots ,m-2\) are interpreted as zero. Thus no run may extend beyond the right endpoint. </p>
+</div>
+
+    <a class="latex_link" href="sect0002.html#def:meldable">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.Meldable">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:rank_sum_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:rank_sum" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">9</span></div>
+    <div class="thm_thmcontent"><p>[Rank sum]    <i class="itshape">Source: half-formal.qmd, rank-sum invariant section.</i> For a count vector \(d\) of length \(m\), define </p>
+<div class="displaymath" id="a0000000010">
+  \[  \operatorname {rankSum}(d)=\sum _{i=1}^{m}i\, d_i.  \]
+</div>
+</div>
+
+    <a class="latex_link" href="sect0003.html#def:rank_sum">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.rankSum">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:remove_pair_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:remove_pair" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">4</span></div>
+    <div class="thm_thmcontent"><p>[Removing a pair]    If \(c_p\geq 2\), removing a pair at \(p\) means coordinatewise natural-number subtraction \(c-2e_p\). The definition is available for every \(c,p\); the inequality is imposed by statements that use it. </p>
+</div>
+
+    <a class="latex_link" href="sect0002.html#def:remove_pair">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.removePair">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:right_rank_sum_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:right_rank_sum" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">55</span></div>
+    <div class="thm_thmcontent"><p>[Weighted rank sum right of a cut]    For a cut coordinate \(k\), \(S^R_k(c)\) is the one-based weighted rank sum of the coordinates strictly right of \(k\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#def:right_rank_sum">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.rightRankSum">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:right_total_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:right_total" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">53</span></div>
+    <div class="thm_thmcontent"><p>[Total right of a cut]    For a cut coordinate \(k\), \(B_k(c)\) is the total multiplicity of all ranks strictly right of \(k\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#def:right_total">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.rightTotal">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:scan_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:scan" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">12</span></div>
+    <div class="thm_thmcontent"><p>[Scanning a count vector]    <i class="itshape">Source: half-formal.qmd, Definition <span class="ttfamily">#def-canonical-scan</span>.</i> Scan a count vector from left to right by repeated application of the one-step transition. The result records either the first failure or the final state. The operation may also be started from an arbitrary state, which is needed when a middle block is removed. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#def:scan">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scan">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:scan_accepts_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:scan_accepts" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">13</span></div>
+    <div class="thm_thmcontent"><p>[Scan acceptance]    A count vector is accepted when its scan starts at \((0,0)\), never fails, and finishes at \((0,0)\). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#def:scan_accepts">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.ScanAccepts">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:scan_decomp_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:scan_decomp" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">38</span></div>
+    <div class="thm_thmcontent"><p>[General scan decomposition]    A decomposition from initial state \(\sigma \) to final state \(\tau \) consists of triplet counts and normalized start counts \(s_i{\lt}3\), such that \(\tau \) is the state predicted by the starts and every coordinate equals the two incoming starts, the new start, and three times a triplet count. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#def:scan_decomp">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.ScanDecomp">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:scan_out1_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:scan_out1" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">28</span></div>
+    <div class="thm_thmcontent"><p>[First final scan component]    The first component of the final scan state is the initial first component for the empty vector, the initial second component for length one, and the penultimate start count for longer vectors. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#def:scan_out1">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanOut1">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:scan_out2_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:scan_out2" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">29</span></div>
+    <div class="thm_thmcontent"><p>[Second final scan component]    The second component of the final scan state is the initial second component for the empty vector, and the final start count for nonempty vectors. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#def:scan_out2">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanOut2">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:scan_prev1_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:scan_prev1" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">27</span></div>
+    <div class="thm_thmcontent"><p>[Second incoming run component]    At coordinate \(i\), the second incoming scan component is the initial state’s second component at \(i=0\), and otherwise the start count at \(i-1\). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#def:scan_prev1">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanPrev1">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:scan_prev2_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:scan_prev2" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">26</span></div>
+    <div class="thm_thmcontent"><p>[First incoming run component]    At coordinate \(i\), the first incoming scan component is the initial state’s first component at \(i=0\), the initial state’s second component at \(i=1\), and otherwise the start count at \(i-2\). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#def:scan_prev2">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanPrev2">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:scan_start_at_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:scan_start_at" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">24</span></div>
+    <div class="thm_thmcontent"><p>[Extended start lookup]    Given normalized run-start counts, extend them to all natural indices by returning the indexed count in range and \(0\) out of range. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#def:scan_start_at">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanStartAt">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:scan_state_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:scan_state" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">10</span></div>
+    <div class="thm_thmcontent"><p>[Scan state]   <i class="itshape">Source: half-formal.qmd, Definition <span class="ttfamily">#def-canonical-scan</span>.</i> A scan state is a pair \((a,b)\in \{ 0,1,2\} ^2\). The entries count runs started two and one positions earlier that must consume the current rank. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#def:scan_state">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.ScanState">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:scan_step_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:scan_step" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">11</span></div>
+    <div class="thm_thmcontent"><p>[One scan step]    <i class="itshape">Source: half-formal.qmd, Definition <span class="ttfamily">#def-canonical-scan</span>.</i> On input multiplicity \(z\), the step from \((a,b)\) fails when \(a+b{\gt}z\). Otherwise put \(u=z-a-b\), let \(s\) be the least nonnegative residue of \(u\) modulo \(3\), and return \((b,s)\). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#def:scan_step">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanStep">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:small_sizes_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:small_sizes" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">89</span></div>
+    <div class="thm_thmcontent"><p>[The finite set of small sizes]   <i class="itshape">Source: half-formal.qmd, Lemma <span class="ttfamily">#lem-bound</span>.</i> Define </p>
+<div class="displaymath" id="a0000000080">
+  \[  \mathcal S=\{ 6,9,12,15,18,21\} .  \]
+</div>
+</div>
+
+    <a class="latex_link" href="sect0005.html#def:small_sizes">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.smallSizes">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:standard_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:standard" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">8</span></div>
+    <div class="thm_thmcontent"><p>[The standard hand]    <i class="itshape">Source: half-formal.qmd, finite-size reduction section.</i> The standard count vector \(G_n\) has multiplicity \(3\) at the two endpoints and multiplicity \(1\) at every internal rank. The definition is made uniformly for all \(n\); the structural theorems only use \(n\geq 6\). </p>
+</div>
+
+    <a class="latex_link" href="sect0002.html#def:standard">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.standard">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:total_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:total" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">3</span></div>
+    <div class="thm_thmcontent"><p>[Total tile count]    The total number of tiles in \(c\) is </p>
+<div class="displaymath" id="a0000000008">
+  \[  |c|=\sum _{i\in [n]}c_i.  \]
+</div>
+</div>
+
+    <a class="latex_link" href="sect0002.html#def:total">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.total">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:basis_deleteIndex_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:basis_deleteIndex" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">83</span></div>
+    <div class="thm_thmcontent"><p>[Basis vectors commute with retained-index embedding]    Pulling a basis vector back along \(\iota _j\) gives the corresponding basis vector on the retained coordinate set. </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:basis_deleteIndex">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.basis_deleteIndex">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:card_internal_indices_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:card_internal_indices" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">93</span></div>
+    <div class="thm_thmcontent"><p>[Cardinality of the internal-coordinate set]    The number of internal coordinates is \(n-2\). </p>
+</div>
+
+    <a class="latex_link" href="sect0005.html#lem:card_internal_indices">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.card_internalIndices">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:complete_rank_sum_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:complete_rank_sum" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">23</span></div>
+    <div class="thm_thmcontent"><p>[Rank sum after choosing the pair]    <i class="itshape">Source: half-formal.qmd, Lemma <span class="ttfamily">#lem-rank-sum</span>.</i> If \(c+e_x\) has a complete decomposition whose pair is at \(p\), then </p>
+<div class="displaymath" id="a0000000021">
+  \[  \operatorname {rankSum}(c)+x\equiv 2p\pmod3.  \]
+</div>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:complete_rank_sum">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.complete_rankSum_mod">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:coord_of_scan_step_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:coord_of_scan_step" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">40</span></div>
+    <div class="thm_thmcontent"><p>[Coordinate decomposition from one scan step]    A successful scan step from \(\sigma \) on input \(z\) to \(\tau \) provides a triplet count \(t\) such that \(z=\sigma _1+\sigma _2+\tau _2+3t\), and the first component of \(\tau \) is the second component of \(\sigma \). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:coord_of_scan_step">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.coord_of_scan_step">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:delete_three_meldable_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:delete_three_meldable" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">85</span></div>
+    <div class="thm_thmcontent"><p>[Deleting three singletons preserves meldability]    <i class="itshape">Source: half-formal.qmd, proof of Lemma <span class="ttfamily">#lem-delete</span>.</i> If \(d\) is meldable and its three coordinates beginning at \(j\) are all \(1\), then \(\operatorname {del}_j(d)\) is meldable. </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:delete_three_meldable">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.delete_three_meldable">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:deleteIndex_injective_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:deleteIndex_injective" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">80</span></div>
+    <div class="thm_thmcontent"><p>[The retained-index embedding is injective]    The map \(\iota _j\) from retained indices into the original coordinate set is injective. </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:deleteIndex_injective">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.deleteIndex_injective">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:deleteIndex_not_deleted_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:deleteIndex_not_deleted" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">81</span></div>
+    <div class="thm_thmcontent"><p>[Retained indices avoid the deleted block]    No value in the image of \(\iota _j\) lies in the deleted interval \([j,j+3)\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:deleteIndex_not_deleted">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.deleteIndex_not_deleted">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:deleteIndex_preimage_of_not_deleted_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:deleteIndex_preimage_of_not_deleted" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">82</span></div>
+    <div class="thm_thmcontent"><p>[Every nondeleted index has a retained preimage]    Every original index outside the deleted interval \([j,j+3)\) is in the image of \(\iota _j\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:deleteIndex_preimage_of_not_deleted">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.deleteIndex_preimage_of_not_deleted">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:deleteThree_removePair_add_basis_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:deleteThree_removePair_add_basis" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">84</span></div>
+    <div class="thm_thmcontent"><p>[Deleting after a retained draw and retained pair removal]    Deleting after drawing a retained tile \(x'\) and removing a retained pair \(p'\) agrees coordinatewise with first deleting and then drawing \(x'\) and removing \(p'\) in the shortened coordinate set. </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:deleteThree_removePair_add_basis">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.deleteThree_removePair_add_basis">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:exception_card_le_internal_excess_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:exception_card_le_internal_excess" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">96</span></div>
+    <div class="thm_thmcontent"><p>[Exceptional internal coordinates are bounded by internal excess]    Suppose every internal coordinate of \(c\) has multiplicity at least \(1\). Then the number of internal coordinates with \(c_i\ne 1\) is at most </p>
+<div class="displaymath" id="a0000000088">
+  \[  \sum _{\text{internal }i}(c_i-1).  \]
+</div>
+</div>
+
+    <a class="latex_link" href="sect0005.html#lem:exception_card_le_internal_excess">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.exception_card_le_internal_excess">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:filtered_rank_add_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:filtered_rank_add" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">57</span></div>
+    <div class="thm_thmcontent"><p>[Filtered rank sums are additive]   For any predicate \(P\), the weighted filtered rank sum of \(a_i+b_i\) is the sum of the two weighted filtered rank sums. </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:filtered_rank_add">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.filteredRank_add">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:filtered_rank_add_basis_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:filtered_rank_add_basis" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">61</span></div>
+    <div class="thm_thmcontent"><p>[Filtered rank sum after a draw]    Adding one tile at \(x\) increases a filtered rank sum by the one-based rank of \(x\) if \(x\) satisfies the filter, and by \(0\) otherwise. </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:filtered_rank_add_basis">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.filteredRank_add_basis">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:filtered_rank_basis_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:filtered_rank_basis" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">59</span></div>
+    <div class="thm_thmcontent"><p>[Filtered rank sum of a basis vector]    A multiple of the basis vector at \(x\) contributes the weighted value \((x+1)m\) to a filtered rank sum exactly when \(x\) satisfies the filter, and contributes \(0\) otherwise. </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:filtered_rank_basis">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.filteredRank_basis">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:filtered_rank_remove_pair_add_pair_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:filtered_rank_remove_pair_add_pair" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">63</span></div>
+    <div class="thm_thmcontent"><p>[Filtered rank sum after removing a pair]    If \(w_p\ge 2\), then the filtered rank sum of \(w-2e_p\), plus twice the weighted rank of \(p\) when \(p\) is selected, equals the filtered rank sum of \(w\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:filtered_rank_remove_pair_add_pair">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.filteredRank_removePair_add_pair">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:filtered_total_add_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:filtered_total_add" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">56</span></div>
+    <div class="thm_thmcontent"><p>[Filtered totals are additive]   For any predicate \(P\) on the finite coordinate set, the sum of \(a_i+b_i\) over the coordinates satisfying \(P\) is the sum over \(a_i\) plus the sum over \(b_i\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:filtered_total_add">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.filteredTotal_add">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:filtered_total_add_basis_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:filtered_total_add_basis" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">60</span></div>
+    <div class="thm_thmcontent"><p>[Filtered total after a draw]    Adding one tile at \(x\) increases a filtered total by \(1\) if \(x\) satisfies the filter, and by \(0\) otherwise. </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:filtered_total_add_basis">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.filteredTotal_add_basis">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:filtered_total_basis_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:filtered_total_basis" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">58</span></div>
+    <div class="thm_thmcontent"><p>[Filtered total of a basis vector]    A multiple of the basis vector at \(x\) contributes \(m\) to a filtered total exactly when \(x\) satisfies the filter, and contributes \(0\) otherwise. </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:filtered_total_basis">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.filteredTotal_basis">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:filtered_total_remove_pair_add_pair_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:filtered_total_remove_pair_add_pair" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">62</span></div>
+    <div class="thm_thmcontent"><p>[Filtered total after removing a pair]    If \(w_p\ge 2\), then the filtered total of \(w-2e_p\), plus the two removed tiles when \(p\) is selected by the filter, equals the filtered total of \(w\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:filtered_total_remove_pair_add_pair">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.filteredTotal_removePair_add_pair">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:foldlM_append_option_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:foldlM_append_option" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">75</span></div>
+    <div class="thm_thmcontent"><p>[Option fold over appended lists]   For a fold in the \(\mathrm{Option}\) monad, folding over an appended list is the same as folding over the prefix and, if that succeeds, continuing the fold over the suffix from the produced state. </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:foldlM_append_option">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.foldlM_append_option">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:internal_excess_le_six_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:internal_excess_le_six" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">95</span></div>
+    <div class="thm_thmcontent"><p>[The total internal excess is at most six]    Let \(c\) be a live all-rank wait at an admissible size \(n\). Then </p>
+<div class="displaymath" id="a0000000085">
+  \[  \sum _{\text{internal }i}(c_i-1)\leq 6.  \]
+</div>
+</div>
+
+    <a class="latex_link" href="sect0005.html#lem:internal_excess_le_six">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.internal_excess_le_six">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:meldable_left_rank_mod_zero_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:meldable_left_rank_mod_zero" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">71</span></div>
+    <div class="thm_thmcontent"><p>[Left rank sum of a meldable vector with a zero cut]    If a meldable vector has value \(0\) at \(k\), then its weighted rank sum strictly left of \(k\) is congruent to \(0\pmod3\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:meldable_left_rank_mod_zero">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.meldable_leftRank_mod_of_zero">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:meldable_left_total_mod_zero_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:meldable_left_total_mod_zero" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">70</span></div>
+    <div class="thm_thmcontent"><p>[Left total of a meldable vector with a zero cut]    If a meldable vector has value \(0\) at \(k\), then its total strictly left of \(k\) is congruent to \(0\pmod3\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:meldable_left_total_mod_zero">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.meldable_leftTotal_mod_of_zero">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:meldable_rank_sum_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:meldable_rank_sum" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">17</span></div>
+    <div class="thm_thmcontent"><p>[Rank sum of a meldable vector]    <i class="itshape">Source: half-formal.qmd, Lemma <span class="ttfamily">#lem-rank-sum</span>.</i> If \(d\) is meldable, then \(\operatorname {rankSum}(d)\equiv 0\pmod3\). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:meldable_rank_sum">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.meldable_rankSum_mod">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:meldable_right_rank_mod_zero_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:meldable_right_rank_mod_zero" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">73</span></div>
+    <div class="thm_thmcontent"><p>[Right rank sum of a meldable vector with a zero cut]    If a meldable vector has value \(0\) at \(k\), then its weighted rank sum strictly right of \(k\) is congruent to \(0\pmod3\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:meldable_right_rank_mod_zero">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.meldable_rightRank_mod_of_zero">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:meldable_right_total_mod_zero_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:meldable_right_total_mod_zero" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">72</span></div>
+    <div class="thm_thmcontent"><p>[Right total of a meldable vector with a zero cut]    If a meldable vector has value \(0\) at \(k\), then its total strictly right of \(k\) is congruent to \(0\pmod3\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:meldable_right_total_mod_zero">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.meldable_rightTotal_mod_of_zero">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:meldable_total_mod_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:meldable_total_mod" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">66</span></div>
+    <div class="thm_thmcontent"><p>[Meldable total is divisible by three]    The total multiplicity of any meldable vector is congruent to \(0\pmod3\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:meldable_total_mod">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.meldable_total_mod">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:mem_internal_indices_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:mem_internal_indices" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">92</span></div>
+    <div class="thm_thmcontent"><p>[Membership in the internal-coordinate set]    A coordinate \(i\) belongs to the internal-coordinate set exactly when \(1\leq i\) and \(i+1{\lt}n\), in zero-based indexing. </p>
+</div>
+
+    <a class="latex_link" href="sect0005.html#lem:mem_internal_indices">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.mem_internalIndices">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:modEq_of_add_one_modEq_two_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:modEq_of_add_one_modEq_two" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">49</span></div>
+    <div class="thm_thmcontent"><p>[Canceling a drawn tile from residue two]   If \(a+1\equiv 2\pmod3\), then \(a\equiv 1\pmod3\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:modEq_of_add_one_modEq_two">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.modEq_of_add_one_modEq_two">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:modEq_of_add_one_modEq_zero_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:modEq_of_add_one_modEq_zero" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">50</span></div>
+    <div class="thm_thmcontent"><p>[Canceling a drawn tile from residue zero]   If \(a+1\equiv 0\pmod3\), then \(a\equiv 2\pmod3\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:modEq_of_add_one_modEq_zero">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.modEq_of_add_one_modEq_zero">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:ofFn_deleteThree_eq_take_drop_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:ofFn_deleteThree_eq_take_drop" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">77</span></div>
+    <div class="thm_thmcontent"><p>[List form of a three-coordinate deletion]    The list underlying \(\operatorname {del}_j(d)\) is obtained from the list underlying \(d\) by taking the first \(j\) entries and appending the entries after position \(j+2\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:ofFn_deleteThree_eq_take_drop">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.ofFn_deleteThree_eq_take_drop">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:ofFn_eq_take_ones_drop_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:ofFn_eq_take_ones_drop" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">78</span></div>
+    <div class="thm_thmcontent"><p>[Splitting off three singleton entries]    If the three coordinates \(j,j+1,j+2\) of \(d\) are all \(1\), then the list underlying \(d\) is its prefix before \(j\), followed by \([1,1,1]\), followed by its suffix after \(j+2\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:ofFn_eq_take_ones_drop">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.ofFn_eq_take_ones_drop">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:rank_sum_split_at_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:rank_sum_split_at" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">65</span></div>
+    <div class="thm_thmcontent"><p>[Rank sum split at a cut]    The rank sum is the weighted sum strictly left of \(k\), plus the contribution of \(k\), plus the weighted sum strictly right of \(k\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:rank_sum_split_at">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.rankSum_split_at">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:rankSum_add_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:rankSum_add" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">18</span></div>
+    <div class="thm_thmcontent"><p>[Rank sum is additive]    The rank sum of a pointwise sum of two count vectors equals the sum of their rank sums. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:rankSum_add">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.rankSum_add">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:rankSum_add_basis_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:rankSum_add_basis" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">21</span></div>
+    <div class="thm_thmcontent"><p>[Adding one basis tile]    Adding one tile at \(x\) increases the rank sum by the one-based rank of \(x\). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:rankSum_add_basis">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.rankSum_add_basis">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:rankSum_basis_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:rankSum_basis" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">20</span></div>
+    <div class="thm_thmcontent"><p>[Rank sum of one basis tile]    The basis vector at \(p\) has rank sum equal to the one-based rank of \(p\). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:rankSum_basis">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.rankSum_basis">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:rankSum_two_basis_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:rankSum_two_basis" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">19</span></div>
+    <div class="thm_thmcontent"><p>[Rank sum of two basis tiles]    Two copies of the basis vector at \(p\) have rank sum equal to twice the one-based rank of \(p\). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:rankSum_two_basis">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.rankSum_two_basis">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:red_eq_zero_of_sum_eq_zero_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:red_eq_zero_of_sum_eq_zero" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">48</span></div>
+    <div class="thm_thmcontent"><p>[A zero total has zero terms]   In a finite sum of natural numbers, if the total is \(0\), then each summand is \(0\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:red_eq_zero_of_sum_eq_zero">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.eq_zero_of_sum_eq_zero">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:red_run_count_sum_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:red_run_count_sum" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">51</span></div>
+    <div class="thm_thmcontent"><p>[Unweighted contribution of one run]    A run beginning at zero-based start \(j\) contributes exactly three tiles to the unweighted total, counted with its multiplicity. </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:red_run_count_sum">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.run_count_sum">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:removePair_rankSum_add_pair_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:removePair_rankSum_add_pair" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">22</span></div>
+    <div class="thm_thmcontent"><p>[Rank sum after removing a pair]    If \(w_p\geq 2\), then the rank sum of \(w-2e_p\), plus twice the one-based rank of \(p\), is the rank sum of \(w\). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:removePair_rankSum_add_pair">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.removePair_rankSum_add_pair">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:run_cover_at_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:run_cover_at" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">42</span></div>
+    <div class="thm_thmcontent"><p>[Run cover at one coordinate]    For any coordinate \(i\), the finite sum over all run starts whose length-three window covers \(i\) has only the three possible contributors starting at \(i\), \(i-1\), and \(i-2\), with any out-of-range contributor interpreted as zero. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:run_cover_at">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.run_cover_at">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:run_eq_zero_of_zero_coord_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:run_eq_zero_of_zero_coord" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">67</span></div>
+    <div class="thm_thmcontent"><p>[A run crossing a zero coordinate has zero count]    In a meldable coordinate equation, if coordinate \(k\) has value \(0\), then every run whose support contains \(k\) has multiplicity \(0\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:run_eq_zero_of_zero_coord">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.run_eq_zero_of_zero_coord">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:run_left_count_mod_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:run_left_count_mod" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">68</span></div>
+    <div class="thm_thmcontent"><p>[Left total contribution of one run across a zero cut]    If every run crossing a cut \(k\) has multiplicity \(0\), then the contribution of any single run to the total strictly left of \(k\) is congruent to \(0\pmod3\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:run_left_count_mod">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.run_left_count_mod">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:run_left_rank_mod_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:run_left_rank_mod" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">69</span></div>
+    <div class="thm_thmcontent"><p>[Left rank contribution of one run across a zero cut]    If every run crossing a cut \(k\) has multiplicity \(0\), then the contribution of any single run to the rank sum strictly left of \(k\) is congruent to \(0\pmod3\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:run_left_rank_mod">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.run_left_rank_mod">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:run_weight_sum_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:run_weight_sum" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">15</span></div>
+    <div class="thm_thmcontent"><p>[Weight of one run in the rank sum]    A run beginning at zero-based start \(j\) contributes the three one-based ranks \((j+1),(j+2),(j+3)\). Hence its weighted contribution is \(3(j+2)\) times the run multiplicity. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:run_weight_sum">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.run_weight_sum">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:scan_delete_three_ones_block_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:scan_delete_three_ones_block" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">76</span></div>
+    <div class="thm_thmcontent"><p>[Deleting a successful singleton scan block]    If a scan of \(\mathit{pref}\, [1,1,1]\, \mathit{suff}\) from state \(\sigma \) succeeds with final state \(\tau \), then the scan of \(\mathit{pref}\, \mathit{suff}\) from \(\sigma \) also succeeds with final state \(\tau \). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:scan_delete_three_ones_block">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scan_delete_three_ones_block">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:scan_iff_scan_decomp_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:scan_iff_scan_decomp" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">41</span></div>
+    <div class="thm_thmcontent"><p>[Scan equals generalized decomposition]    A scan of a vector from \(\sigma \) to \(\tau \) succeeds if and only if the vector admits the generalized coordinate decomposition from \(\sigma \) to \(\tau \). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:scan_iff_scan_decomp">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scan_iff_scanDecomp">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:scan_out1_cons_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:scan_out1_cons" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">30</span></div>
+    <div class="thm_thmcontent"><p>[Output shift after adding a head, first component]    If a first scan step changes the initial state from \(\sigma \) to \(\sigma '\), then adding that head start before a tail preserves the computed final first component. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:scan_out1_cons">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanOut1_cons">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:scan_out1_tail_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:scan_out1_tail" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">32</span></div>
+    <div class="thm_thmcontent"><p>[Output shift after removing a head, first component]    Removing the head of the normalized starts shifts the first final output component exactly as a successful first scan step does. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:scan_out1_tail">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanOut1_tail">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:scan_out2_cons_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:scan_out2_cons" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">31</span></div>
+    <div class="thm_thmcontent"><p>[Output shift after adding a head, second component]    Adding a head start before a tail preserves the computed final second component after updating the scan state. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:scan_out2_cons">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanOut2_cons">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:scan_out2_tail_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:scan_out2_tail" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">33</span></div>
+    <div class="thm_thmcontent"><p>[Output shift after removing a head, second component]    Removing the head of the normalized starts shifts the second final output component exactly as a successful first scan step does. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:scan_out2_tail">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanOut2_tail">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:scan_prev1_cons_succ_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:scan_prev1_cons_succ" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">35</span></div>
+    <div class="thm_thmcontent"><p>[Incoming second component under cons]    After adding a head start, the second incoming component at a successor coordinate agrees with the corresponding second incoming component in the tail scan. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:scan_prev1_cons_succ">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanPrev1_cons_succ">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:scan_prev1_tail_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:scan_prev1_tail" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">37</span></div>
+    <div class="thm_thmcontent"><p>[Incoming second component under tail]    Removing a head start shifts the second incoming component on every tail coordinate to the second incoming component at the successor coordinate of the original scan. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:scan_prev1_tail">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanPrev1_tail">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:scan_prev2_cons_succ_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:scan_prev2_cons_succ" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">34</span></div>
+    <div class="thm_thmcontent"><p>[Incoming first component under cons]    After adding a head start, the first incoming component at a successor coordinate agrees with the corresponding first incoming component in the tail scan. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:scan_prev2_cons_succ">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanPrev2_cons_succ">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:scan_prev2_tail_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:scan_prev2_tail" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">36</span></div>
+    <div class="thm_thmcontent"><p>[Incoming first component under tail]    Removing a head start shifts the first incoming component on every tail coordinate to the first incoming component at the successor coordinate of the original scan. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:scan_prev2_tail">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanPrev2_tail">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:scan_step_of_coord_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:scan_step_of_coord" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">39</span></div>
+    <div class="thm_thmcontent"><p>[One scan step from a coordinate decomposition]    If a coordinate has the form \(a+b+s+3t\), where \((a,b)\) is the incoming state and \(s{\lt}3\), then one scan step succeeds and outputs \((b,s)\). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:scan_step_of_coord">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scan_step_of_coord">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:scan_step_one_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:scan_step_one" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">44</span></div>
+    <div class="thm_thmcontent"><p>[Reading one singleton]    <i class="itshape">Source: half-formal.qmd, Lemma <span class="ttfamily">#lem-three-ones-state</span>.</i> A scan step on input \(1\) succeeds exactly from \((0,0),(0,1),(1,0)\), and maps these states respectively to \((0,1),(1,0),(0,0)\). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:scan_step_one">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scanStep_one">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:scan_three_ones_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:scan_three_ones" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">45</span></div>
+    <div class="thm_thmcontent"><p>[Three singletons preserve scan state]    <i class="itshape">Source: half-formal.qmd, Lemma <span class="ttfamily">#lem-three-ones-state</span>.</i> If a scan starting from state \(\sigma \) can read three consecutive inputs \(1,1,1\), its state after those inputs is again \(\sigma \). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:scan_three_ones">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.scan_three_ones">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:seven_le_exception_card_of_no_three_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:seven_le_exception_card_of_no_three" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">97</span></div>
+    <div class="thm_thmcontent"><p>[Seven fixed blocks force seven exceptional coordinates]    If \(24\leq n\) and there is no internal block of three consecutive coordinates all equal to \(1\), then at least seven internal coordinates satisfy \(c_i\ne 1\). </p>
+</div>
+
+    <a class="latex_link" href="sect0005.html#lem:seven_le_exception_card_of_no_three">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.seven_le_exception_card_of_no_three">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:small_sizes_mem_of_admissible_le_22_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:small_sizes_mem_of_admissible_le_22" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">94</span></div>
+    <div class="thm_thmcontent"><p>[Small admissible sizes are exactly the listed sizes below twenty-three]    If \(6\leq n\), \(3\mid n\), and \(n\leq 22\), then \(n\in \mathcal S=\{ 6,9,12,15,18,21\} \). </p>
+</div>
+
+    <a class="latex_link" href="sect0005.html#lem:small_sizes_mem_of_admissible_le_22">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.smallSizes_mem_of_admissible_le_22">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:sum_if_fin_val_eq_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:sum_if_fin_val_eq" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">14</span></div>
+    <div class="thm_thmcontent"><p>[Singleton finite sum by finite value]   For a function on a finite interval, the sum that keeps only entries whose index has natural value \(i\) is the corresponding entry when \(i\) is in range, and is \(0\) otherwise. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:sum_if_fin_val_eq">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.sum_if_fin_val_eq">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:sum_modEq_zero_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:sum_modEq_zero" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">16</span></div>
+    <div class="thm_thmcontent"><p>[Finite sum of zero congruence terms]   If every term in a finite sum is congruent to \(0\) modulo \(3\), then the whole sum is congruent to \(0\) modulo \(3\). </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#lem:sum_modEq_zero">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.sum_modEq_zero">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:total_eq_list_sum_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:total_eq_list_sum" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">79</span></div>
+    <div class="thm_thmcontent"><p>[Total as the sum of the underlying list]    The finite total of a count vector equals the sum of the entries of its underlying list. </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:total_eq_list_sum">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.total_eq_list_sum">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:total_split_at_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:total_split_at" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">64</span></div>
+    <div class="thm_thmcontent"><p>[Total split at a cut]    The total count is the sum of the counts strictly left of \(k\), at \(k\), and strictly right of \(k\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#lem:total_split_at">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.total_split_at">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:counterexample_size_bound_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:counterexample_size_bound" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">98</span></div>
+    <div class="thm_thmcontent"><p>[Minimal counterexample size bound]    <i class="itshape">Source: half-formal.qmd, Lemma <span class="ttfamily">#lem-bound</span>.</i> If there is a counterexample at some \(n\geq 6\) divisible by \(3\), then there is an \(n_0\in \mathcal S\) at which a counterexample exists. </p>
+</div>
+
+    <a class="latex_link" href="sect0005.html#thm:counterexample_size_bound">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.counterexample_size_bound">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:delete_three_live_wait_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:delete_three_live_wait" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">86</span></div>
+    <div class="thm_thmcontent"><p>[Deletion preserves a live all-rank wait]    <i class="itshape">Source: half-formal.qmd, Lemma <span class="ttfamily">#lem-delete</span>.</i> Let \(n\geq 9\), \(3\mid n\), and let \(c\) be a live all-rank wait. If the three internal coordinates beginning at \(j\) all have multiplicity \(1\), then \(\operatorname {del}_j(c)\) is a live all-rank wait of length \(n-3\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#thm:delete_three_live_wait">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.delete_three_live_wait">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:delete_three_standard_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:delete_three_standard" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">87</span></div>
+    <div class="thm_thmcontent"><p>[Deletion detects the standard hand]    <i class="itshape">Source: half-formal.qmd, final assertion of Lemma <span class="ttfamily">#lem-delete</span>.</i> If the deleted block is internal and consists of three singleton coordinates, then </p>
+<div class="displaymath" id="a0000000079">
+  \[  c=G_n\quad \Longleftrightarrow \quad \operatorname {del}_j(c)=G_{n-3}.  \]
+</div>
+</div>
+
+    <a class="latex_link" href="sect0004.html#thm:delete_three_standard">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.delete_three_standard_iff">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:interior_positive_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:interior_positive" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">74</span></div>
+    <div class="thm_thmcontent"><p>[Interior coordinates are positive]    <i class="itshape">Source: half-formal.qmd, Lemma <span class="ttfamily">#lem-interior-positive</span>.</i> Let \(n\geq 6\) with \(3\mid n\). If \(c\) is a live all-rank wait, then \(c_k\geq 1\) for every internal rank \(2\leq k\leq n-1\). </p>
+</div>
+
+    <a class="latex_link" href="sect0004.html#thm:interior_positive">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.interior_positive">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:meldable_iff_scan_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:meldable_iff_scan" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">43</span></div>
+    <div class="thm_thmcontent"><p>[Canonical scan characterizes meldability]    <i class="itshape">Source: half-formal.qmd, Lemma <span class="ttfamily">#lem-recurrence</span>.</i> A count vector is meldable if and only if its canonical scan is accepted. </p>
+</div>
+
+    <a class="latex_link" href="sect0003.html#thm:meldable_iff_scan">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="/find/#doc/Ninegates.meldable_iff_scanAccepts">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+</div>
+</div> <!-- content -->
+</div> <!-- wrapper -->
+<script src="js/jquery.min.js" type="text/javascript"></script>
+
+<script src="js/d3.min.js"></script>
+<script src="js/hpcc.min.js"></script>
+<script src="js/d3-graphviz.js"></script>
+
+<script type="text/javascript">
+const graphContainer = d3.select("#graph");
+const width = graphContainer.node().clientWidth;
+const height = graphContainer.node().clientHeight;
+
+
+graphContainer.graphviz({useWorker: true})
+    .width(width)
+    .height(height)
+    .fit(true)
+    .renderDot(`strict digraph "" {	graph [bgcolor=transparent];	node [label="\N",		penwidth=1.8	];	edge [arrowhead=vee];	"lem:run_cover_at"	[color=green,		fillcolor="#1CAC78",		label=run_cover_at,		shape=ellipse,		style=filled];	"thm:meldable_iff_scan"	[color=green,		fillcolor="#1CAC78",		label=meldable_iff_scan,		shape=ellipse,		style=filled];	"lem:run_cover_at" -> "thm:meldable_iff_scan"	[style=dashed];	"lem:delete_three_meldable"	[color=green,		fillcolor="#1CAC78",		label=delete_three_meldable,		shape=ellipse,		style=filled];	"thm:meldable_iff_scan" -> "lem:delete_three_meldable"	[style=dashed];	"thm:delete_three_live_wait"	[color=green,		fillcolor="#1CAC78",		label=delete_three_live_wait,		shape=ellipse,		style=filled];	"lem:delete_three_meldable" -> "thm:delete_three_live_wait"	[style=dashed];	"lem:run_eq_zero_of_zero_coord"	[color=green,		fillcolor="#1CAC78",		label=run_eq_zero_of_zero_coord,		shape=ellipse,		style=filled];	"lem:meldable_left_total_mod_zero"	[color=green,		fillcolor="#1CAC78",		label=meldable_left_total_mod_zero,		shape=ellipse,		style=filled];	"lem:run_eq_zero_of_zero_coord" -> "lem:meldable_left_total_mod_zero"	[style=dashed];	"lem:meldable_left_rank_mod_zero"	[color=green,		fillcolor="#1CAC78",		label=meldable_left_rank_mod_zero,		shape=ellipse,		style=filled];	"lem:run_eq_zero_of_zero_coord" -> "lem:meldable_left_rank_mod_zero"	[style=dashed];	"lem:meldable_right_total_mod_zero"	[color=green,		fillcolor="#1CAC78",		label=meldable_right_total_mod_zero,		shape=ellipse,		style=filled];	"lem:meldable_left_total_mod_zero" -> "lem:meldable_right_total_mod_zero"	[style=dashed];	"lem:meldable_right_rank_mod_zero"	[color=green,		fillcolor="#1CAC78",		label=meldable_right_rank_mod_zero,		shape=ellipse,		style=filled];	"lem:meldable_left_rank_mod_zero" -> "lem:meldable_right_rank_mod_zero"	[style=dashed];	"thm:interior_positive"	[color=green,		fillcolor="#1CAC78",		label=interior_positive,		shape=ellipse,		style=filled];	"lem:meldable_right_total_mod_zero" -> "thm:interior_positive"	[style=dashed];	"lem:meldable_right_rank_mod_zero" -> "thm:interior_positive"	[style=dashed];	"lem:sum_modEq_zero"	[color=green,		fillcolor="#1CAC78",		label=sum_modEq_zero,		shape=ellipse,		style=filled];	"lem:sum_modEq_zero" -> "lem:meldable_left_total_mod_zero"	[style=dashed];	"lem:sum_modEq_zero" -> "lem:meldable_left_rank_mod_zero"	[style=dashed];	"lem:meldable_rank_sum"	[color=green,		fillcolor="#1CAC78",		label=meldable_rank_sum,		shape=ellipse,		style=filled];	"lem:sum_modEq_zero" -> "lem:meldable_rank_sum"	[style=dashed];	"lem:meldable_total_mod"	[color=green,		fillcolor="#1CAC78",		label=meldable_total_mod,		shape=ellipse,		style=filled];	"lem:sum_modEq_zero" -> "lem:meldable_total_mod"	[style=dashed];	"lem:meldable_rank_sum" -> "lem:meldable_right_rank_mod_zero"	[style=dashed];	"lem:complete_rank_sum"	[color=green,		fillcolor="#1CAC78",		label=complete_rank_sum,		shape=ellipse,		style=filled];	"lem:meldable_rank_sum" -> "lem:complete_rank_sum"	[style=dashed];	"lem:meldable_total_mod" -> "lem:meldable_right_total_mod_zero"	[style=dashed];	"lem:scan_step_of_coord"	[color=green,		fillcolor="#1CAC78",		label=scan_step_of_coord,		shape=ellipse,		style=filled];	"lem:scan_iff_scan_decomp"	[color=green,		fillcolor="#1CAC78",		label=scan_iff_scan_decomp,		shape=ellipse,		style=filled];	"lem:scan_step_of_coord" -> "lem:scan_iff_scan_decomp"	[style=dashed];	"lem:scan_iff_scan_decomp" -> "thm:meldable_iff_scan"	[style=dashed];	"lem:rank_sum_split_at"	[color=green,		fillcolor="#1CAC78",		label=rank_sum_split_at,		shape=ellipse,		style=filled];	"lem:rank_sum_split_at" -> "lem:meldable_right_rank_mod_zero"	[style=dashed];	"lem:internal_excess_le_six"	[color=green,		fillcolor="#1CAC78",		label=internal_excess_le_six,		shape=ellipse,		style=filled];	"thm:interior_positive" -> "lem:internal_excess_le_six"	[style=dashed];	"def:delete_index"	[color=green,		fillcolor="#B0ECA3",		label=delete_index,		shape=box,		style=filled];	"lem:deleteIndex_preimage_of_not_deleted"	[color=green,		fillcolor="#1CAC78",		label=deleteIndex_preimage_of_not_deleted,		shape=ellipse,		style=filled];	"def:delete_index" -> "lem:deleteIndex_preimage_of_not_deleted"	[style=dashed];	"lem:deleteIndex_not_deleted"	[color=green,		fillcolor="#1CAC78",		label=deleteIndex_not_deleted,		shape=ellipse,		style=filled];	"def:delete_index" -> "lem:deleteIndex_not_deleted"	[style=dashed];	"def:delete_three"	[color=green,		fillcolor="#B0ECA3",		label=delete_three,		shape=box,		style=filled];	"def:delete_index" -> "def:delete_three"	[style=dashed];	"lem:deleteIndex_injective"	[color=green,		fillcolor="#1CAC78",		label=deleteIndex_injective,		shape=ellipse,		style=filled];	"def:delete_index" -> "lem:deleteIndex_injective"	[style=dashed];	"lem:deleteIndex_preimage_of_not_deleted" -> "thm:delete_three_live_wait"	[style=dashed];	"lem:deleteIndex_not_deleted" -> "thm:delete_three_live_wait"	[style=dashed];	"lem:ofFn_deleteThree_eq_take_drop"	[color=green,		fillcolor="#1CAC78",		label=ofFn_deleteThree_eq_take_drop,		shape=ellipse,		style=filled];	"def:delete_three" -> "lem:ofFn_deleteThree_eq_take_drop"	[style=dashed];	"thm:delete_three_standard"	[color=green,		fillcolor="#1CAC78",		label=delete_three_standard,		shape=ellipse,		style=filled];	"def:delete_three" -> "thm:delete_three_standard"	[style=dashed];	"lem:deleteThree_removePair_add_basis"	[color=green,		fillcolor="#1CAC78",		label=deleteThree_removePair_add_basis,		shape=ellipse,		style=filled];	"def:delete_three" -> "lem:deleteThree_removePair_add_basis"	[style=dashed];	"lem:basis_deleteIndex"	[color=green,		fillcolor="#1CAC78",		label=basis_deleteIndex,		shape=ellipse,		style=filled];	"lem:deleteIndex_injective" -> "lem:basis_deleteIndex"	[style=dashed];	"thm:counterexample_size_bound"	[color=green,		fillcolor="#1CAC78",		label=counterexample_size_bound,		shape=ellipse,		style=filled];	"thm:delete_three_live_wait" -> "thm:counterexample_size_bound"	[style=dashed];	"lem:ofFn_deleteThree_eq_take_drop" -> "lem:delete_three_meldable"	[style=dashed];	"thm:delete_three_standard" -> "thm:counterexample_size_bound"	[style=dashed];	"lem:deleteThree_removePair_add_basis" -> "thm:delete_three_live_wait"	[style=dashed];	"lem:basis_deleteIndex" -> "lem:deleteThree_removePair_add_basis"	[style=dashed];	"lem:scan_out2_cons"	[color=green,		fillcolor="#1CAC78",		label=scan_out2_cons,		shape=ellipse,		style=filled];	"lem:scan_out2_cons" -> "lem:scan_iff_scan_decomp"	[style=dashed];	"lem:filtered_total_basis"	[color=green,		fillcolor="#1CAC78",		label=filtered_total_basis,		shape=ellipse,		style=filled];	"lem:filtered_total_remove_pair_add_pair"	[color=green,		fillcolor="#1CAC78",		label=filtered_total_remove_pair_add_pair,		shape=ellipse,		style=filled];	"lem:filtered_total_basis" -> "lem:filtered_total_remove_pair_add_pair"	[style=dashed];	"lem:filtered_total_add_basis"	[color=green,		fillcolor="#1CAC78",		label=filtered_total_add_basis,		shape=ellipse,		style=filled];	"lem:filtered_total_basis" -> "lem:filtered_total_add_basis"	[style=dashed];	"lem:filtered_total_remove_pair_add_pair" -> "thm:interior_positive"	[style=dashed];	"lem:filtered_total_add_basis" -> "thm:interior_positive"	[style=dashed];	"cor:no_counterexample"	[color=green,		fillcolor="#1CAC78",		label=no_counterexample,		shape=ellipse,		style=filled];	"thm:counterexample_size_bound" -> "cor:no_counterexample"	[style=dashed];	"def:complete"	[color=green,		fillcolor="#B0ECA3",		label=complete,		shape=box,		style=filled];	"def:live_wait"	[color=green,		fillcolor="#B0ECA3",		label=live_wait,		shape=box,		style=filled];	"def:complete" -> "def:live_wait"	[style=dashed];	"def:live_wait" -> "thm:interior_positive"	[style=dashed];	"def:live_wait" -> "thm:delete_three_live_wait"	[style=dashed];	"def:counterexample_at"	[color=green,		fillcolor="#B0ECA3",		label=counterexample_at,		shape=box,		style=filled];	"def:live_wait" -> "def:counterexample_at"	[style=dashed];	"def:counterexample_at" -> "thm:counterexample_size_bound"	[style=dashed];	"def:standard"	[color=green,		fillcolor="#B0ECA3",		label=standard,		shape=box,		style=filled];	"def:standard" -> "thm:delete_three_standard"	[style=dashed];	"def:standard" -> "def:counterexample_at"	[style=dashed];	"def:scan_state"	[color=green,		fillcolor="#B0ECA3",		label=scan_state,		shape=box,		style=filled];	"def:scan_prev1"	[color=green,		fillcolor="#B0ECA3",		label=scan_prev1,		shape=box,		style=filled];	"def:scan_state" -> "def:scan_prev1"	[style=dashed];	"def:scan_out2"	[color=green,		fillcolor="#B0ECA3",		label=scan_out2,		shape=box,		style=filled];	"def:scan_state" -> "def:scan_out2"	[style=dashed];	"def:scan_out1"	[color=green,		fillcolor="#B0ECA3",		label=scan_out1,		shape=box,		style=filled];	"def:scan_state" -> "def:scan_out1"	[style=dashed];	"def:scan_prev2"	[color=green,		fillcolor="#B0ECA3",		label=scan_prev2,		shape=box,		style=filled];	"def:scan_state" -> "def:scan_prev2"	[style=dashed];	"def:scan_step"	[color=green,		fillcolor="#B0ECA3",		label=scan_step,		shape=box,		style=filled];	"def:scan_state" -> "def:scan_step"	[style=dashed];	"def:scan_decomp"	[color=green,		fillcolor="#B0ECA3",		label=scan_decomp,		shape=box,		style=filled];	"def:scan_prev1" -> "def:scan_decomp"	[style=dashed];	"lem:scan_prev1_cons_succ"	[color=green,		fillcolor="#1CAC78",		label=scan_prev1_cons_succ,		shape=ellipse,		style=filled];	"def:scan_prev1" -> "lem:scan_prev1_cons_succ"	[style=dashed];	"lem:scan_prev1_tail"	[color=green,		fillcolor="#1CAC78",		label=scan_prev1_tail,		shape=ellipse,		style=filled];	"def:scan_prev1" -> "lem:scan_prev1_tail"	[style=dashed];	"def:scan_out2" -> "lem:scan_out2_cons"	[style=dashed];	"def:scan_out2" -> "def:scan_decomp"	[style=dashed];	"lem:scan_out2_tail"	[color=green,		fillcolor="#1CAC78",		label=scan_out2_tail,		shape=ellipse,		style=filled];	"def:scan_out2" -> "lem:scan_out2_tail"	[style=dashed];	"def:scan_out1" -> "def:scan_decomp"	[style=dashed];	"lem:scan_out1_cons"	[color=green,		fillcolor="#1CAC78",		label=scan_out1_cons,		shape=ellipse,		style=filled];	"def:scan_out1" -> "lem:scan_out1_cons"	[style=dashed];	"lem:scan_out1_tail"	[color=green,		fillcolor="#1CAC78",		label=scan_out1_tail,		shape=ellipse,		style=filled];	"def:scan_out1" -> "lem:scan_out1_tail"	[style=dashed];	"def:scan_prev2" -> "def:scan_decomp"	[style=dashed];	"lem:scan_prev2_cons_succ"	[color=green,		fillcolor="#1CAC78",		label=scan_prev2_cons_succ,		shape=ellipse,		style=filled];	"def:scan_prev2" -> "lem:scan_prev2_cons_succ"	[style=dashed];	"lem:scan_prev2_tail"	[color=green,		fillcolor="#1CAC78",		label=scan_prev2_tail,		shape=ellipse,		style=filled];	"def:scan_prev2" -> "lem:scan_prev2_tail"	[style=dashed];	"def:scan_step" -> "lem:scan_step_of_coord"	[style=dashed];	"def:scan"	[color=green,		fillcolor="#B0ECA3",		label=scan,		shape=box,		style=filled];	"def:scan_step" -> "def:scan"	[style=dashed];	"lem:scan_step_one"	[color=green,		fillcolor="#1CAC78",		label=scan_step_one,		shape=ellipse,		style=filled];	"def:scan_step" -> "lem:scan_step_one"	[style=dashed];	"lem:coord_of_scan_step"	[color=green,		fillcolor="#1CAC78",		label=coord_of_scan_step,		shape=ellipse,		style=filled];	"def:scan_step" -> "lem:coord_of_scan_step"	[style=dashed];	"def:scan" -> "lem:scan_iff_scan_decomp"	[style=dashed];	"def:scan_accepts"	[color=green,		fillcolor="#B0ECA3",		label=scan_accepts,		shape=box,		style=filled];	"def:scan" -> "def:scan_accepts"	[style=dashed];	"lem:scan_three_ones"	[color=green,		fillcolor="#1CAC78",		label=scan_three_ones,		shape=ellipse,		style=filled];	"def:scan" -> "lem:scan_three_ones"	[style=dashed];	"def:scan_accepts" -> "thm:meldable_iff_scan"	[style=dashed];	"lem:scan_delete_three_ones_block"	[color=green,		fillcolor="#1CAC78",		label=scan_delete_three_ones_block,		shape=ellipse,		style=filled];	"lem:scan_three_ones" -> "lem:scan_delete_three_ones_block"	[style=dashed];	"def:scan_decomp" -> "lem:scan_iff_scan_decomp"	[style=dashed];	"lem:scan_prev1_cons_succ" -> "lem:scan_iff_scan_decomp"	[style=dashed];	"lem:scan_prev1_tail" -> "lem:scan_iff_scan_decomp"	[style=dashed];	"lem:scan_out2_tail" -> "lem:scan_iff_scan_decomp"	[style=dashed];	"lem:scan_out1_cons" -> "lem:scan_iff_scan_decomp"	[style=dashed];	"lem:scan_out1_tail" -> "lem:scan_iff_scan_decomp"	[style=dashed];	"lem:scan_step_one" -> "lem:scan_three_ones"	[style=dashed];	"lem:scan_prev2_cons_succ" -> "lem:scan_iff_scan_decomp"	[style=dashed];	"lem:scan_prev2_tail" -> "lem:scan_iff_scan_decomp"	[style=dashed];	"lem:coord_of_scan_step" -> "lem:scan_iff_scan_decomp"	[style=dashed];	"lem:filtered_rank_basis"	[color=green,		fillcolor="#1CAC78",		label=filtered_rank_basis,		shape=ellipse,		style=filled];	"lem:filtered_rank_remove_pair_add_pair"	[color=green,		fillcolor="#1CAC78",		label=filtered_rank_remove_pair_add_pair,		shape=ellipse,		style=filled];	"lem:filtered_rank_basis" -> "lem:filtered_rank_remove_pair_add_pair"	[style=dashed];	"lem:filtered_rank_add_basis"	[color=green,		fillcolor="#1CAC78",		label=filtered_rank_add_basis,		shape=ellipse,		style=filled];	"lem:filtered_rank_basis" -> "lem:filtered_rank_add_basis"	[style=dashed];	"lem:filtered_rank_remove_pair_add_pair" -> "thm:interior_positive"	[style=dashed];	"lem:filtered_rank_add_basis" -> "thm:interior_positive"	[style=dashed];	"lem:scan_delete_three_ones_block" -> "lem:delete_three_meldable"	[style=dashed];	"def:right_total"	[color=green,		fillcolor="#B0ECA3",		label=right_total,		shape=box,		style=filled];	"lem:total_split_at"	[color=green,		fillcolor="#1CAC78",		label=total_split_at,		shape=ellipse,		style=filled];	"def:right_total" -> "lem:total_split_at"	[style=dashed];	"lem:total_split_at" -> "lem:meldable_right_total_mod_zero"	[style=dashed];	"def:total"	[color=green,		fillcolor="#B0ECA3",		label=total,		shape=box,		style=filled];	"def:total" -> "lem:meldable_total_mod"	[style=dashed];	"def:total" -> "def:live_wait"	[style=dashed];	"def:total" -> "lem:total_split_at"	[style=dashed];	"lem:total_eq_list_sum"	[color=green,		fillcolor="#1CAC78",		label=total_eq_list_sum,		shape=ellipse,		style=filled];	"def:total" -> "lem:total_eq_list_sum"	[style=dashed];	"lem:total_eq_list_sum" -> "thm:delete_three_live_wait"	[style=dashed];	"lem:internal_excess_le_six" -> "thm:counterexample_size_bound"	[style=dashed];	"lem:sum_if_fin_val_eq"	[color=green,		fillcolor="#1CAC78",		label=sum_if_fin_val_eq,		shape=ellipse,		style=filled];	"lem:sum_if_fin_val_eq" -> "lem:run_cover_at"	[style=dashed];	"lem:sum_if_fin_val_eq" -> "lem:rank_sum_split_at"	[style=dashed];	"lem:sum_if_fin_val_eq" -> "lem:total_split_at"	[style=dashed];	"lem:run_weight_sum"	[color=green,		fillcolor="#1CAC78",		label=run_weight_sum,		shape=ellipse,		style=filled];	"lem:sum_if_fin_val_eq" -> "lem:run_weight_sum"	[style=dashed];	"lem:red_run_count_sum"	[color=green,		fillcolor="#1CAC78",		label=red_run_count_sum,		shape=ellipse,		style=filled];	"lem:sum_if_fin_val_eq" -> "lem:red_run_count_sum"	[style=dashed];	"lem:run_weight_sum" -> "lem:meldable_rank_sum"	[style=dashed];	"lem:run_left_rank_mod"	[color=green,		fillcolor="#1CAC78",		label=run_left_rank_mod,		shape=ellipse,		style=filled];	"lem:run_weight_sum" -> "lem:run_left_rank_mod"	[style=dashed];	"lem:red_run_count_sum" -> "lem:meldable_total_mod"	[style=dashed];	"lem:run_left_count_mod"	[color=green,		fillcolor="#1CAC78",		label=run_left_count_mod,		shape=ellipse,		style=filled];	"lem:red_run_count_sum" -> "lem:run_left_count_mod"	[style=dashed];	"lem:run_left_rank_mod" -> "lem:meldable_left_rank_mod_zero"	[style=dashed];	"lem:run_left_count_mod" -> "lem:meldable_left_total_mod_zero"	[style=dashed];	"def:small_sizes"	[color=green,		fillcolor="#B0ECA3",		label=small_sizes,		shape=box,		style=filled];	"lem:small_sizes_mem_of_admissible_le_22"	[color=green,		fillcolor="#1CAC78",		label=small_sizes_mem_of_admissible_le_22,		shape=ellipse,		style=filled];	"def:small_sizes" -> "lem:small_sizes_mem_of_admissible_le_22"	[style=dashed];	"lem:small_sizes_mem_of_admissible_le_22" -> "thm:counterexample_size_bound"	[style=dashed];	"lem:red_eq_zero_of_sum_eq_zero"	[color=green,		fillcolor="#1CAC78",		label=red_eq_zero_of_sum_eq_zero,		shape=ellipse,		style=filled];	"lem:red_eq_zero_of_sum_eq_zero" -> "lem:run_eq_zero_of_zero_coord"	[style=dashed];	"def:remove_pair"	[color=green,		fillcolor="#B0ECA3",		label=remove_pair,		shape=box,		style=filled];	"def:remove_pair" -> "lem:deleteThree_removePair_add_basis"	[style=dashed];	"def:remove_pair" -> "lem:filtered_total_remove_pair_add_pair"	[style=dashed];	"def:remove_pair" -> "def:complete"	[style=dashed];	"def:remove_pair" -> "lem:filtered_rank_remove_pair_add_pair"	[style=dashed];	"lem:removePair_rankSum_add_pair"	[color=green,		fillcolor="#1CAC78",		label=removePair_rankSum_add_pair,		shape=ellipse,		style=filled];	"def:remove_pair" -> "lem:removePair_rankSum_add_pair"	[style=dashed];	"lem:removePair_rankSum_add_pair" -> "lem:complete_rank_sum"	[style=dashed];	"lem:seven_le_exception_card_of_no_three"	[color=green,		fillcolor="#1CAC78",		label=seven_le_exception_card_of_no_three,		shape=ellipse,		style=filled];	"lem:seven_le_exception_card_of_no_three" -> "thm:counterexample_size_bound"	[style=dashed];	"def:left_total"	[color=green,		fillcolor="#B0ECA3",		label=left_total,		shape=box,		style=filled];	"def:left_total" -> "lem:meldable_left_total_mod_zero"	[style=dashed];	"def:left_total" -> "lem:total_split_at"	[style=dashed];	"def:internal_embedding"	[color=green,		fillcolor="#B0ECA3",		label=internal_embedding,		shape=box,		style=filled];	"def:internal_indices"	[color=green,		fillcolor="#B0ECA3",		label=internal_indices,		shape=box,		style=filled];	"def:internal_embedding" -> "def:internal_indices"	[style=dashed];	"lem:mem_internal_indices"	[color=green,		fillcolor="#1CAC78",		label=mem_internal_indices,		shape=ellipse,		style=filled];	"def:internal_indices" -> "lem:mem_internal_indices"	[style=dashed];	"lem:card_internal_indices"	[color=green,		fillcolor="#1CAC78",		label=card_internal_indices,		shape=ellipse,		style=filled];	"def:internal_indices" -> "lem:card_internal_indices"	[style=dashed];	"lem:exception_card_le_internal_excess"	[color=green,		fillcolor="#1CAC78",		label=exception_card_le_internal_excess,		shape=ellipse,		style=filled];	"def:internal_indices" -> "lem:exception_card_le_internal_excess"	[style=dashed];	"lem:mem_internal_indices" -> "lem:internal_excess_le_six"	[style=dashed];	"lem:mem_internal_indices" -> "lem:seven_le_exception_card_of_no_three"	[style=dashed];	"lem:card_internal_indices" -> "lem:internal_excess_le_six"	[style=dashed];	"lem:exception_card_le_internal_excess" -> "thm:counterexample_size_bound"	[style=dashed];	"def:meldable"	[color=green,		fillcolor="#B0ECA3",		label=meldable,		shape=box,		style=filled];	"def:meldable" -> "thm:meldable_iff_scan"	[style=dashed];	"def:meldable" -> "lem:run_eq_zero_of_zero_coord"	[style=dashed];	"def:meldable" -> "lem:meldable_rank_sum"	[style=dashed];	"def:meldable" -> "lem:meldable_total_mod"	[style=dashed];	"def:meldable" -> "def:complete"	[style=dashed];	"def:right_rank_sum"	[color=green,		fillcolor="#B0ECA3",		label=right_rank_sum,		shape=box,		style=filled];	"def:right_rank_sum" -> "lem:rank_sum_split_at"	[style=dashed];	"def:left_rank_sum"	[color=green,		fillcolor="#B0ECA3",		label=left_rank_sum,		shape=box,		style=filled];	"def:left_rank_sum" -> "lem:meldable_left_rank_mod_zero"	[style=dashed];	"def:left_rank_sum" -> "lem:rank_sum_split_at"	[style=dashed];	"def:basis"	[color=green,		fillcolor="#B0ECA3",		label=basis,		shape=box,		style=filled];	"def:basis" -> "lem:basis_deleteIndex"	[style=dashed];	"def:basis" -> "lem:filtered_total_basis"	[style=dashed];	"def:basis" -> "lem:filtered_rank_basis"	[style=dashed];	"def:basis" -> "def:remove_pair"	[style=dashed];	"lem:rankSum_basis"	[color=green,		fillcolor="#1CAC78",		label=rankSum_basis,		shape=ellipse,		style=filled];	"def:basis" -> "lem:rankSum_basis"	[style=dashed];	"lem:rankSum_two_basis"	[color=green,		fillcolor="#1CAC78",		label=rankSum_two_basis,		shape=ellipse,		style=filled];	"def:basis" -> "lem:rankSum_two_basis"	[style=dashed];	"lem:rankSum_add_basis"	[color=green,		fillcolor="#1CAC78",		label=rankSum_add_basis,		shape=ellipse,		style=filled];	"lem:rankSum_basis" -> "lem:rankSum_add_basis"	[style=dashed];	"lem:rankSum_two_basis" -> "lem:removePair_rankSum_add_pair"	[style=dashed];	"lem:rankSum_add_basis" -> "lem:complete_rank_sum"	[style=dashed];	"def:counts_cons"	[color=green,		fillcolor="#B0ECA3",		label=counts_cons,		shape=box,		style=filled];	"def:counts_cons" -> "lem:scan_out2_cons"	[style=dashed];	"def:counts_cons" -> "lem:scan_prev1_cons_succ"	[style=dashed];	"def:counts_cons" -> "lem:scan_out1_cons"	[style=dashed];	"def:counts_cons" -> "lem:scan_prev2_cons_succ"	[style=dashed];	"lem:filtered_rank_add"	[color=green,		fillcolor="#1CAC78",		label=filtered_rank_add,		shape=ellipse,		style=filled];	"lem:filtered_rank_add" -> "lem:filtered_rank_remove_pair_add_pair"	[style=dashed];	"lem:filtered_rank_add" -> "lem:filtered_rank_add_basis"	[style=dashed];	"lem:modEq_of_add_one_modEq_zero"	[color=green,		fillcolor="#1CAC78",		label=modEq_of_add_one_modEq_zero,		shape=ellipse,		style=filled];	"lem:modEq_of_add_one_modEq_zero" -> "thm:interior_positive"	[style=dashed];	"lem:foldlM_append_option"	[color=green,		fillcolor="#1CAC78",		label=foldlM_append_option,		shape=ellipse,		style=filled];	"lem:foldlM_append_option" -> "lem:scan_delete_three_ones_block"	[style=dashed];	"def:scan_start_at"	[color=green,		fillcolor="#B0ECA3",		label=scan_start_at,		shape=box,		style=filled];	"def:scan_start_at" -> "def:scan_prev1"	[style=dashed];	"def:scan_start_at" -> "def:scan_prev2"	[style=dashed];	"lem:filtered_total_add"	[color=green,		fillcolor="#1CAC78",		label=filtered_total_add,		shape=ellipse,		style=filled];	"lem:filtered_total_add" -> "lem:filtered_total_remove_pair_add_pair"	[style=dashed];	"lem:filtered_total_add" -> "lem:filtered_total_add_basis"	[style=dashed];	"def:rank_sum"	[color=green,		fillcolor="#B0ECA3",		label=rank_sum,		shape=box,		style=filled];	"def:rank_sum" -> "lem:rank_sum_split_at"	[style=dashed];	"def:rank_sum" -> "lem:run_weight_sum"	[style=dashed];	"def:rank_sum" -> "lem:rankSum_basis"	[style=dashed];	"def:rank_sum" -> "lem:rankSum_two_basis"	[style=dashed];	"lem:rankSum_add"	[color=green,		fillcolor="#1CAC78",		label=rankSum_add,		shape=ellipse,		style=filled];	"def:rank_sum" -> "lem:rankSum_add"	[style=dashed];	"lem:rankSum_add" -> "lem:removePair_rankSum_add_pair"	[style=dashed];	"lem:rankSum_add" -> "lem:rankSum_add_basis"	[style=dashed];	"def:counts"	[color=green,		fillcolor="#B0ECA3",		label=counts,		shape=box,		style=filled];	"def:counts" -> "def:delete_three"	[style=dashed];	"def:counts" -> "def:standard"	[style=dashed];	"def:counts" -> "def:scan_out2"	[style=dashed];	"def:counts" -> "def:scan_out1"	[style=dashed];	"def:counts" -> "def:scan"	[style=dashed];	"def:counts" -> "def:right_total"	[style=dashed];	"def:counts" -> "def:total"	[style=dashed];	"def:counts" -> "def:left_total"	[style=dashed];	"def:counts" -> "def:meldable"	[style=dashed];	"def:counts" -> "def:right_rank_sum"	[style=dashed];	"def:counts" -> "def:left_rank_sum"	[style=dashed];	"def:counts" -> "def:basis"	[style=dashed];	"def:counts" -> "def:counts_cons"	[style=dashed];	"def:counts" -> "def:scan_start_at"	[style=dashed];	"def:counts" -> "def:rank_sum"	[style=dashed];	"lem:ofFn_eq_take_ones_drop"	[color=green,		fillcolor="#1CAC78",		label=ofFn_eq_take_ones_drop,		shape=ellipse,		style=filled];	"def:counts" -> "lem:ofFn_eq_take_ones_drop"	[style=dashed];	"lem:ofFn_eq_take_ones_drop" -> "lem:delete_three_meldable"	[style=dashed];	"lem:modEq_of_add_one_modEq_two"	[color=green,		fillcolor="#1CAC78",		label=modEq_of_add_one_modEq_two,		shape=ellipse,		style=filled];	"lem:modEq_of_add_one_modEq_two" -> "thm:interior_positive"	[style=dashed];}`)
+    .on("end", interactive);
+
+latexLabelEscaper = function(label) {
+  return label.replace(/\./g, '\\.').replace(/:/g, '\\:')
+}
+
+clickNode = function() {
+  $("#statements div").hide()
+  var node_id = $('text', this).text();
+  $('.thm').hide();
+  $('#'+latexLabelEscaper(node_id)).show().children().show();
+}
+function interactive() {
+    $("span#legend_title").on("click", function () {
+           $(this).siblings('dl').toggle();
+        })
+
+    d3.selectAll('.node')
+        .attr('pointer-events', 'fill')
+        .on('click', function () {
+           var title = d3.select(this).selectAll('title').text().trim();
+           $('#statements > div').hide()
+           $('.thm').hide();
+           $('#'+latexLabelEscaper(title)+'_modal').show().children().show().children().show();
+           $('#statements').show()
+        });
+
+    d3.selectAll('.dep-closebtn').on('click', function() {
+        var modal =
+            d3.select(this).node().parentNode.parentNode.parentNode ;
+        d3.select(modal).style('display', 'none');
+    });
+}
+
+</script>
+
+</body>
+</html>
