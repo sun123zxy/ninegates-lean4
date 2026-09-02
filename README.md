@@ -35,8 +35,6 @@ To wrap up, conscious effort has been made to rewrite the code into a clean and 
 
 We use the standard axioms `propext`, `Classical.choice`, `Quot.sound` and `native_decide` for the finite case enumeration. You can check yourself with `#print axioms liveFullWait_unique`. The first three are standard in Lean 4, and the last is for the efficent small-case enumeration.
 
-- TODO: comparator
-
 ## Reading the code
 
 Rich documentation is provided in the code itself. The following is a brief overview of the library structure.
@@ -104,3 +102,15 @@ This set of rules turns out to be effective, resulting a brainless `ext; simp_al
 - `Hand.size` and `Hand.sum`: For definitions containing `∑`. See `Basic` documentation for a closer look.
 
 In practice, as `grind` has a upper limit on the number of case splits (though it is configurable by `grind (splits := 20)`), it is still recommended to manually perform the case split and `simp` with the case conditions before invoking `grind` for the remaining proof obligations.
+
+## TODOs
+
+- TODO: comparator
+
+- TODO: allow counterexample elimination switching to `decide`.
+  We can't switch to `decide` now because `Winning.decide` use `ExtHashSet`,
+  which might not expose its implementation to the downstream.
+  Hence a `#eval` works but a `#reduce` fails.
+  We shall go for a `List` version instead.
+
+- TODO: module system
