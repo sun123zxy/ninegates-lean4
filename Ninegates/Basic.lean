@@ -19,7 +19,24 @@ import Mathlib.Tactic
 
 ### Definition of `Hand`
 
-TODO: Alternative choices of defintion of `Hand`.
+We choose to define `Hand` as a wrapper around `Fin (3 * n) → ℕ`.
+The main reason is that the counting vector representation
+is mathematically idomatic and heavily used in our literature.
+The drawback is that for algorithmic use,
+some glue code is required to convert it into a `List`-like representation.
+
+We come to this choice after trialing and erroring with many other representations:
+
+- `Finsupp`: Allows flexible support and may be good at handling the edge cases,
+  but it's current version in `Mathlib` is unfortunately uncomputable.
+
+- `Multiset`: Each tile as an element, born computation-friendly.
+  But as counting number of tiles is a fundamental operation in our development,
+  Computable does not mean efficiently computable.
+
+- `Vector` as the counting vector might be the best choice with both mathematical
+  and computational friendliness. Many algorithms are already using it.
+  We might consider a migration in the future.
 
 ### Comparison convention of `Fin`
 
