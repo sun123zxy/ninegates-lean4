@@ -34,9 +34,8 @@ We design `toHand_apply` automation as follows:
   Note that we choose not to `@[grind]` them, because if we do,
   when `grind` matches a `p.toHand i`, it immediately put multiple implications,
   e.g. `i.val = 0 → p.toHand i = 3 * p.tripNum i + p.seqNum i`, into the whiteboard,
-  which is unnecessary as the `@[grind]`ed `if`-lemma already does this.
-
-  TODO: Actually analyze the grind trace to confirm this.
+  which is unnecessary as the `if`-lemma with `@[grind]` will handles the case split,
+  and `grind` is designed to handle case splits effectively.
 
 The effectiveness of this design is verified by the neat proof of
 `IsLiveFullWait.standardLiveFullWait`.
@@ -192,7 +191,7 @@ lemma toHand_apply (p : Placement n) (i : Fin (3 * n)) :
   rw [h0, seq_sum p i 1 (by omega), seq_sum p i 2 (by omega)]
   by_cases hi₀ : i.val = 0 <;> by_cases hi₁ : i.val = 1 <;> grind
 
-@[simp]
+@[simp, grind =]
 lemma toHand_apply_of_eq_zero (p : Placement n) (i : Fin (3 * n))
     (hi : i.val = 0) :
     p.toHand i = 3 * p.tripNum i + p.seqNum i := by grind
