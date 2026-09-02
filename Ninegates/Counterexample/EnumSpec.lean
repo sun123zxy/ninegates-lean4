@@ -13,6 +13,7 @@ full-wait counterexamples.
 
 namespace Mahjong.Hand.Counterexample
 
+@[simp]
 lemma ofFn_getD {xs : List Nat} :
     List.ofFn (fun i : Fin xs.length => xs.getD i.val 0) = xs := by
   simpa only [List.getD_eq_get, List.get_eq_getElem] using
@@ -50,40 +51,24 @@ def BoundedBy : List Nat → List Nat → Prop
   | bound :: bounds, value :: values =>
       value ≤ bound ∧ BoundedBy bounds values
 
+@[grind →]
 lemma BoundedBy.length_eq {bounds values : List Nat} (h : BoundedBy bounds values) :
     values.length = bounds.length := by
-  induction bounds generalizing values with
-  | nil => cases values <;> simp [BoundedBy] at h ⊢
-  | cons bound bounds ih =>
-      cases values with
-      | nil => simp [BoundedBy] at h
-      | cons value values =>
-          simp only [List.length_cons]
-          rw [ih h.2]
+  induction bounds generalizing values <;> cases values <;> simp_all [BoundedBy]
 
 lemma BoundedBy.getD_le {bounds values : List Nat} (h : BoundedBy bounds values)
     (i : Nat) : values.getD i 0 ≤ bounds.getD i 0 := by
-  induction bounds generalizing values i with
-  | nil =>
-      cases values with
-      | nil => simp
-      | cons value values => simp only [BoundedBy] at h
-  | cons bound bounds ih =>
-      cases values with
-      | nil => simp only [BoundedBy] at h
-      | cons value values =>
-          cases i with
-          | zero => simp only [BoundedBy, List.getD_cons_zero] at h ⊢; omega
-          | succ i =>
-              simp only [List.getD_cons_succ]
-              exact ih h.2 i
+  induction bounds generalizing values i <;> cases values <;>
+    cases i <;> simp_all [BoundedBy]
 
+grind_pattern BoundedBy.getD_le => values.getD i 0, bounds.getD i 0
+
+@[simp]
 lemma boundedBy_replicate_iff {bound n : Nat} {values : List Nat} :
     BoundedBy (List.replicate n bound) values ↔
       values.length = n ∧ ∀ value ∈ values, value ≤ bound := by
   induction n generalizing values with
-  | zero =>
-      cases values <;> simp [BoundedBy]
+  | zero => cases values <;> simp [BoundedBy]
   | succ n ih =>
       cases values with
       | nil => simp [List.replicate_succ, BoundedBy]
@@ -92,6 +77,7 @@ lemma boundedBy_replicate_iff {bound n : Nat} {values : List Nat} :
             List.mem_cons]
           grind
 
+@[simp]
 lemma boundedBy_replicate_append_singleton_iff
     {bound last : Nat} {values : List Nat} {lastValue : Nat} :
     BoundedBy (List.replicate values.length bound ++ [last])
@@ -131,19 +117,12 @@ lemma list_split_boundaries {xs : List Nat} {m : Nat}
           · simp
           · simp [hlen]
 
+@[simp]
 lemma mem_boundedLists_iff {bounds values : List Nat} {total : Nat} :
     values ∈ boundedLists bounds total ↔
       BoundedBy bounds values ∧ values.sum = total := by
-  induction bounds generalizing total values with
-  | nil =>
-      cases total <;> cases values <;> simp [boundedLists, BoundedBy]
-  | cons bound bounds ih =>
-      cases values with
-      | nil => simp [boundedLists, BoundedBy]
-      | cons value values =>
-          simp only [boundedLists, List.bind_eq_flatMap, List.mem_flatMap,
-            List.mem_range, List.mem_pure, BoundedBy, List.sum_cons, ih]
-          grind
+  induction bounds generalizing total values <;> cases values <;> cases total <;>
+    simp_all [boundedLists, BoundedBy] <;> grind
 
 def positiveEntries : List Nat → List Nat
   | [] => []
@@ -163,38 +142,32 @@ def NoTripleZeros : List Nat → Prop
       ¬(a = 0 ∧ b = 0 ∧ c = 0) ∧ NoTripleZeros (b :: c :: rest)
   | _ => True
 
+@[simp]
 lemma mem_positiveEntries_iff {x : Nat} {xs : List Nat} :
     x ∈ positiveEntries xs ↔ x ∈ xs ∧ x ≠ 0 := by
   induction xs with
   | nil => simp [positiveEntries]
   | cons y ys ih =>
-      cases y with
-      | zero =>
-          simp only [positiveEntries, List.mem_cons, ih]
-          grind
-      | succ y =>
-          simp only [positiveEntries, List.mem_cons, ih]
-          grind
+      cases y <;> simp only [positiveEntries, List.mem_cons, ih]
+      all_goals grind
 
+@[simp]
 lemma zeroGaps_ne_nil (xs : List Nat) : zeroGaps xs ≠ [] := by
   induction xs with
   | nil => simp [zeroGaps]
   | cons x xs ih =>
-      cases x with
-      | zero =>
-          simp only [zeroGaps]
-          cases h : zeroGaps xs with
-          | nil => exact (ih h).elim
-          | cons gap gaps => simp
-      | succ x => simp [zeroGaps]
+      cases x <;> simp only [zeroGaps]
+      · split <;> simp_all
+      · simp
 
+@[simp]
 lemma placePositives_succ_gap (gap : Nat) (gaps values : List Nat) :
     placePositives ((gap + 1) :: gaps) values =
       0 :: placePositives (gap :: gaps) values := by
-  cases values with
-  | nil => simp [placePositives, List.bind_eq_flatMap, List.replicate_succ]
-  | cons x values => simp [placePositives, List.replicate_succ]
+  cases values <;> simp [placePositives, List.bind_eq_flatMap,
+    List.replicate_succ]
 
+@[simp]
 lemma placePositives_zeroGaps (xs : List Nat) :
     placePositives (zeroGaps xs) (positiveEntries xs) = xs := by
   induction xs with
@@ -203,17 +176,10 @@ lemma placePositives_zeroGaps (xs : List Nat) :
       cases x with
       | zero =>
           simp only [zeroGaps, positiveEntries]
-          cases h : zeroGaps xs with
-          | nil => exact (zeroGaps_ne_nil xs h).elim
-          | cons gap gaps =>
-              rw [placePositives_succ_gap]
-              rw [h] at ih
-              exact congrArg (List.cons 0) ih
-      | succ x =>
-          simp only [zeroGaps, positiveEntries, placePositives, List.replicate_zero,
-            List.nil_append]
-          exact congrArg (List.cons (x + 1)) ih
+          cases h : zeroGaps xs <;> simp_all
+      | succ x => simp_all [zeroGaps, positiveEntries, placePositives]
 
+@[simp]
 lemma length_zeroGaps (xs : List Nat) :
     (zeroGaps xs).length = (positiveEntries xs).length + 1 := by
   induction xs with
@@ -222,44 +188,32 @@ lemma length_zeroGaps (xs : List Nat) :
       cases x with
       | zero =>
           simp only [zeroGaps, positiveEntries]
-          cases h : zeroGaps xs with
-          | nil => exact (zeroGaps_ne_nil xs h).elim
-          | cons gap gaps =>
-              rw [h] at ih
-              simp only [List.length_cons] at ih ⊢
-              exact ih
-      | succ x =>
-          simp only [zeroGaps, positiveEntries, List.length_cons]
-          omega
+          cases h : zeroGaps xs <;> simp_all
+      | succ x => simp_all [zeroGaps, positiveEntries]
 
+@[simp]
 lemma zeroGaps_replicate_zero (gap : Nat) :
     zeroGaps (List.replicate gap 0) = [gap] := by
-  induction gap with
-  | zero => simp [zeroGaps]
-  | succ gap ih => simp only [List.replicate_succ, zeroGaps, ih]
+  induction gap <;> simp_all [List.replicate_succ, zeroGaps]
 
+@[simp]
 lemma positiveEntries_replicate_zero (gap : Nat) :
     positiveEntries (List.replicate gap 0) = [] := by
-  induction gap with
-  | zero => simp [positiveEntries]
-  | succ gap ih => simp [List.replicate_succ, positiveEntries, ih]
+  induction gap <;> simp_all [List.replicate_succ, positiveEntries]
 
+@[simp]
 lemma zeroGaps_replicate_zero_cons (gap x : Nat) (xs : List Nat) (_hx : x ≠ 0) :
     zeroGaps (List.replicate gap 0 ++ x :: xs) = gap :: zeroGaps xs := by
-  induction gap with
-  | zero => simp [zeroGaps]
-  | succ gap ih =>
-      simp only [List.replicate_succ, List.cons_append, zeroGaps]
-      rw [ih]
+  induction gap <;> simp_all [List.replicate_succ, zeroGaps]
 
+@[simp]
 lemma positiveEntries_replicate_zero_cons
     (gap x : Nat) (xs : List Nat) (_hx : x ≠ 0) :
     positiveEntries (List.replicate gap 0 ++ x :: xs) =
       x :: positiveEntries xs := by
-  induction gap with
-  | zero => simp [positiveEntries]
-  | succ gap ih => simp [List.replicate_succ, positiveEntries, ih]
+  induction gap <;> simp_all [List.replicate_succ, positiveEntries]
 
+@[simp]
 lemma zeroGaps_placePositives {gaps values : List Nat}
     (hlen : gaps.length = values.length + 1)
     (hvalues : ∀ value ∈ values, value ≠ 0) :
@@ -269,24 +223,17 @@ lemma zeroGaps_placePositives {gaps values : List Nat}
       cases gaps with
       | nil => simp at hlen
       | cons gap gaps =>
-          cases gaps with
-          | nil =>
-              simp [placePositives, List.bind_eq_flatMap, zeroGaps_replicate_zero]
-          | cons gap' gaps => simp at hlen
+          cases gaps <;> simp_all [placePositives, List.bind_eq_flatMap]
   | cons value values ih =>
       cases gaps with
       | nil => simp at hlen
       | cons gap gaps =>
-          have hvalue : value ≠ 0 := hvalues value (by simp)
-          have hlen' : gaps.length = values.length + 1 := by
-            simp only [List.length_cons] at hlen
-            omega
           simp only [placePositives]
-          rw [zeroGaps_replicate_zero_cons _ _ _ hvalue]
-          rw [ih hlen' (by
-            intro x hx
-            exact hvalues x (by simp [hx]))]
+          rw [zeroGaps_replicate_zero_cons _ _ _ (hvalues value (by simp))]
+          apply congrArg (List.cons gap)
+          apply ih <;> simp_all
 
+@[simp]
 lemma positiveEntries_placePositives {gaps values : List Nat}
     (hlen : gaps.length = values.length + 1)
     (hvalues : ∀ value ∈ values, value ≠ 0) :
@@ -296,33 +243,23 @@ lemma positiveEntries_placePositives {gaps values : List Nat}
       cases gaps with
       | nil => simp at hlen
       | cons gap gaps =>
-          cases gaps with
-          | nil =>
-              simp [placePositives, List.bind_eq_flatMap,
-                positiveEntries_replicate_zero]
-          | cons gap' gaps => simp at hlen
+          cases gaps <;> simp_all [placePositives, List.bind_eq_flatMap]
   | cons value values ih =>
       cases gaps with
       | nil => simp at hlen
       | cons gap gaps =>
-          have hvalue : value ≠ 0 := hvalues value (by simp)
-          have hlen' : gaps.length = values.length + 1 := by
-            simp only [List.length_cons] at hlen
-            omega
           simp only [placePositives]
-          rw [positiveEntries_replicate_zero_cons _ _ _ hvalue]
-          rw [ih hlen' (by
-            intro x hx
-            exact hvalues x (by simp [hx]))]
+          rw [positiveEntries_replicate_zero_cons _ _ _ (hvalues value (by simp))]
+          apply congrArg (List.cons value)
+          apply ih <;> simp_all
 
+@[grind →]
 lemma noTripleZeros_tail {x : Nat} {xs : List Nat}
     (h : NoTripleZeros (x :: xs)) : NoTripleZeros xs := by
   cases xs with
   | nil => simp [NoTripleZeros]
   | cons y ys =>
-      cases ys with
-      | nil => simp [NoTripleZeros]
-      | cons z zs => exact h.2
+      cases ys <;> simp_all [NoTripleZeros]
 
 lemma noTripleZeros_iff_getD (xs : List Nat) :
     NoTripleZeros xs ↔
@@ -445,6 +382,7 @@ lemma zeroGaps_le_two_of_noTripleZeros (xs : List Nat)
                           · omega
                           · exact htail gap (by simp [zeroGaps, hgap])
 
+@[simp]
 lemma length_placePositives_empty (gaps : List Nat) :
     (placePositives gaps []).length = gaps.sum := by
   induction gaps with
@@ -458,6 +396,7 @@ lemma sum_flatMap_replicate_zero (gaps : List Nat) :
   | nil => simp
   | cons gap gaps ih => simp [ih]
 
+@[simp]
 lemma sum_placePositives_empty (gaps : List Nat) :
     (placePositives gaps []).sum = 0 := by
   simpa [placePositives, List.bind_eq_flatMap] using sum_flatMap_replicate_zero gaps
@@ -476,20 +415,18 @@ lemma length_placePositives_of_nonempty {gaps : List Nat} {x : Nat}
       · cases values with
         | nil => simp_all
         | cons y values =>
-            have h' : (y :: values).length ≤ gaps.length := by
-              change values.length + 2 ≤ gaps.length + 1 at h
-              change values.length + 1 ≤ gaps.length
-              omega
+            have h' : (y :: values).length ≤ gaps.length := by grind
             simp only [List.length_cons] at ⊢
             rw [ih (x := y) (values := values) h']
             simp only [List.length_cons]
             omega
 
+@[simp]
 lemma length_placePositives {gaps values : List Nat}
     (h : values.length ≤ gaps.length) :
     (placePositives gaps values).length = gaps.sum + values.length := by
   cases values with
-  | nil => simpa using length_placePositives_empty gaps
+  | nil => simp
   | cons x values => exact length_placePositives_of_nonempty h
 
 lemma sum_placePositives_of_nonempty {gaps : List Nat} {x : Nat}
@@ -507,14 +444,11 @@ lemma sum_placePositives_of_nonempty {gaps : List Nat} {x : Nat}
       · cases values with
         | nil => simp_all
         | cons y values =>
-            have h' : (y :: values).length ≤ gaps.length := by
-              change values.length + 2 ≤ gaps.length + 1 at h
-              change values.length + 1 ≤ gaps.length
-              omega
+            have h' : (y :: values).length ≤ gaps.length := by grind
             rw [ih (x := y) (values := values) h']
-            simp only [List.sum_cons]
             simp
 
+@[simp]
 lemma sum_placePositives {gaps values : List Nat}
     (h : values.length ≤ gaps.length) :
     (placePositives gaps values).sum = values.sum := by
@@ -524,62 +458,46 @@ lemma sum_placePositives {gaps values : List Nat}
       simpa only [List.sum_cons] using
         sum_placePositives_of_nonempty h
 
+@[simp]
 lemma sum_positiveEntries (xs : List Nat) :
     (positiveEntries xs).sum = xs.sum := by
-  have h := sum_placePositives
-    (gaps := zeroGaps xs) (values := positiveEntries xs) (by
-      rw [length_zeroGaps]
-      omega)
-  rw [placePositives_zeroGaps] at h
-  exact h.symm
+  simpa only [placePositives_zeroGaps] using (sum_placePositives
+    (gaps := zeroGaps xs) (values := positiveEntries xs) (by simp)).symm
 
+@[simp]
 lemma sum_zeroGaps_add_length_positiveEntries (xs : List Nat) :
     (zeroGaps xs).sum + (positiveEntries xs).length = xs.length := by
-  have h := length_placePositives
-    (gaps := zeroGaps xs) (values := positiveEntries xs) (by
-      rw [length_zeroGaps]
-      omega)
-  rw [placePositives_zeroGaps] at h
-  exact h.symm
+  simpa only [placePositives_zeroGaps] using (length_placePositives
+    (gaps := zeroGaps xs) (values := positiveEntries xs) (by simp)).symm
 
+@[simp]
 lemma sum_map_pred_add_length {values : List Nat}
     (h : ∀ value ∈ values, 1 ≤ value) :
     (values.map (fun value => value - 1)).sum + values.length = values.sum := by
   induction values with
   | nil => simp
   | cons value values ih =>
-      have hvalue := h value (by simp)
-      have htail : ∀ x ∈ values, 1 ≤ x := by
-        intro x hx
-        exact h x (by simp [hx])
-      simp only [List.map_cons, List.sum_cons, List.length_cons]
-      have ih' := ih htail
+      simp_all
       omega
 
+@[simp]
 lemma map_succ_map_pred {values : List Nat}
     (h : ∀ value ∈ values, 1 ≤ value) :
     (values.map (fun value => value - 1)).map (fun value => value + 1) = values := by
   induction values with
   | nil => simp
-  | cons value values ih =>
-      have hvalue := h value (by simp)
-      have htail : ∀ x ∈ values, 1 ≤ x := by
-        intro x hx
-        exact h x (by simp [hx])
-      simp only [List.map_cons]
-      rw [ih htail]
-      congr 1
-      omega
+  | cons value values ih => simp_all
 
+@[simp]
 lemma sum_map_succ (values : List Nat) :
     (values.map (fun value => value + 1)).sum = values.sum + values.length := by
   induction values with
   | nil => simp
   | cons value values ih =>
-      simp only [List.map_cons, List.sum_cons, List.length_cons]
-      rw [ih]
+      simp_all
       omega
 
+@[grind →]
 lemma length_largeCandidateExcesses {n : Nat} {excess : List Nat} (hn : 3 ≤ n)
     (h : excess ∈ largeCandidateExcesses n) : excess.length = 3 * n := by
   simp only [largeCandidateExcesses, List.cons_append, List.pure_def,
@@ -597,10 +515,10 @@ lemma length_largeCandidateExcesses {n : Nat} {excess : List Nat} (hn : 3 ≤ n)
       omega)
   simp only [List.length_cons, List.length_append, List.length_map,
     List.length_nil, Nat.zero_add] at hplace ⊢
-  rw [hplace]
-  rw [hgaps_sum, hpositive']
+  rw [hplace, hgaps_sum, hpositive']
   omega
 
+@[grind →]
 lemma sum_largeCandidateExcesses {n : Nat} {excess : List Nat}
     (h : excess ∈ largeCandidateExcesses n) : excess.sum = 6 := by
   simp only [largeCandidateExcesses, List.cons_append, List.pure_def,
@@ -630,6 +548,7 @@ def IsCandidateExcess (n : Nat) (excess : List Nat) : Prop :=
     excess.sum = 6 ∧
     (n = 2 ∨ NoTripleZeros interior)
 
+@[simp]
 lemma mem_orderTwoCandidateExcesses_iff {excess : List Nat} :
     excess ∈ boundedLists (3 :: List.replicate 4 2 ++ [3]) 6 ↔
       IsCandidateExcess 2 excess := by
@@ -775,6 +694,7 @@ lemma largeCandidateExcesses_complete {n : Nat} {excess : List Nat} (hn : 3 ≤ 
     positiveExcess, hpositiveMem, gaps, hgapMem, ?_⟩
   rw [hmap, hreconstruct]
 
+@[simp]
 lemma mem_minimalCandidateExcesses_iff {n : Nat} {excess : List Nat} :
     excess ∈ MinimalCandidateExcesses n ↔
       2 ≤ n ∧ n ≤ 7 ∧ IsCandidateExcess n excess := by
@@ -800,21 +720,39 @@ lemma mem_minimalCandidateExcesses_iff {n : Nat} {excess : List Nat} :
 lemma handOfExcess_interior (n : Nat) (excess : List Nat)
     (i : Fin (3 * n - 2)) :
     handOfExcess n excess ⟨i.val + 1, by omega⟩ = excess.getD (i.val + 1) 0 + 1 := by
-  simp only [handOfExcess_apply]
-  split <;> omega
+  grind
 
 @[simp]
 lemma handOfExcess_left_boundary (n : Nat) (hn : 0 < n) (excess : List Nat) :
     handOfExcess n excess ⟨0, by omega⟩ = excess.getD 0 0 := by
-  simp only [handOfExcess_apply]
-  simp
+  grind
 
 @[simp]
 lemma handOfExcess_right_boundary (n : Nat) (hn : 0 < n) (excess : List Nat) :
     handOfExcess n excess ⟨3 * n - 1, by omega⟩ = excess.getD (3 * n - 1) 0 := by
-  simp only [handOfExcess_apply]
-  simp
+  grind
 
+@[simp]
+lemma handOfExcess_split_left (n left : Nat) (interior : List Nat) (right : Nat)
+    (hn : 0 < n) :
+    handOfExcess n (left :: interior ++ [right]) ⟨0, by omega⟩ = left := by
+  grind
+
+@[simp]
+lemma handOfExcess_split_right {n left right : Nat} {interior : List Nat}
+    (hn : 0 < n) (hlen : interior.length = 3 * n - 2) :
+    handOfExcess n (left :: interior ++ [right])
+        ⟨3 * n - 1, by omega⟩ = right := by
+  grind
+
+@[simp]
+lemma handOfExcess_split_interior {n left right : Nat} {interior : List Nat}
+    (hlen : interior.length = 3 * n - 2) (i : Fin (3 * n - 2)) :
+    handOfExcess n (left :: interior ++ [right])
+        ⟨i.val + 1, by omega⟩ = interior.getD i.val 0 + 1 := by
+  grind
+
+@[simp]
 lemma size_handOfExcess {n : Nat} {excess : List Nat} (hn : 2 ≤ n)
     (hlength : excess.length = 3 * n) :
     Hand.size (handOfExcess n excess) = excess.sum + (3 * n - 2) := by
@@ -822,42 +760,23 @@ lemma size_handOfExcess {n : Nat} {excess : List Nat} (hn : 2 ≤ n)
     list_split_boundaries (xs := excess) (m := 3 * n - 2) (by omega)
   have hsumGetD :
       (∑ i : Fin (3 * n - 2), interior.getD i.val 0) = interior.sum := by
-    let e : Fin (3 * n - 2) ≃ Fin interior.length := finCongr hlen.symm
-    calc
-      _ = ∑ i : Fin interior.length, interior.getD i.val 0 := by
-        apply Fintype.sum_equiv e
-        intro i
-        simp [e]
-      _ = interior.sum := sum_getD interior
-  have hgetD (i : Fin (3 * n - 2)) :
-      (left :: interior ++ [right]).getD (i.val + 1) 0 =
-        interior.getD i.val 0 := by
-    exact List.getD_append interior [right] 0 i.val (by omega)
-  have hrightGetD :
-      (left :: interior ++ [right]).getD (3 * n - 1) 0 = right := by
-    have hlast : 3 * n - 1 = (3 * n - 2) + 1 := by omega
-    rw [hlast]
-    change (interior ++ [right]).getD (3 * n - 2) 0 = right
-    rw [List.getD_append_right]
-    · simp [hlen]
-    · omega
+    rw [← hlen]
+    exact sum_getD interior
   have hinterior :
       (∑ i : Fin (3 * n - 2),
         handOfExcess n (left :: interior ++ [right])
           ⟨i.val + 1, by omega⟩) =
         interior.sum + (3 * n - 2) := by
-    simp only [handOfExcess_apply]
-    have hnotBoundary (i : Fin (3 * n - 2)) :
-        ¬(i.val + 1 = 0 ∨ i.val + 1 = 3 * n - 1) := by omega
-    simp only [hnotBoundary, ite_false, hgetD]
-    rw [Finset.sum_add_distrib, hsumGetD]
+    simp only [handOfExcess_split_interior hlen,
+      Finset.sum_add_distrib, hsumGetD]
     simp
-  rw [Hand.size_eq_sum, sum_fin_boundaries hn, hinterior]
-  simp only [handOfExcess_apply]
-  rw [hrightGetD]
+  rw [Hand.size_eq_sum, sum_fin_boundaries hn, hinterior,
+    handOfExcess_split_left n left interior right (by omega),
+    handOfExcess_split_right (by omega) hlen]
   simp
   omega
 
+@[simp]
 lemma size_handOfExcess_of_candidate {n : Nat} {excess : List Nat} (hn : 2 ≤ n)
     (h : IsCandidateExcess n excess) :
     Hand.size (handOfExcess n excess) = 3 * n + 4 := by
@@ -873,14 +792,18 @@ def excessOf (n : Nat) (c : Hand n) : List Nat :=
   List.ofFn (fun i : Fin (3 * n) =>
     c i - if i.val = 0 ∨ i.val = 3 * n - 1 then 0 else 1)
 
+@[simp]
+lemma length_excessOf (n : Nat) (c : Hand n) :
+    (excessOf n c).length = 3 * n := by
+  simp [excessOf]
+
+@[grind =]
 lemma excessOf_getD (n : Nat) (c : Hand n) (i : Fin (3 * n)) :
     (excessOf n c).getD i.val 0 =
       c i - if i.val = 0 ∨ i.val = 3 * n - 1 then 0 else 1 := by
-  unfold excessOf
-  rw [List.getD_eq_getElem]
-  · simp
-  · simp
+  simp [excessOf]
 
+@[simp]
 lemma handOfExcess_excessOf {n : Nat} {c : Hand n}
     (hc : ∀ i : Fin (3 * n - 2), 1 ≤ c ⟨i.val + 1, by omega⟩) :
     handOfExcess n (excessOf n c) = c := by
@@ -895,11 +818,7 @@ lemma handOfExcess_excessOf {n : Nat} {c : Hand n}
       · exact False.elim (hi (Or.inr hilast))
       · have hpos : 1 ≤ c i := by
           have hpos' := hc ⟨i.val - 1, by omega⟩
-          convert hpos' using 1
-          congr 1
-          apply Fin.ext
-          change i.val = (i.val - 1) + 1
-          omega
+          grind
         omega
 
 /-- An interior run of three ordinary entries. -/
@@ -909,6 +828,7 @@ def NoInteriorTripleOnes {n : Nat} (c : Hand n) : Prop :=
       c ⟨i.val + 2, by omega⟩ = 1 ∧
       c ⟨i.val + 3, by omega⟩ = 1)
 
+@[simp]
 lemma noInteriorTripleOnes_handOfExcess_iff
     {n left right : Nat} {interior : List Nat} (hn : 2 ≤ n)
     (hlen : interior.length = 3 * n - 2) :
@@ -917,12 +837,7 @@ lemma noInteriorTripleOnes_handOfExcess_iff
   have hvalue (i : Nat) (hi : i < interior.length) :
       handOfExcess n (left :: interior ++ [right]) ⟨i + 1, by omega⟩ =
         interior.getD i 0 + 1 := by
-    let j : Fin (3 * n - 2) := ⟨i, by omega⟩
-    have hgetD :
-        (left :: interior ++ [right]).getD (i + 1) 0 = interior.getD i 0 :=
-      List.getD_append interior [right] 0 i hi
-    simpa only [j, hgetD] using
-      (handOfExcess_interior n (left :: interior ++ [right]) j)
+    exact handOfExcess_split_interior hlen ⟨i, by omega⟩
   constructor
   · intro h
     apply (noTripleZeros_iff_getD interior).mpr
@@ -958,59 +873,30 @@ lemma IsCandidateExcess.isMinimalCandidate_handOfExcess
   have hsize := size_handOfExcess_of_candidate hn h
   rcases h with ⟨left, interior, right, rfl, hlen, hleft, hright,
     hvalues, _, hncase⟩
-  have hrightGetD :
-      (left :: interior ++ [right]).getD (3 * n - 1) 0 = right := by
-    have hlast : 3 * n - 1 = (3 * n - 2) + 1 := by omega
-    rw [hlast]
-    change (interior ++ [right]).getD (3 * n - 2) 0 = right
-    rw [List.getD_append_right]
-    · simp [hlen]
-    · omega
-  have hleftValue :
-      handOfExcess n (left :: interior ++ [right]) ⟨0, by omega⟩ = left := by
-    rw [handOfExcess_left_boundary n (by omega)]
-    simp
-  have hrightValue :
-      handOfExcess n (left :: interior ++ [right])
-        ⟨3 * n - 1, by omega⟩ = right := by
-    rw [handOfExcess_right_boundary n (by omega), hrightGetD]
   have hle : ∀ i, handOfExcess n (left :: interior ++ [right]) i ≤ 3 := by
     intro i
     by_cases hzero : i.val = 0
     · have hi : i = ⟨0, by omega⟩ := Fin.ext hzero
-      calc
-        _ = handOfExcess n (left :: interior ++ [right]) ⟨0, by omega⟩ :=
-          congrArg _ hi
-        _ = left := hleftValue
-        _ ≤ 3 := hleft
+      simpa only [hi, handOfExcess_split_left n left interior right (by omega)]
     by_cases hlast : i.val = 3 * n - 1
     · have hi : i = ⟨3 * n - 1, by omega⟩ := Fin.ext hlast
-      calc
-        _ = handOfExcess n (left :: interior ++ [right])
-            ⟨3 * n - 1, by omega⟩ := congrArg _ hi
-        _ = right := hrightValue
-        _ ≤ 3 := hright
-    · have hj : i.val - 1 < interior.length := by omega
-      have hgetD :
-          (left :: interior ++ [right]).getD i.val 0 =
-            interior.getD (i.val - 1) 0 := by
-        have hi : i.val = (i.val - 1) + 1 := by omega
-        rw [hi]
-        exact List.getD_append interior [right] 0 (i.val - 1) hj
-      have hvalue : interior.getD (i.val - 1) 0 ≤ 2 := by
-        rw [List.getD_eq_getElem]
-        · exact hvalues _ (List.getElem_mem hj)
-        · exact hj
-      simp only [handOfExcess_apply, hzero, hlast, false_or, ite_false]
-      rw [hgetD]
-      omega
+      simpa only [hi, handOfExcess_split_right (by omega) hlen]
+    · let j : Fin (3 * n - 2) := ⟨i.val - 1, by omega⟩
+      have hi : i = ⟨j.val + 1, by omega⟩ := by
+        apply Fin.ext
+        simp [j]
+        omega
+      have hj : j.val < interior.length := by omega
+      rw [hi, handOfExcess_split_interior hlen, List.getD_eq_getElem]
+      · have := hvalues _ (List.getElem_mem hj)
+        omega
+      · exact hj
   have hpositive :
       ∀ i : Fin (3 * n - 2),
         1 ≤ handOfExcess n (left :: interior ++ [right])
           ⟨i.val + 1, by omega⟩ := by
     intro i
-    simp only [handOfExcess_interior]
-    omega
+    simp
   refine ⟨hn, hn', hle, hpositive, hsize, ?_⟩
   rcases hncase with rfl | htriple
   · exact Or.inl rfl
@@ -1020,58 +906,32 @@ lemma IsMinimalCandidate.isCandidateExcess_excessOf
     {n : Nat} {c : Hand n} (h : IsMinimalCandidate c) :
     IsCandidateExcess n (excessOf n c) := by
   rcases h with ⟨hn, _, hle, hpositive, hsize, hncase⟩
-  have hlength : (excessOf n c).length = 3 * n := by
-    simp [excessOf]
   obtain ⟨left, interior, right, hexcess, hlen⟩ :=
-    list_split_boundaries (xs := excessOf n c) (m := 3 * n - 2) (by omega)
+    list_split_boundaries (xs := excessOf n c) (m := 3 * n - 2) (by simp; omega)
   have hrecover := handOfExcess_excessOf hpositive
   rw [hexcess] at hrecover
-  have hrightGetD :
-      (left :: interior ++ [right]).getD (3 * n - 1) 0 = right := by
-    have hlast : 3 * n - 1 = (3 * n - 2) + 1 := by omega
-    rw [hlast]
-    change (interior ++ [right]).getD (3 * n - 2) 0 = right
-    rw [List.getD_append_right]
-    · simp [hlen]
-    · omega
-  have hleftValue :
-      handOfExcess n (left :: interior ++ [right]) ⟨0, by omega⟩ = left := by
-    rw [handOfExcess_left_boundary n (by omega)]
-    simp
-  have hrightValue :
-      handOfExcess n (left :: interior ++ [right])
-        ⟨3 * n - 1, by omega⟩ = right := by
-    rw [handOfExcess_right_boundary n (by omega), hrightGetD]
-  have hvalue (i : Nat) (hi : i < interior.length) :
-      handOfExcess n (left :: interior ++ [right]) ⟨i + 1, by omega⟩ =
-        interior.getD i 0 + 1 := by
-    let j : Fin (3 * n - 2) := ⟨i, by omega⟩
-    have hgetD :
-        (left :: interior ++ [right]).getD (i + 1) 0 = interior.getD i 0 :=
-      List.getD_append interior [right] 0 i hi
-    simpa only [j, hgetD] using
-      (handOfExcess_interior n (left :: interior ++ [right]) j)
   have hleft : left ≤ 3 := by
-    calc
-      left = handOfExcess n (left :: interior ++ [right]) ⟨0, by omega⟩ :=
-        hleftValue.symm
-      _ = c ⟨0, by omega⟩ := congrArg (fun d : Hand n => d _) hrecover
-      _ ≤ 3 := hle _
+    have := hle ⟨0, by omega⟩
+    rw [← hrecover] at this
+    simpa only [handOfExcess_split_left n left interior right (by omega)] using this
   have hright : right ≤ 3 := by
-    calc
-      right = handOfExcess n (left :: interior ++ [right])
-          ⟨3 * n - 1, by omega⟩ := hrightValue.symm
-      _ = c ⟨3 * n - 1, by omega⟩ := congrArg (fun d : Hand n => d _) hrecover
-      _ ≤ 3 := hle _
+    have := hle ⟨3 * n - 1, by omega⟩
+    rw [← hrecover] at this
+    simpa only [handOfExcess_split_right (by omega) hlen] using this
   have hvalues : ∀ value ∈ interior, value ≤ 2 := by
     intro value hmem
     rcases List.mem_iff_getElem.mp hmem with ⟨i, hi, rfl⟩
     have hc := hle ⟨i + 1, by omega⟩
-    rw [← hrecover, hvalue i hi] at hc
+    rw [← hrecover] at hc
+    let j : Fin (3 * n - 2) := ⟨i, by omega⟩
+    change handOfExcess n (left :: interior ++ [right])
+      ⟨j.val + 1, by omega⟩ ≤ 3 at hc
+    rw [handOfExcess_split_interior hlen j] at hc
     rw [List.getD_eq_getElem] at hc
-    · omega
+    · simp only [j] at hc
+      omega
     · exact hi
-  have hsizeExcess := size_handOfExcess hn hlength
+  have hsizeExcess := size_handOfExcess (excess := excessOf n c) hn (by simp)
   rw [handOfExcess_excessOf hpositive, hsize] at hsizeExcess
   have hsum : (excessOf n c).sum = 6 := by omega
   refine ⟨left, interior, right, hexcess, hlen, hleft, hright,
