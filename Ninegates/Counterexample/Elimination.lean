@@ -8,8 +8,12 @@ This file contains the computational certificate that no enumerated candidate
 is a live counterexample. It uses the enumeration algorithm established in
 `EnumSpec` combined with a plain decidable check of `IsLiveFullWait`.
 
-The `native_decide` is used for efficiency.
+The `native_decide` is used.
 TODO: allow switching to `decide`.
+We can't switch to `decide` now because `Winning.decide` use `ExtHashSet`,
+which might not expose its implementation to the downstream.
+Hence a `#eval` works but a `#reduce` fails.
+We shall go for a `List` version instead.
 -/
 
 namespace Mahjong.Hand.Counterexample
