@@ -1,6 +1,6 @@
 import Ninegates.Counterexample.Enum
 import Ninegates.Counterexample.Reduction
-import Ninegates.Wait.Decidable
+import Ninegates.Wait.Decidable.Spec
 import Mathlib.Data.List.GetD
 
 /-!

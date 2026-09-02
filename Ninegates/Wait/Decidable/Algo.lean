@@ -1,20 +1,13 @@
 import Ninegates.Wait.Basic
-import Ninegates.Winning.Decide
+import Ninegates.Winning.Decidable
 
 /-!
-Algorithms for deciding waits and full waits.
-See `Decidable` directory for specifications and proofs of correctness.
+# Prefix/suffix algorithm for waiting tiles
 -/
 
 namespace Mahjong.Hand
 
-def IsWaitingTile.decide (c : Hand n) (i : Fin (3 * n)) : Bool :=
-  Winning.decide (c + single i)
-
-def IsLiveWaitingTile.decide (c : Hand n) (i : Fin (3 * n)) : Bool :=
-  IsWaitingTile.decide c i && Decidable.decide (Valid (c + single i))
-
-namespace IsFullWait.Decidable
+namespace WaitingTiles.Decidable
 
 open Winning.Decidable
 
@@ -54,7 +47,7 @@ def waitsOn (count : Array Nat)
   !(stepSet (c + 1) (pref.get ⟨j.val, by omega⟩) ∩
     (suff.get ⟨j.val + 1, by omega⟩)).isEmpty
 
-def waitingTiles (count : Array Nat) : Array Bool := Id.run do
+def decideCount (count : Array Nat) : Array Bool := Id.run do
   let n := count.size
   let pref := buildPrefix count
   let suff := buildSuffix count
@@ -63,26 +56,41 @@ def waitingTiles (count : Array Nat) : Array Bool := Id.run do
     result := result.set j.val (waitsOn count pref suff j) (by omega)
   return result.toArray
 
-end IsFullWait.Decidable
+def decide (c : Hand n) : Array Bool :=
+  decideCount (Array.ofFn c)
 
-def IsFullWait.decide (c : Hand n) : Bool :=
-  (n == 0 || Hand.size c == 3 * n + 4) &&
-    (IsFullWait.Decidable.waitingTiles (Array.ofFn c)).all id
+private theorem decide_size_impl (c : Hand n) : (decide c).size = 3 * n := by
+  simp [decide, decideCount]
 
-def IsWait.decide (c : Hand n) : Bool :=
-  (Hand.size c == 3 * n + 4) &&
-    (IsFullWait.Decidable.waitingTiles (Array.ofFn c)).any id
+def waitingTilesFast (c : Hand n) : Finset (Fin (3 * n)) :=
+  if Hand.size c = 3 * n + 4 then
+    Finset.univ.filter fun i =>
+      (decide c)[i.val]'(by rw [decide_size_impl]; exact i.isLt) = true
+  else
+    ∅
 
-def IsLiveWait.decide (c : Hand n) : Bool :=
-  (Hand.size c == 3 * n + 4) &&
-    (Array.ofFn c).all (fun x ↦ x ≤ 4) &&
-      (Array.zipWith (· && ·)
-        (IsFullWait.Decidable.waitingTiles (Array.ofFn c))
-        ((Array.ofFn c).map (fun x ↦ x ≤ 3))).any id
+end WaitingTiles.Decidable
 
-def IsLiveFullWait.decide (c : Hand n) : Bool :=
-  (n == 0 || Hand.size c == 3 * n + 4) &&
-    (IsFullWait.Decidable.waitingTiles (Array.ofFn c)).all id &&
-      (Array.ofFn c).all (fun x ↦ x <= 3)
+namespace LiveWaitingTiles.Decidable
+
+def decide (c : Hand n) : Array Bool :=
+  let count := Array.ofFn c
+  if count.all (fun x => x ≤ 4) then
+    Array.zipWith (· && ·) (WaitingTiles.Decidable.decide c) (count.map (fun x => x ≤ 3))
+  else
+    Array.replicate count.size false
+
+private theorem decide_size_impl (c : Hand n) : (decide c).size = 3 * n := by
+  simp only [LiveWaitingTiles.Decidable.decide]
+  split <;> simp [Array.size_zipWith, WaitingTiles.Decidable.decide_size_impl]
+
+def liveWaitingTilesFast (c : Hand n) : Finset (Fin (3 * n)) :=
+  if Hand.size c = 3 * n + 4 then
+    Finset.univ.filter fun i =>
+      (decide c)[i.val]'(by rw [decide_size_impl]; exact i.isLt) = true
+  else
+    ∅
+
+end LiveWaitingTiles.Decidable
 
 end Mahjong.Hand

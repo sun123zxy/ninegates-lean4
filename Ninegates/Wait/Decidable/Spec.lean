@@ -1,37 +1,13 @@
-import Ninegates.Wait.Decide
-import Ninegates.Winning.Decidable
+import Ninegates.Wait.Decidable.Basic
+import Ninegates.Wait.Decidable.Algo
 
 /-!
-Correctness specifications and optimized `Decidable` instances for waits.
+Correctness specifications for the prefix/suffix waiting-tile algorithm.
 -/
 
 namespace Mahjong.Hand
 
-namespace IsWaitingTile.Decidable
-
-theorem decide_spec (c : Hand n) (i : Fin (3 * n)) :
-    IsWaitingTile.decide c i = true ↔ IsWaitingTile c i := by
-  simp [IsWaitingTile.decide, IsWaitingTile, Winning.Decidable.decide_spec]
-
-instance (c : Hand n) (i : Fin (3 * n)) : Decidable (IsWaitingTile c i) :=
-  decidable_of_iff (IsWaitingTile.decide c i = true) (decide_spec c i)
-
-end IsWaitingTile.Decidable
-
-namespace IsLiveWaitingTile.Decidable
-
-theorem decide_spec (c : Hand n) (i : Fin (3 * n)) :
-    IsLiveWaitingTile.decide c i = true ↔ IsLiveWaitingTile c i := by
-  simp only [IsLiveWaitingTile.decide, IsWaitingTile.decide, Bool.and_eq_true,
-    Winning.Decidable.decide_spec, decide_eq_true_eq]
-  rfl
-
-instance (c : Hand n) (i : Fin (3 * n)) : Decidable (IsLiveWaitingTile c i) :=
-  decidable_of_iff (IsLiveWaitingTile.decide c i = true) (decide_spec c i)
-
-end IsLiveWaitingTile.Decidable
-
-namespace IsFullWait.Decidable
+namespace WaitingTiles.Decidable
 
 open Winning.Decidable
 
@@ -434,15 +410,15 @@ private lemma buildSuffix_eq_suffixFold (count : Array Nat) :
     rfl
 
 @[simp, grind =]
-theorem waitingTiles_size (count : Array Nat) :
-    (waitingTiles count).size = count.size := by
-  simp [waitingTiles]
+theorem decideCount_size (count : Array Nat) :
+    (decideCount count).size = count.size := by
+  simp [decideCount]
 
 @[grind =]
-private lemma waitingTiles_get (count : Array Nat) (j : Fin count.size) :
-    (waitingTiles count)[j.val]'(by simp) =
+private lemma decide_get (count : Array Nat) (j : Fin count.size) :
+    (decideCount count)[j.val]'(by simp) =
       waitsOn count (buildPrefix count) (buildSuffix count) j := by
-  simp only [waitingTiles, Id.run_bind, Id.run_pure,
+  simp only [decideCount, Id.run_bind, Id.run_pure,
     List.forIn_pure_yield_eq_foldl]
   exact fold_set_get count.size count.size le_rfl
     (Vector.replicate count.size false)
@@ -528,13 +504,13 @@ private lemma waitsOn_reachable (count : Array Nat) (j : Fin count.size) :
           ((List.ofFn (fun i : Fin count.size => count[i.val]'i.isLt)).drop (j.val + 1)) t).mpr
           htsuff)
 
-theorem waitingTiles_spec (c : Hand n) (hc : Hand.size c = 3 * n + 4) (i : Fin (3 * n)) :
-    (waitingTiles (Array.ofFn c))[i.val]'(by simp) = true ↔
+theorem decideCount_spec (c : Hand n) (hc : Hand.size c = 3 * n + 4) (i : Fin (3 * n)) :
+    (decideCount (Array.ofFn c))[i.val]'(by simp) = true ↔
       IsWaitingTile c i := by
   let j : Fin (Array.ofFn c).size := ⟨i.val, by simp⟩
-  rw [show (waitingTiles (Array.ofFn c))[i.val]'(by simp) =
+  rw [show (decideCount (Array.ofFn c))[i.val]'(by simp) =
       waitsOn (Array.ofFn c) (buildPrefix (Array.ofFn c)) (buildSuffix (Array.ofFn c)) j by
-    simpa [j] using waitingTiles_get (Array.ofFn c) j]
+    simpa [j] using decide_get (Array.ofFn c) j]
   rw [waitsOn_reachable]
   change _ ↔ Winning (c + single i)
   let xs := List.ofFn c
@@ -559,137 +535,88 @@ theorem waitingTiles_spec (c : Hand n) (hc : Hand.size c = 3 * n + 4) (i : Fin (
       Winning.Decidable.winning_to_dpWinning (c := c + single i) h
     grind
 
-end IsFullWait.Decidable
+end WaitingTiles.Decidable
 
-namespace IsWait.Decidable
+namespace WaitingTiles.Decidable
 
-theorem decide_spec (c : Hand n) :
-    IsWait.decide c = true ↔ IsWait c := by
-  simp only [IsWait.decide, Bool.and_eq_true, Array.any_eq_true, IsWait]
-  constructor
-  · rintro ⟨hsize, ⟨j, hj, h⟩⟩
-    have hcsize : Hand.size c = 3 * n + 4 := by simpa using hsize
-    let i : Fin (3 * n) := ⟨j, by simpa using hj⟩
-    exact ⟨i, IsFullWait.Decidable.waitingTiles_spec c hcsize i |>.mp h⟩
-  · rintro ⟨i, hi⟩
-    have hcsize := IsWait.size ⟨i, hi⟩
-    refine ⟨by simpa using hcsize, i.val, ?_, ?_⟩
-    · simp
-    · exact IsFullWait.Decidable.waitingTiles_spec c hcsize i |>.mpr hi
+theorem decide_size (c : Hand n) : (decide c).size = 3 * n := by
+  simp [decide, decideCount_size]
 
-instance (c : Hand n) : Decidable (IsWait c) :=
-  decidable_of_iff (IsWait.decide c = true) (decide_spec c)
+theorem decide_spec (c : Hand n) (hc : Hand.size c = 3 * n + 4) (i : Fin (3 * n)) :
+    (decide c)[i.val]'(by rw [decide_size]; exact i.isLt) = true ↔
+      IsWaitingTile c i := by
+  exact decideCount_spec c hc i
 
-end IsWait.Decidable
+end WaitingTiles.Decidable
 
-namespace IsLiveWait.Decidable
+namespace LiveWaitingTiles.Decidable
 
-theorem decide_spec (c : Hand n) :
-    IsLiveWait.decide c = true ↔ IsLiveWait c := by
-  simp only [IsLiveWait.decide, Bool.and_eq_true, Array.all_eq_true,
-    Array.any_eq_true]
-  constructor
-  · rintro ⟨⟨hsize, hvalid⟩, ⟨j, hj, hRaw⟩⟩
-    have hcsize : Hand.size c = 3 * n + 4 := by simpa using hsize
-    simp only [id_eq, Array.getElem_zipWith hj, Array.getElem_map] at hRaw
-    rcases Bool.and_eq_true_iff.mp hRaw with ⟨hwaitRaw, hcountRaw⟩
-    let i : Fin (3 * n) :=
-      ⟨j, by simpa [Array.size_zipWith, Array.size_map] using hj⟩
-    have hwait : (IsFullWait.Decidable.waitingTiles (Array.ofFn c))[i.val]'(by simp) = true := by
-      simpa [i] using hwaitRaw
-    have hcount : c i ≤ 3 := by
-      simpa [i, Array.getElem_map] using hcountRaw
-    have hvc : Valid c := by
-      intro k
-      simpa using hvalid k.val (by simp)
-    exact ⟨i, isLiveWaitingTile_iff.mpr
-      ⟨IsFullWait.Decidable.waitingTiles_spec c hcsize i |>.mp hwait, hvc, hcount⟩⟩
-  · rintro ⟨i, hi⟩
-    rcases isLiveWaitingTile_iff.mp hi with ⟨hw, hvalid, hcount⟩
-    have hcsize := IsLiveWait.size ⟨i, hi⟩
-    refine ⟨⟨by simpa using hcsize, ?_⟩, ?_⟩
-    · intro j hj
+theorem decide_size (c : Hand n) : (decide c).size = 3 * n := by
+  simp only [LiveWaitingTiles.Decidable.decide]
+  split <;> simp [Array.size_zipWith, WaitingTiles.Decidable.decide_size]
+
+theorem decide_spec (c : Hand n) (hc : Hand.size c = 3 * n + 4) (i : Fin (3 * n)) :
+    (decide c)[i.val]'(by rw [decide_size]; exact i.isLt) = true ↔
+      IsLiveWaitingTile c i := by
+  simp only [LiveWaitingTiles.Decidable.decide]
+  split
+  · rename_i h
+    simp only [Array.getElem_zipWith, Array.getElem_map, Bool.and_eq_true,
+      decide_eq_true_eq]
+    rw [WaitingTiles.Decidable.decide_spec c hc i]
+    have hvalid : Valid c := by
+      intro j
+      have hj := (Array.all_eq_true.mp h) j.val (by simp)
+      simpa using hj
+    simp [isLiveWaitingTile_iff, hvalid]
+  · rename_i h
+    simp only [Array.size_ofFn, Array.getElem_replicate, Bool.false_eq_true, false_iff]
+    intro hi
+    have hvalid : Valid c := (isLiveWaitingTile_iff.mp hi).2.1
+    have hall : (Array.ofFn c).all (fun x => x ≤ 4) = true := by
+      apply Array.all_eq_true.mpr
+      intro j hj
       simpa using hvalid ⟨j, by simpa using hj⟩
-    · refine ⟨i.val, ?_, ?_⟩
-      · simp [Array.size_zipWith]
-      · have hwait := IsFullWait.Decidable.waitingTiles_spec c hcsize i |>.mpr hw
-        simp_all
+    exact h hall
 
-instance (c : Hand n) : Decidable (IsLiveWait c) :=
-  decidable_of_iff (IsLiveWait.decide c = true) (decide_spec c)
+end LiveWaitingTiles.Decidable
 
-end IsLiveWait.Decidable
+theorem waitingTilesFast_eq_waitingTiles (c : Hand n) :
+    WaitingTiles.Decidable.waitingTilesFast c = waitingTiles c := by
+  ext i
+  by_cases hc : Hand.size c = 3 * n + 4
+  · simp [WaitingTiles.Decidable.waitingTilesFast, hc, waitingTiles,
+      WaitingTiles.Decidable.decide_spec c hc i]
+  · have hnot : ¬ IsWaitingTile c i := by
+      intro hi
+      have hsize := hi.size
+      rw [map_add, size_single] at hsize
+      omega
+    simp [WaitingTiles.Decidable.waitingTilesFast, hc, waitingTiles, hnot]
 
-namespace IsFullWait.Decidable
+theorem liveWaitingTilesFast_eq_liveWaitingTiles (c : Hand n) :
+    LiveWaitingTiles.Decidable.liveWaitingTilesFast c = liveWaitingTiles c := by
+  ext i
+  by_cases hc : Hand.size c = 3 * n + 4
+  · simp [LiveWaitingTiles.Decidable.liveWaitingTilesFast, hc, liveWaitingTiles,
+      LiveWaitingTiles.Decidable.decide_spec c hc i]
+  · have hnot : ¬ IsLiveWaitingTile c i := by
+      intro hi
+      have hsize := (isLiveWaitingTile_iff.mp hi).1.size
+      rw [map_add, size_single] at hsize
+      omega
+    simp [LiveWaitingTiles.Decidable.liveWaitingTilesFast, hc, liveWaitingTiles, hnot]
 
-theorem decide_spec (c : Hand n) :
-    IsFullWait.decide c = true ↔ IsFullWait c := by
-  cases n with
-  | zero =>
-    have hc : c = 0 := by ext i; exact Fin.elim0 i
-    subst c
-    have hwt : IsFullWait.Decidable.waitingTiles (Array.ofFn (0 : Hand 0)) = #[] := by
-      rfl
-    simp_all [IsFullWait.decide, IsFullWait]
-  | succ n =>
-    simp only [IsFullWait.decide, Bool.and_eq_true, Bool.or_eq_true,
-      Array.all_eq_true, IsFullWait]
-    constructor
-    · rintro ⟨hsize, hwait⟩ i
-      have hcsize : Hand.size c = 3 * (n + 1) + 4 := by
-        simpa using hsize.resolve_left (by simp)
-      exact IsFullWait.Decidable.waitingTiles_spec c hcsize i |>.mp (hwait i.val (by simp))
-    · intro h
-      have hcsize := IsFullWait.size (Nat.succ_pos n) h
-      refine ⟨Or.inr (by simpa using hcsize), ?_⟩
-      intro i hi
-      let j : Fin (3 * (n + 1)) := ⟨i, by simpa using hi⟩
-      exact IsFullWait.Decidable.waitingTiles_spec c hcsize j |>.mpr (h j)
+@[csimp]
+theorem waitingTiles_eq_waitingTilesFast :
+    @waitingTiles = @WaitingTiles.Decidable.waitingTilesFast := by
+  funext n c
+  exact (waitingTilesFast_eq_waitingTiles c).symm
 
-instance (c : Hand n) : Decidable (IsFullWait c) :=
-  decidable_of_iff (IsFullWait.decide c = true) (decide_spec c)
-
-end IsFullWait.Decidable
-
-namespace IsLiveFullWait.Decidable
-
-theorem decide_spec (c : Hand n) :
-    IsLiveFullWait.decide c = true ↔ IsLiveFullWait c := by
-  cases n with
-  | zero =>
-    have hc : c = 0 := by ext i; exact Fin.elim0 i
-    subst c
-    have hwt : IsFullWait.Decidable.waitingTiles (Array.ofFn (0 : Hand 0)) = #[] := by
-      rfl
-    simp only [IsLiveFullWait.decide]
-    rw [hwt]
-    simp [IsLiveFullWait]
-  | succ n =>
-    simp only [IsLiveFullWait.decide, Bool.and_eq_true, Array.all_eq_true,
-      Bool.or_eq_true, IsLiveFullWait]
-    constructor
-    · rintro ⟨⟨hsize, hwait⟩, hcount⟩
-      have hcsize : Hand.size c = 3 * (n + 1) + 4 := by
-        simpa using hsize.resolve_left (by simp)
-      apply isLiveFullWait_iff_le_three.mpr
-      refine ⟨?_, ?_⟩
-      · intro i
-        exact IsFullWait.Decidable.waitingTiles_spec c hcsize i |>.mp (hwait i.val (by simp))
-      · intro i
-        simpa using hcount i.val (by simp)
-    · intro h
-      rcases isLiveFullWait_iff_le_three.mp h with ⟨hfull, hcount⟩
-      have hcsize := IsLiveFullWait.size (Nat.succ_pos n) h
-      refine ⟨⟨Or.inr (by simpa using hcsize), ?_⟩, ?_⟩
-      · intro i hi
-        let j : Fin (3 * (n + 1)) := ⟨i, by simpa using hi⟩
-        exact IsFullWait.Decidable.waitingTiles_spec c hcsize j |>.mpr (hfull j)
-      · intro i hi
-        simpa using hcount ⟨i, by simpa using hi⟩
-
-instance (c : Hand n) : Decidable (IsLiveFullWait c) :=
-  decidable_of_iff (IsLiveFullWait.decide c = true) (decide_spec c)
-
-end IsLiveFullWait.Decidable
+@[csimp]
+theorem liveWaitingTiles_eq_liveWaitingTilesFast :
+    @liveWaitingTiles = @LiveWaitingTiles.Decidable.liveWaitingTilesFast := by
+  funext n c
+  exact (liveWaitingTilesFast_eq_liveWaitingTiles c).symm
 
 end Mahjong.Hand
