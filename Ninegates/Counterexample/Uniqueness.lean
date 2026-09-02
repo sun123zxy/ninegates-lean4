@@ -1,4 +1,4 @@
-import Ninegates.Counterexample.EnumSpec
+import Ninegates.Counterexample.Elimination
 
 /-!
 

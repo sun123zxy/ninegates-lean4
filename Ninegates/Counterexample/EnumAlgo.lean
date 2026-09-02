@@ -4,8 +4,8 @@ import Ninegates.Counterexample.Basic
 # Finite candidates for minimal counterexamples
 
 This file contains only executable combinatorics.  It enumerates the excess
-vectors that a minimal live full-wait counterexample of order `2` through `7`
-must have; `EnumSpec` will prove that mathematical completeness statement.
+vectors that a minimal live full-wait counterexample of order `2` through `7`.
+`EnumSpec` proves the corresponding mathematical completeness statement.
 -/
 
 namespace Mahjong.Hand.Counterexample

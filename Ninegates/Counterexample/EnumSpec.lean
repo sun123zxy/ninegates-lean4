@@ -1,4 +1,4 @@
-import Ninegates.Counterexample.Enum
+import Ninegates.Counterexample.EnumAlgo
 import Ninegates.Counterexample.Reduction
 import Ninegates.Wait.Decidable.Spec
 import Mathlib.Data.List.GetD
@@ -6,7 +6,7 @@ import Mathlib.Data.List.GetD
 /-!
 # Specifications for the finite counterexample enumeration
 
-The executable enumeration lives in `Counterexample.Enum`.  This file records
+The executable enumeration lives in `Counterexample.EnumAlgo`.  This file records
 the mathematical contract that connects its output to minimal live
 full-wait counterexamples.
 -/
@@ -1135,127 +1135,5 @@ theorem mem_minimalCandidates_of_minimal
         obtain ⟨d, k, hk, hcd⟩ := hseq.exists_insertSeqAt hk
         have hd := Counterexample.IsLiveCE_of_insertSeqAt k hk (hcd ▸ hc)
         exact hmin m (by omega) (by omega) ⟨d, hd⟩
-
-open Winning.Decidable
-
-/-- The successors of one winning-hand automaton state, represented as a list
-so that closed computations can be checked by kernel reduction. -/
-def listNextStates (x : Nat) (q : State) : List State :=
-  [false, true].filterMap (fun takePair => nextState q takePair x)
-
-/-- Advance a list representation of a winning-hand automaton state set. -/
-def listStepStates (x : Nat) (states : List State) : List State :=
-  (states.flatMap (listNextStates x)).eraseDups
-
-/-- Run the winning-hand automaton using transparent lists of states. -/
-def listReachable : List State → List Nat → List State
-  | states, [] => states
-  | states, x :: xs => listReachable (listStepStates x states) xs
-
-@[simp]
-lemma mem_listNextStates {x : Nat} {q t : State} :
-    t ∈ listNextStates x q ↔
-      ∃ takePair, nextState q takePair x = some t := by
-  simp [listNextStates]
-
-@[simp]
-lemma mem_listStepStates {x : Nat} {states : List State} {t : State} :
-    t ∈ listStepStates x states ↔
-      ∃ q ∈ states, t ∈ Winning.Decidable.step x q := by
-  simp only [listStepStates, List.mem_eraseDups, List.mem_flatMap,
-    mem_listNextStates, Winning.Decidable.mem_step]
-  grind
-
-lemma mem_listReachable (states : List State) (xs : List Nat) (t : State) :
-    t ∈ listReachable states xs ↔
-      ∃ s ∈ states, ∃ choices, replayChoices s xs choices = some t := by
-  induction xs generalizing states with
-  | nil =>
-      simp [listReachable, replayChoices_exists_nil_iff]
-  | cons x xs ih =>
-      simp only [listReachable, ih, mem_listStepStates,
-        replayChoices_exists_cons_iff]
-      grind
-
-/-- A transparent list-based winning-hand checker used for kernel certificates. -/
-def listWinning (c : Hand n) : Bool :=
-  Hand.size c == 3 * n + 5 &&
-    (listReachable [State.init] (List.ofFn c)).contains State.final
-
-lemma listWinning_spec (c : Hand n) :
-    listWinning c = true ↔ Winning c := by
-  rw [← Winning.Decidable.decide_spec, Winning.Decidable.decide_dp]
-  simp only [listWinning, Bool.and_eq_true, beq_iff_eq,
-    List.contains_iff_mem, mem_listReachable, List.mem_singleton,
-    exists_eq_left, Winning.Decidable.DPWinning]
-
-/-- Transparently check whether a hand is the standard live full wait. -/
-def isStandardLiveFullWait (c : Hand n) : Bool :=
-  (List.finRange (3 * n)).all fun i =>
-    c i == if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1
-
-lemma isStandardLiveFullWait_spec (c : Hand n) :
-    isStandardLiveFullWait c = true ↔ c = standardLiveFullWait n := by
-  simp only [isStandardLiveFullWait, List.all_eq_true, beq_iff_eq]
-  constructor
-  · intro h
-    ext i
-    simpa only [standardLiveFullWait_apply] using h i (by simp)
-  · rintro rfl i _
-    simp only [standardLiveFullWait_apply]
-
-/-- A candidate passes when it has a non-winning tile or is the standard hand. -/
-def minimalCandidatePasses (n : Nat) (c : Hand n) : Bool :=
-  (List.finRange (3 * n)).any (fun i => !listWinning (c + single i)) ||
-    isStandardLiveFullWait c
-
-lemma minimalCandidatePasses_spec {n : Nat} {c : Hand n}
-    (hle : ∀ i, c i ≤ 3) :
-    minimalCandidatePasses n c = true ↔ ¬ IsLiveCE c := by
-  constructor
-  · intro h hc
-    rcases Bool.or_eq_true_iff.mp h with hnonwinning | heq
-    · obtain ⟨i, _, hi⟩ := List.any_eq_true.mp hnonwinning
-      rw [Bool.not_eq_true_eq_eq_false] at hi
-      have hwinning := (isLiveFullWait_iff_le_three.mp hc.1).1 i
-      have htrue := listWinning_spec (c + single i) |>.mpr hwinning
-      rw [htrue] at hi
-      contradiction
-    · have heq' := isStandardLiveFullWait_spec c |>.mp heq
-      exact hc.2 heq'
-  · intro hnce
-    by_cases heq : c = standardLiveFullWait n
-    · apply Bool.or_eq_true_iff.mpr
-      right
-      exact isStandardLiveFullWait_spec c |>.mpr heq
-    · apply Bool.or_eq_true_iff.mpr
-      left
-      apply List.any_eq_true.mpr
-      have hnfull : ¬ IsFullWait c := by
-        intro hfull
-        exact hnce ⟨isLiveFullWait_iff_le_three.mpr ⟨hfull, hle⟩, heq⟩
-      simp only [IsFullWait] at hnfull
-      push Not at hnfull
-      obtain ⟨i, hi⟩ := hnfull
-      refine ⟨i, by simp, ?_⟩
-      rw [Bool.not_eq_true_eq_eq_false, Bool.eq_false_iff]
-      intro htrue
-      exact hi (listWinning_spec (c + single i) |>.mp htrue)
-
-/-
-No enumerated small candidate is a live counterexample.
-Replace `native_decide` with `rfl` for a axiom-free, but slower proof.
--/
--- set_option maxRecDepth 100000 in
--- set_option maxHeartbeats 2000000 in
-theorem minimalCandidates_no_liveCE (n : Nat) (hn : 2 ≤ n) (hn' : n ≤ 7) :
-    ∀ c ∈ MinimalCandidates n, ¬ IsLiveCE c := by
-  have hcertificate :
-      (MinimalCandidates n).all (minimalCandidatePasses n) = true := by
-    interval_cases n <;> native_decide
-  intro c hc
-  have hle := (mem_minimalCandidates_iff.mp hc).2.2.1
-  exact minimalCandidatePasses_spec hle |>.mp
-    (List.all_eq_true.mp hcertificate c hc)
 
 end Mahjong.Hand.Counterexample
