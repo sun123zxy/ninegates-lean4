@@ -6,9 +6,9 @@ import Mathlib.Data.List.GetD
 /-!
 # Specifications for the finite counterexample enumeration
 
-The executable enumeration lives in `Counterexample.EnumAlgo`.  This file records
-the mathematical contract that connects its output to minimal live
-full-wait counterexamples.
+Verification of the enumeration algorithm in `EnumAlgo`.
+That is, every minimal live full-wait counterexample candidate
+of order `2` through `7` is indeed enumerated.
 -/
 
 namespace Mahjong.Hand.Counterexample

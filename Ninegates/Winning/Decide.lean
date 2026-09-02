@@ -2,7 +2,8 @@ import Ninegates.Winning.Basic
 import Std.Data.ExtHashSet.Basic
 
 /-!
-Algorithms for deciding winning hands.
+## Algorithms for deciding winning hands
+
 See `Decidable` directory for specifications and proofs of correctness.
 -/
 

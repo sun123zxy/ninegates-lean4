@@ -2,6 +2,10 @@ import Ninegates.Basic
 import Ninegates.Standard
 import Ninegates.Wait.Basic
 
+/-!
+## Basic definitions for counterexamples
+-/
+
 namespace Mahjong.Hand.Counterexample
 
 -- Need to settle on what are the positive examples first.

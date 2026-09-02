@@ -2,7 +2,7 @@ import Ninegates.Wait.Decidable.Basic
 import Ninegates.Wait.Decidable.Algo
 
 /-!
-Correctness specifications for the prefix/suffix waiting-tile algorithm.
+## Specifications for the prefix/suffix waiting-tile algorithm
 -/
 
 namespace Mahjong.Hand

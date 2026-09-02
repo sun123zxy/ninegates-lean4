@@ -2,7 +2,7 @@ import Ninegates.Wait.Basic
 import Ninegates.Winning.Decidable
 
 /-!
-# Trivial decidability of waits and full waits
+# Decidability of waits and full waits, the trivial version
 
 As efficient algorithms for deciding winning is established in `Winning.Decidable`,
 we can trivially decide waits and full waits by checking all possible tiles.
