@@ -8,11 +8,11 @@ See `Decidable` directory for specifications and proofs of correctness.
 
 namespace Mahjong.Hand
 
-def IsWinningTile.decide (c : Hand n) (i : Fin (3 * n)) : Bool :=
+def IsWaitingTile.decide (c : Hand n) (i : Fin (3 * n)) : Bool :=
   Winning.decide (c + single i)
 
-def IsLiveWinningTile.decide (c : Hand n) (i : Fin (3 * n)) : Bool :=
-  IsWinningTile.decide c i && Decidable.decide (Valid (c + single i))
+def IsLiveWaitingTile.decide (c : Hand n) (i : Fin (3 * n)) : Bool :=
+  IsWaitingTile.decide c i && Decidable.decide (Valid (c + single i))
 
 namespace IsFullWait.Decidable
 

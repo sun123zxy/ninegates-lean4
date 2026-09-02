@@ -3,8 +3,8 @@ import Ninegates.Winning.Basic
 /-!
 ## Wait predicates
 
-* `IsWinningTile c i` tests whether adding tile `i` has a winning decomposition.
-* `IsLiveWinningTile c i` additionally requires the resulting hand to be valid.
+* `IsWaitingTile c i` tests whether adding tile `i` has a winning decomposition.
+* `IsLiveWaitingTile c i` additionally requires the resulting hand to be valid.
 * `IsWait` and `IsFullWait` allow dead tiles, while their `IsLive...` counterparts do not.
 -/
 
@@ -12,17 +12,17 @@ namespace Mahjong.Hand
 
 variable {n : ℕ}
 
-def IsWinningTile (c : Hand n) (i : Fin (3 * n)) : Prop := Winning (c + single i)
+def IsWaitingTile (c : Hand n) (i : Fin (3 * n)) : Prop := Winning (c + single i)
 
-def IsLiveWinningTile (c : Hand n) (i : Fin (3 * n)) : Prop :=
-  IsWinningTile c i ∧ Valid (c + single i)
+def IsLiveWaitingTile (c : Hand n) (i : Fin (3 * n)) : Prop :=
+  IsWaitingTile c i ∧ Valid (c + single i)
 
-lemma isLiveWinningTile_iff {c : Hand n} {i : Fin (3 * n)} :
-    IsLiveWinningTile c i ↔ IsWinningTile c i ∧ Valid c ∧ c i ≤ 3 := by
-  simp [IsLiveWinningTile, IsWinningTile, Valid]
+lemma isLiveWaitingTile_iff {c : Hand n} {i : Fin (3 * n)} :
+    IsLiveWaitingTile c i ↔ IsWaitingTile c i ∧ Valid c ∧ c i ≤ 3 := by
+  simp [IsLiveWaitingTile, IsWaitingTile, Valid]
   grind
 
-def IsWait (c : Hand n) : Prop := ∃ i, IsWinningTile c i
+def IsWait (c : Hand n) : Prop := ∃ i, IsWaitingTile c i
 
 lemma IsWait.size {c : Hand n} (hc : IsWait c) : size c = 3 * n + 4 := by
   obtain ⟨i, hi⟩ := hc
@@ -30,10 +30,10 @@ lemma IsWait.size {c : Hand n} (hc : IsWait c) : size c = 3 * n + 4 := by
   rw [map_add, size_single] at hsize
   omega
 
-def IsLiveWait (c : Hand n) : Prop := ∃ i, IsLiveWinningTile c i
+def IsLiveWait (c : Hand n) : Prop := ∃ i, IsLiveWaitingTile c i
 
 lemma IsWait.toIsLiveWait {c : Hand n} (hc : IsWait c)
-    (hvalid : ∀ i, IsWinningTile c i → Valid (c + single i)) :
+    (hvalid : ∀ i, IsWaitingTile c i → Valid (c + single i)) :
     IsLiveWait c := by
   obtain ⟨i, hi⟩ := hc
   exact ⟨i, hi, hvalid i hi⟩
@@ -49,9 +49,9 @@ lemma IsLiveWait.valid (c : Hand n) (hc : IsLiveWait c) : Valid c := by
   simp only [add_apply] at hi
   omega
 
-def IsFullWait (c : Hand n) : Prop := ∀ i, IsWinningTile c i
+def IsFullWait (c : Hand n) : Prop := ∀ i, IsWaitingTile c i
 
-def IsLiveFullWait (c : Hand n) : Prop := ∀ i, IsLiveWinningTile c i
+def IsLiveFullWait (c : Hand n) : Prop := ∀ i, IsLiveWaitingTile c i
 
 lemma IsFullWait.toIsLiveFullWait {c : Hand n} (hc : IsFullWait c)
     (hvalid : ∀ i, Valid (c + single i)) : IsLiveFullWait c := by
@@ -60,7 +60,7 @@ lemma IsFullWait.toIsLiveFullWait {c : Hand n} (hc : IsFullWait c)
 
 lemma isLiveFullWait_iff_le_three {c : Hand n} :
     IsLiveFullWait c ↔ IsFullWait c ∧ ∀ i, c i ≤ 3 := by
-  simp only [IsLiveFullWait, IsFullWait, isLiveWinningTile_iff]
+  simp only [IsLiveFullWait, IsFullWait, isLiveWaitingTile_iff]
   grind
 
 lemma IsFullWait.size (hn : 0 < n) {c : Hand n} (hc : IsFullWait c) :

@@ -7,29 +7,29 @@ Correctness specifications and optimized `Decidable` instances for waits.
 
 namespace Mahjong.Hand
 
-namespace IsWinningTile.Decidable
+namespace IsWaitingTile.Decidable
 
 theorem decide_spec (c : Hand n) (i : Fin (3 * n)) :
-    IsWinningTile.decide c i = true ↔ IsWinningTile c i := by
-  simp [IsWinningTile.decide, IsWinningTile, Winning.Decidable.decide_spec]
+    IsWaitingTile.decide c i = true ↔ IsWaitingTile c i := by
+  simp [IsWaitingTile.decide, IsWaitingTile, Winning.Decidable.decide_spec]
 
-instance (c : Hand n) (i : Fin (3 * n)) : Decidable (IsWinningTile c i) :=
-  decidable_of_iff (IsWinningTile.decide c i = true) (decide_spec c i)
+instance (c : Hand n) (i : Fin (3 * n)) : Decidable (IsWaitingTile c i) :=
+  decidable_of_iff (IsWaitingTile.decide c i = true) (decide_spec c i)
 
-end IsWinningTile.Decidable
+end IsWaitingTile.Decidable
 
-namespace IsLiveWinningTile.Decidable
+namespace IsLiveWaitingTile.Decidable
 
 theorem decide_spec (c : Hand n) (i : Fin (3 * n)) :
-    IsLiveWinningTile.decide c i = true ↔ IsLiveWinningTile c i := by
-  simp only [IsLiveWinningTile.decide, IsWinningTile.decide, Bool.and_eq_true,
+    IsLiveWaitingTile.decide c i = true ↔ IsLiveWaitingTile c i := by
+  simp only [IsLiveWaitingTile.decide, IsWaitingTile.decide, Bool.and_eq_true,
     Winning.Decidable.decide_spec, decide_eq_true_eq]
   rfl
 
-instance (c : Hand n) (i : Fin (3 * n)) : Decidable (IsLiveWinningTile c i) :=
-  decidable_of_iff (IsLiveWinningTile.decide c i = true) (decide_spec c i)
+instance (c : Hand n) (i : Fin (3 * n)) : Decidable (IsLiveWaitingTile c i) :=
+  decidable_of_iff (IsLiveWaitingTile.decide c i = true) (decide_spec c i)
 
-end IsLiveWinningTile.Decidable
+end IsLiveWaitingTile.Decidable
 
 namespace IsFullWait.Decidable
 
@@ -530,7 +530,7 @@ private lemma waitsOn_reachable (count : Array Nat) (j : Fin count.size) :
 
 theorem waitingTiles_spec (c : Hand n) (hc : Hand.size c = 3 * n + 4) (i : Fin (3 * n)) :
     (waitingTiles (Array.ofFn c))[i.val]'(by simp) = true ↔
-      IsWinningTile c i := by
+      IsWaitingTile c i := by
   let j : Fin (Array.ofFn c).size := ⟨i.val, by simp⟩
   rw [show (waitingTiles (Array.ofFn c))[i.val]'(by simp) =
       waitsOn (Array.ofFn c) (buildPrefix (Array.ofFn c)) (buildSuffix (Array.ofFn c)) j by
@@ -602,10 +602,10 @@ theorem decide_spec (c : Hand n) :
     have hvc : Valid c := by
       intro k
       simpa using hvalid k.val (by simp)
-    exact ⟨i, isLiveWinningTile_iff.mpr
+    exact ⟨i, isLiveWaitingTile_iff.mpr
       ⟨IsFullWait.Decidable.waitingTiles_spec c hcsize i |>.mp hwait, hvc, hcount⟩⟩
   · rintro ⟨i, hi⟩
-    rcases isLiveWinningTile_iff.mp hi with ⟨hw, hvalid, hcount⟩
+    rcases isLiveWaitingTile_iff.mp hi with ⟨hw, hvalid, hcount⟩
     have hcsize := IsLiveWait.size ⟨i, hi⟩
     refine ⟨⟨by simpa using hcsize, ?_⟩, ?_⟩
     · intro j hj
