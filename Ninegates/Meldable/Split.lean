@@ -143,7 +143,7 @@ theorem Meldable.IsWitness.split_at_zero {p : Meldable.Placement n} {c : Hand n}
       IsWitness (Meldable.Placement.restrictGT k p) (restrictGT k c) := by
   have hcross (j : Fin (3 * n)) :
       j.val ≤ k.val → k.val ≤ j.val + 2 → p.seqNum j = 0 := by grind
-  grind
+  grind (splits := 12)
 
 theorem Meldable.split_at_zero {c : Hand n} (hc : Meldable c)
     (k : Fin (3 * n)) (hk : c k = 0) :
