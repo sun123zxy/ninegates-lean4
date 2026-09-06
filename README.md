@@ -31,9 +31,11 @@ Autoformalization is cool but often produces unmaintainable code. This repositor
 
 To wrap up, conscious effort has been made to rewrite the code into a clean and readable structure.
 
-## Soundness
+## Verification
 
-We use the standard axioms `propext`, `Classical.choice`, `Quot.sound` and `native_decide` for the finite case enumeration. You can check yourself with `#print axioms liveFullWait_unique`. The first three are standard in Lean 4, and the last is for the efficent small-case enumeration.
+We use the standard axioms `propext`, `Classical.choice`, `Quot.sound` with additional `native_decide`. You can check yourself with `#print axioms liveFullWait_unique`. The first three are standard in Lean 4, and the last is for the efficent small-case enumeration.
+
+Note that `native_decide` relies on the correctness of Lean 4's compiler. It is a reasonable assumption for our purpose, as enumerating small cases requires efficiency, and verifying executable algorithms is among the goals of this project. Switching to a `decide` version is technically possible, but it does not work smoothly with `ExtHashSet`'s opaque implementation (as of Lean 4.33.0) and could be extremely slow for the program verification purpose.
 
 ## Reading the code
 
@@ -106,11 +108,5 @@ In practice, as `grind` has a upper limit on the number of case splits (though i
 ## TODOs
 
 - TODO: comparator
-
-- TODO: allow counterexample elimination switching to `decide`.
-  We can't switch to `decide` now because `Winning.decide` use `ExtHashSet`,
-  which might not expose its implementation to the downstream.
-  Hence a `#eval` works but a `#reduce` fails.
-  We shall go for a `List` version instead.
 
 - TODO: module system
