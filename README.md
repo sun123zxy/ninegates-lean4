@@ -1,6 +1,17 @@
-# Nine Gates: A Mahjong Game Formalization in Lean 4
+<div align="center">
 
-Uniqueness of the *Nine Gates (九蓮宝燈)* live full-sided wait in the *Mahjong* game, formally verified in Lean 4
+<h1>
+<p>Nine Gates: A Lean 4 Mahjong Game Formalization</p>
+<p style="font-size: 200%">🀇🀇🀇🀈🀉🀊🀋🀌🀍🀎🀏🀏🀏</p>
+</h1>
+
+Uniqueness of the *Nine Gates (九蓮宝燈)* live full-sided wait in the generalized *Mahjong* game  
+Formally verified in Lean 4
+
+[![Repository](https://img.shields.io/badge/Github-ninegates--lean4-2d4a66?style=flat-square&logo=github&logoColor=white)](https://github.com/sun123zxy/ninegates-lean4 "Github")
+[![Documentation](https://img.shields.io/badge/Documentation-ninegates--lean4-9aa4af?style=flat-square&logo=readthedocs&logoColor=white)](https://sun123zxy.github.io/ninegates-lean4/docs "Documentation")
+
+</div>
 
 ## Introduction
 
