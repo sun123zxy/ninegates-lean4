@@ -977,7 +977,7 @@ theorem mem_minimalCandidates_of_minimal
   have hpositive :
       ∀ i : Fin (3 * n - 2), 1 ≤ c ⟨i.val + 1, by omega⟩ := by
     intro i
-    exact interior_positive hn c hfull ⟨i.val + 1, by omega⟩
+    exact interior_positive c hfull ⟨i.val + 1, by omega⟩
       ⟨by simp, by simp; omega⟩
   have hsize := IsLiveFullWait.size (by omega) hc.1
   refine ⟨hn, hn', hle, hpositive, hsize, ?_⟩

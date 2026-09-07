@@ -7,7 +7,7 @@ import Ninegates.Wait.Basic
 ## Main results
 
 - `interior_positive` shows that every non-boundary coordinate of a full wait
-  is occupied, using the the split-at-zero meldability result.
+  is occupied, using the split-at-zero meldability result.
 - `excess_eq_six` is the immediate corollary of `interior_positive` that
   restricts the sum of the interior excess to exactly six.
 - `interior_excess_le_six` is the weaker inequality derived from `excess_eq_six`,
@@ -26,7 +26,7 @@ private lemma winning_sides_at_zero {w : Hand n} (hw : Winning w)
       Meldable (restrictLT k w)) := by
   grind [Winning, → Meldable.split_at_zero, → Meldable.size_mod_three]
 
-theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
+theorem interior_positive (c : Hand n) (hc : IsFullWait c) :
     ∀ i : Fin (3 * n), 0 < i.val ∧ i.val < 3 * n - 1 → 0 < c i := by
   intro k hk
   by_contra hpositive
@@ -66,22 +66,40 @@ theorem interior_positive (hn : 2 ≤ n) (c : Hand n) (hc : IsFullWait c) :
         Meldable.sum_mod_three (hleft_meldable i₁ hi₁)
     grind
   · have hkval : k.val = 1 := by omega
-    let i₂ : Fin (3 * n) := ⟨2, lt_of_lt_of_le (by norm_num) (Nat.mul_le_mul_left 3 hn)⟩
-    let i₃ : Fin (3 * n) := ⟨3, lt_of_lt_of_le (by norm_num) (Nat.mul_le_mul_left 3 hn)⟩
-    have hi₂ : k.val < i₂.val := by grind
-    have hi₃ : k.val < i₃.val := by grind
-    have hsum₂ : (sum (restrictGT k c) + 2) % 3 = 0 := by
-      simpa [restrictGT_single_of_gt k i₂ hi₂, i₂] using
-        Meldable.sum_mod_three (hright_meldable i₂ hi₂)
-    have hsum₃ : (sum (restrictGT k c) + 3) % 3 = 0 := by
-      simpa [restrictGT_single_of_gt k i₃ hi₃, i₃] using
-        Meldable.sum_mod_three (hright_meldable i₃ hi₃)
-    grind
+    by_cases hn : 2 ≤ n
+    · let i₂ : Fin (3 * n) := ⟨2, by omega⟩
+      let i₃ : Fin (3 * n) := ⟨3, by omega⟩
+      have hi₂ : k.val < i₂.val := by grind
+      have hi₃ : k.val < i₃.val := by grind
+      have hsum₂ : (sum (restrictGT k c) + 2) % 3 = 0 := by
+        simpa [restrictGT_single_of_gt k i₂ hi₂, i₂] using
+          Meldable.sum_mod_three (hright_meldable i₂ hi₂)
+      have hsum₃ : (sum (restrictGT k c) + 3) % 3 = 0 := by
+        simpa [restrictGT_single_of_gt k i₃ hi₃, i₃] using
+          Meldable.sum_mod_three (hright_meldable i₃ hi₃)
+      grind
+    · have hnval : n = 1 := by omega
+      subst n
+      have hkone : k = ⟨1, by decide⟩ := Fin.ext hkval
+      subst k
+      have hright : c ⟨2, by decide⟩ % 3 = 2 := by
+        have h := hsizes.2
+        simp [size_eq_sum, Fin.sum_univ_succ] at h
+        grind
+      -- Drawing the middle tile forces the pair there, where only one tile is available.
+      obtain ⟨_, d, p, hd, heq⟩ := hc ⟨1, by decide⟩
+      have hsum := Meldable.sum_mod_three hd
+      have hs := congrArg sum heq
+      simp only [map_add, sum_single, sum_pair] at hs
+      have hsc : sum c = 2 * c ⟨2, by decide⟩ := by
+        simpa [sum_eq_sum, Fin.sum_univ_succ] using hck
+      have hp := congrArg (fun w : Hand 1 => w p) heq
+      grind
 
-theorem excess_eq_six (hn : 2 ≤ n) {c : Hand n} (hc : IsFullWait c) :
+theorem excess_eq_six (hn : 0 < n) {c : Hand n} (hc : IsFullWait c) :
     c ⟨0, by omega⟩ + c ⟨3 * n - 1, by omega⟩ +
       ∑ i : Fin (3 * n - 2), (c ⟨i.val + 1, by omega⟩ - 1) = 6 := by
-  have hpos := interior_positive hn c hc
+  have hpos := interior_positive c hc
   have hsize := IsFullWait.size (by omega) hc
   have hsum (f : Fin (3 * n) → ℕ) : (∑ i : Fin (3 * n), f i) =
       f ⟨0, by omega⟩ + (∑ i : Fin (3 * n - 2), f ⟨i.val + 1, by omega⟩)
@@ -106,7 +124,7 @@ theorem excess_eq_six (hn : 2 ≤ n) {c : Hand n} (hc : IsFullWait c) :
       _ = _ := by grind [Finset.sum_congr rfl]
   omega
 
-theorem interior_excess_le_six (hn : 2 ≤ n) {c : Hand n} (hc : IsFullWait c) :
+theorem interior_excess_le_six (hn : 0 < n) {c : Hand n} (hc : IsFullWait c) :
     ∑ i : Fin (3 * n - 2), (c ⟨i.val + 1, by omega⟩ - 1) ≤ 6 := by
   have h := excess_eq_six hn hc
   omega

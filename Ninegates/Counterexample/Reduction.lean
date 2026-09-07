@@ -239,7 +239,7 @@ theorem exists_insertSeqAt_of_large (hn : 6 < n) {c : Hand (n + 1)} (hc : IsFull
   let idx : Fin (3 * (n + 1) - 2) → Fin (3 * (n + 1)) :=
     fun i ↦ ⟨i.val + 1, by omega⟩
   have hpositive (i : Fin (3 * (n + 1) - 2)) : 0 < c (idx i) := by
-    apply interior_positive (n := n + 1) (by omega) c hc
+    apply interior_positive (n := n + 1) c hc
     grind
   have hexcess : (∑ i : Fin (3 * (n + 1) - 2), (c (idx i) - 1)) ≤ 6 := by
     simpa [idx] using (interior_excess_le_six (n := n + 1) (c := c) (by omega) hc)
