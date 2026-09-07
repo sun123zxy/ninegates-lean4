@@ -29,11 +29,11 @@ We also prioritizes the following design goals:
 
 - **Program Verification**: We explored how to verify executable algorithms in Lean 4 and use them in a mathematical proof.
 
-## Verification
+## Soundness
 
 Our formalization is verified in Lean `v4.33.0`. We use the standard axioms `propext`, `Classical.choice`, `Quot.sound` with additional `native_decide`. You can check yourself with `#print axioms liveFullWait_unique`. The first three are standard in Lean 4, and the last is for the efficent small-case enumeration.
 
-Note that `native_decide` relies on the correctness of Lean 4's compiler. It is a reasonable assumption for our purpose, as enumerating small cases requires efficiency, and verifying executable algorithms is among the goals of this project. Switching to a `decide` version is technically possible, but it does not work smoothly with `ExtHashSet`'s opaque implementation and could be extremely slow for the program verification purpose.
+Note that `native_decide` relies on the correctness of Lean 4's compiler. It is a reasonable assumption for our purpose, as enumerating small cases requires efficiency, and verifying executable algorithms is among the goals of this project. Switching to a `decide` version is technically possible, but it does not work smoothly with `ExtHashSet`'s opaque implementation (used by our DP-based winning check algorithm) and could be extremely slow for the program verification purpose.
 
 ## AI use
 
@@ -67,6 +67,28 @@ This set of rules turns out to be effective, resulting a brainless `ext; simp_al
 - `Hand.size` and `Hand.sum`: For definitions containing `∑`. See `Basic` documentation for a closer look.
 
 In practice, as `grind` has a upper limit on the number of case splits (though it is configurable by `grind (splits := 20)`), it is still recommended to manually perform the case split and `simp` with the case conditions before invoking `grind` for the remaining proof obligations.
+
+## Configuring verification & development environment
+
+### Quick start
+
+You'll need a Lean 4 environment with `lake` installed. Then
+
+```
+lake update
+lake exe cache get
+```
+
+Above commands download dependencies (like `Mathlib`) and their cache. Then a quick `lake build` serves as a basic verification of the library.
+
+### Agentic coding
+
+We use [lean-lsp-mcp](https://github.com/oOo0oOo/lean-lsp-mcp) + [repl](https://github.com/leanprover-community/repl) for compiler feedback.
+
+- `lean-lsp-mcp` is a MCP server that allows agentic interaction with the Lean theorem prover via the Language Server Protocol, provides a range of tools for LLM agents to understand, analyze and interact with Lean projects.
+- `repl` is a Lean 4 REPL. Used by `lean-lsp-mcp` to accelerate the agent-compiler feedback loop.
+
+See their documentation for detail instructions. In short, you'll need to add `lean-lsp-mcp` as an MCP server for your agent. The command to run the server is `uvx lean-lsp-mcp --repl`. Note that `repl` is already included in our dependency list. So just run `lake build repl` to build it before use.
 
 ## Reading the code
 
