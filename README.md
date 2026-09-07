@@ -1,6 +1,6 @@
 # Nine Gates: A Mahjong Game Formalization in Lean 4
 
-Uniqueness of the "Nine Gates" live full-sided wait in a generalized Mahjong game with `3 * n` ranks, formally verified in Lean 4.
+Uniqueness of the *Nine Gates (九蓮宝燈)* live full-sided wait in the *Mahjong* game, formally verified in Lean 4
 
 ## Introduction
 
@@ -12,7 +12,7 @@ Nine Gates is the celebrated one-suit Mahjong wait `1112345678999`. With the usu
 
 Our formalization proves the uniqueness theorem for all `n ≥ 2` in a single Lean 4 proof.
 
-The main theorem, `Mahjong.Hand.liveFullWait_unique`, proves that for every `n ≥ 2`, every *live full wait* is exactly `standardLiveFullWait n`: "Live" means that each prospective draw still respects Mahjong's four-copy limit. In particular, the theorem covers the usual Nine Gates hand as `standardLiveFullWait 3`.
+The main theorem, `Mahjong.Hand.liveFullWait_unique` in `Ninegates/Counterexample/Uniqueness.lean`, proves that for every `n ≥ 2`, every *live full wait* is exactly `standardLiveFullWait n`: "Live" means that each prospective draw still respects Mahjong's four-copy limit. In particular, the theorem covers the usual Nine Gates hand as `standardLiveFullWait 3`.
 
 Our proof combines
 
@@ -20,6 +20,20 @@ Our proof combines
 - efficient verified computation of small cases to rule out counterexamples
 
 With Lean 4, all of these can be expressed in a single language.
+
+We also prioritizes the following design goals:
+
+- **Maintainability**: This repository is a human-written formalization with limited assistance from coding agents. Conscious effort has been made to rewrite the code into a clean and readable structure.
+
+- **Proof Automation**: Smooth `grind` and `simp` automation requires careful design of the library structure and lemma annotations.
+
+- **Program Verification**: We explored how to verify executable algorithms in Lean 4 and use them in a mathematical proof.
+
+## Verification
+
+Our formalization is verified in Lean `v4.33.0`. We use the standard axioms `propext`, `Classical.choice`, `Quot.sound` with additional `native_decide`. You can check yourself with `#print axioms liveFullWait_unique`. The first three are standard in Lean 4, and the last is for the efficent small-case enumeration.
+
+Note that `native_decide` relies on the correctness of Lean 4's compiler. It is a reasonable assumption for our purpose, as enumerating small cases requires efficiency, and verifying executable algorithms is among the goals of this project. Switching to a `decide` version is technically possible, but it does not work smoothly with `ExtHashSet`'s opaque implementation and could be extremely slow for the program verification purpose.
 
 ## AI use
 
@@ -31,11 +45,28 @@ Autoformalization is cool but often produces unmaintainable code. This repositor
 
 To wrap up, conscious effort has been made to rewrite the code into a clean and readable structure.
 
-## Verification
+## `grind` / `simp` Automation Policy
 
-We use the standard axioms `propext`, `Classical.choice`, `Quot.sound` with additional `native_decide`. You can check yourself with `#print axioms liveFullWait_unique`. The first three are standard in Lean 4, and the last is for the efficent small-case enumeration.
+Smooth `grind` and `simp` automation is the major design goals of this library. Intuitively, `simp` does a normal form reduction, while `grind` is a union-find algorithm that equates terms and splits cases. Respecting the heterogeneous nature of the two tactics' inner mechanisms is crucial to maximize the automation power of both.
 
-Note that `native_decide` relies on the correctness of Lean 4's compiler. It is a reasonable assumption for our purpose, as enumerating small cases requires efficiency, and verifying executable algorithms is among the goals of this project. Switching to a `decide` version is technically possible, but it does not work smoothly with `ExtHashSet`'s opaque implementation (as of Lean 4.33.0) and could be extremely slow for the program verification purpose.
+In general we follow the [official `grind` annotation guideline](https://lean-lang.org/doc/reference/latest/The--grind--tactic/Annotating-Libraries-for--grind/), which results in the following rules of thumb:
+
+- Make `xxx_apply` lemmas to hide `.mk`.
+
+- `@[simp]` apply lemmas it if it has no `if`.
+- `@[grind]` apply lemmas if it has `if`.
+- Do not `@[grind]` other apply lemmas if a general `if`-lemma is already `[@grind]`.
+- `@[grind]` definitions directly only if they have no corresponding lemma.
+
+- Hide the definition if it contains `∑`: Don't `@[grind]` or `@[simp]` it. Provide lemmas for downstream use. Reserve the responsibility manipulating `∑` on our side.
+
+This set of rules turns out to be effective, resulting a brainless `ext; simp_all; grind` combo almost always works for mathematically trivial lemmas. We have multiple positive examples in this library. Some of them are listed here for reference:
+
+- `Placement.toHand_apply`: For apply lemmas containing `if`. See `Meldable.Basic` documentation for a closer look.
+
+- `Hand.size` and `Hand.sum`: For definitions containing `∑`. See `Basic` documentation for a closer look.
+
+In practice, as `grind` has a upper limit on the number of case splits (though it is configurable by `grind (splits := 20)`), it is still recommended to manually perform the case split and `simp` with the case conditions before invoking `grind` for the remaining proof obligations.
 
 ## Reading the code
 
@@ -82,28 +113,11 @@ Rich documentation is provided in the code itself. The following is a brief over
 
 4. Read the `Decidable` modules afterward if you want the verified algorithms: first meldability, then winning, then waiting.
 
-## `grind` / `simp` Automation Policy
+## Future work
 
-Smooth `grind` and `simp` automation is the major design goals of this library. Intuitively, `simp` does a normal form reduction, while `grind` is a union-find algorithm that equates terms and splits cases. Respecting the heterogeneous nature of the two tactics' inner mechanisms is crucial to maximize the automation power of both.
+- Decoupling computation from Mathlib: Mathlib is designed to be noncomputable. The current instantiate-`Decidable` approach has already caused some friction. A canonical computable definition (established with a connection to the Mathlib-based definition) should be fixed. This layer should not be hidden and casually handovered to coding agents. We are aware of [Hex](https://github.com/leanprover/hex)'s practice of separating computation from Mathlib, and are considering applying a similar approach in our future work. It's also tempting to replace the current `Fin (3 * n) → ℕ` definition of `Hand` with a computationally-friendly `Vector (3 * n) ℕ` representation, which might reduce the glue work between the two layers.
 
-In general we follow the [official `grind` annotation guideline](https://lean-lang.org/doc/reference/latest/The--grind--tactic/Annotating-Libraries-for--grind/), which results in the following rules of thumb:
-
-- Make `xxx_apply` lemmas to hide `.mk`.
-
-- `@[simp]` apply lemmas it if it has no `if`.
-- `@[grind]` apply lemmas if it has `if`.
-- Do not `@[grind]` other apply lemmas if a general `if`-lemma is already `[@grind]`.
-- `@[grind]` definitions directly only if they have no corresponding lemma.
-
-- Hide the definition if it contains `∑`: Don't `@[grind]` or `@[simp]` it. Provide lemmas for downstream use. Reserve the responsibility manipulating `∑` on our side.
-
-This set of rules turns out to be effective, resulting a brainless `ext; simp_all; grind` combo almost always works for mathematically trivial lemmas. We have multiple positive examples in this library. Some of them are listed here for reference:
-
-- `Placement.toHand_apply`: For apply lemmas containing `if`. See `Meldable.Basic` documentation for a closer look.
-
-- `Hand.size` and `Hand.sum`: For definitions containing `∑`. See `Basic` documentation for a closer look.
-
-In practice, as `grind` has a upper limit on the number of case splits (though it is configurable by `grind (splits := 20)`), it is still recommended to manually perform the case split and `simp` with the case conditions before invoking `grind` for the remaining proof obligations.
+- `vcgen`: We are aware of the newly emerged `vcgen` tactic in Lean 4. We tried to use it in our spec modules, but turned out to gain little benefit. Also, currently coding agents are not enough familiar with it.
 
 ## TODOs
 

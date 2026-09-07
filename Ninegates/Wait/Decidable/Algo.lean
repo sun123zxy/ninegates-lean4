@@ -3,6 +3,8 @@ import Ninegates.Winning.Decidable
 
 /-!
 # Prefix/suffix algorithm for waiting tiles
+
+Relies on the winning check algorithm.
 -/
 
 namespace Mahjong.Hand

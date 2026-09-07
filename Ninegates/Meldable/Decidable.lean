@@ -13,11 +13,6 @@ import Ninegates.Meldable.Canonical
 - `scanList` scans a list from left to right and rejects unfinished sequences at the end.
 - `scanHand` scans a hand and returns its canonical placement on success.
 
-Note that the partial function `step` and the total function `replay`
-are almost inverses of each other. With this symmetry,
-we can prove correctness of the scan algorithm swiftly without using `vcgen`,
-which might be a little boilerplate-heavy for this simple algorithm.
-
 ## Main results
 
 - `scanHand_sound`: a successful scan returns a canonical witness for the input hand.
@@ -28,6 +23,16 @@ which might be a little boilerplate-heavy for this simple algorithm.
 ## Execution
 
 `scanHand` is executable! Try `#eval scanHand (.triplet 0 : Hand 3)` for example.
+
+## Design notes
+
+### Program verification
+
+Unlike the winning and waiting checking algorithms,
+we delibrately mixed the meldability algorithm and its correctness proof in a single module.
+This is because the partial function `step` and the total function `replay`
+are almost inverses of each other. With this symmetry,
+the algorithm is simple enough to be verified alongside its implementation.
 -/
 
 namespace Mahjong.Hand
