@@ -1,11 +1,15 @@
-import Ninegates.Wait.Basic
-import Ninegates.Winning.Decidable
+module
+
+public import Ninegates.Wait.Basic
+public import Ninegates.Winning.Decidable
 
 /-!
 # Prefix/suffix algorithm for waiting tiles
 
 Relies on the winning check algorithm.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand
 

@@ -1,5 +1,9 @@
-import Ninegates.Counterexample.EnumSpec
-import Ninegates.Wait.Decidable.Basic
+module
+
+public import Ninegates.Counterexample.EnumSpec
+public import Ninegates.Wait.Decidable.Basic
+meta import Ninegates.Counterexample.EnumAlgo
+meta import Ninegates.Wait.Decidable.Basic
 
 /-!
 # Elimination of the finite live counterexample candidates
@@ -8,8 +12,11 @@ This file contains the computational certificate that no enumerated candidate
 is a live counterexample. It uses the enumeration algorithm established in
 `EnumSpec` combined with a plain decidable check of `IsLiveFullWait`.
 
-The `native_decide` is used.
+The `native_decide` is used. The `meta import`s make the enumeration and decision
+procedures available for compile-time execution of the certificate.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand.Counterexample
 

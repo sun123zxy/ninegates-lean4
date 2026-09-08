@@ -1,10 +1,14 @@
-import Ninegates.Winning.Decide
-import Std.Data.ExtHashSet.Lemmas
-import Ninegates.Meldable.Decidable
+module
+
+public import Ninegates.Winning.Decide
+public import Std.Data.ExtHashSet.Lemmas
+public import Ninegates.Meldable.Decidable
 
 /-!
 # Correctness of the winning-hand decision procedure
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand.Winning.Decidable
 

@@ -1,11 +1,15 @@
-import Ninegates.Winning.Basic
-import Std.Data.ExtHashSet.Basic
+module
+
+public import Ninegates.Winning.Basic
+public import Std.Data.ExtHashSet.Basic
 
 /-!
 ## Algorithms for deciding winning hands
 
 See `Decidable` directory for specifications and proofs of correctness.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand
 

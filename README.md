@@ -152,7 +152,7 @@ Rich documentation is provided in the code itself. The following is a brief over
 
 - `vcgen`: We are aware of the newly emerged `vcgen` tactic in Lean 4. We tried to use it in our spec modules, but turned out to gain little benefit. Also, currently coding agents are not enough familiar with it.
 
-- Module system: Currently our Mathlib-flavored design of `Hand` relies heavily on its internal representation, contrary to the newly established module system that emphasizes the separation of interface and implementation. Future work should first redesign of `Hand`'s internal representation, then refactor the library to use the module system.
+- Module system: Currently Lean's module system is ported but not fully utilized. Our Mathlib-flavored design of `Hand` relies heavily on its internal representation. Future work should first redesign of `Hand`'s internal representation, then refactor the library to seperate implementation from interface, and finally make good use of the module system.
 
 ## TODOs
 

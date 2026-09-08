@@ -1,5 +1,7 @@
-import Ninegates.Meldable.Split
-import Ninegates.Wait.Basic
+module
+
+public import Ninegates.Meldable.Split
+public import Ninegates.Wait.Basic
 
 /-!
 # Full-wait positivity
@@ -13,6 +15,8 @@ import Ninegates.Wait.Basic
 - `interior_excess_le_six` is the weaker inequality derived from `excess_eq_six`,
   which is used in the reduction step.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand
 

@@ -1,4 +1,6 @@
-import Ninegates.Meldable.Basic
+module
+
+public import Ninegates.Meldable.Basic
 
 /-!
 # Winning hands and waits
@@ -6,6 +8,8 @@ import Ninegates.Meldable.Basic
 A `Winning c` hand has `3 * n + 5` tiles and can be written as a meldable hand plus
 one pair. Physical tile availability is tracked separately by `Valid`.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand
 

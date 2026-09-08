@@ -1,4 +1,6 @@
-import Ninegates.Counterexample.Elimination
+module
+
+public import Ninegates.Counterexample.Elimination
 
 /-!
 
@@ -6,6 +8,8 @@ import Ninegates.Counterexample.Elimination
 
 The main theorem of our project.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand
 

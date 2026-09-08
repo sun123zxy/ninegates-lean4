@@ -1,4 +1,6 @@
-import Ninegates.Counterexample.Basic
+module
+
+public import Ninegates.Counterexample.Basic
 
 /-!
 # Finite candidates for minimal counterexamples
@@ -7,6 +9,8 @@ This file contains the enumeration algorithm for generating
 small candidates for minimal counterexamples.
 See `EnumSpec` for it's completeness.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand.Counterexample
 

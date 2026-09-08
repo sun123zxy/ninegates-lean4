@@ -1,5 +1,7 @@
-import Ninegates.Counterexample.Basic
-import Ninegates.Positivity
+module
+
+public import Ninegates.Counterexample.Basic
+public import Ninegates.Positivity
 
 /-!
 # Full-wait reduction
@@ -27,6 +29,8 @@ import Ninegates.Positivity
 - The automation design of `insertSeqAt_apply` and `removeSeqAt_apply` follow
   our general automation policy of apply lemmas containing `if`.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand
 

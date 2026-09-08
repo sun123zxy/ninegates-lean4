@@ -1,4 +1,6 @@
-import Ninegates.Winning.Basic
+module
+
+public import Ninegates.Winning.Basic
 
 /-!
 ## Wait predicates
@@ -7,6 +9,8 @@ import Ninegates.Winning.Basic
 * `IsLiveWaitingTile c i` additionally requires the resulting hand to be valid.
 * `IsWait` and `IsFullWait` allow dead tiles, while their `IsLive...` counterparts do not.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand
 

@@ -1,10 +1,14 @@
-import Ninegates.Basic
-import Ninegates.Standard
-import Ninegates.Wait.Basic
+module
+
+public import Ninegates.Basic
+public import Ninegates.Standard
+public import Ninegates.Wait.Basic
 
 /-!
 ## Basic definitions for counterexamples
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand.Counterexample
 

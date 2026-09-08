@@ -1,4 +1,6 @@
-import Ninegates.Meldable.Basic
+module
+
+public import Ninegates.Meldable.Basic
 
 /-!
 # Splitting a meldable hand by a zero
@@ -22,6 +24,8 @@ import Ninegates.Meldable.Basic
 - The `filter_apply`, `restrictLT_apply`, and `restrictGT_apply` lemmas
   follow our general automation policy of apply lemmas containing `if`.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand
 

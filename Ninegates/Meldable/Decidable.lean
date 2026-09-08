@@ -1,4 +1,6 @@
-import Ninegates.Meldable.Canonical
+module
+
+public import Ninegates.Meldable.Canonical
 
 /-!
 # Verified scanning algorithm for meld decompositions
@@ -34,6 +36,8 @@ This is because the partial function `step` and the total function `replay`
 are almost inverses of each other. With this symmetry,
 the algorithm is simple enough to be verified alongside its implementation.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand
 

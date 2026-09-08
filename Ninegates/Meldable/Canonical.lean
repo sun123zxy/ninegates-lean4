@@ -1,4 +1,6 @@
-import Ninegates.Meldable.Basic
+module
+
+public import Ninegates.Meldable.Basic
 
 /-!
 # Canonical meld decompositions
@@ -19,6 +21,8 @@ import Ninegates.Meldable.Basic
 - Two canonical placements giving the same hand are equal.
 - A hand is `Meldable` if and only if it has a canonical witness.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand.Meldable
 

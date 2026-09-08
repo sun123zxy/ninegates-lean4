@@ -1,8 +1,10 @@
-import Mathlib.Algebra.Module.Basic
-import Mathlib.Data.Fintype.Basic
-import Mathlib.Data.FunLike.IsApply
-import Mathlib.Algebra.BigOperators.Ring.Finset
-import Mathlib.Tactic
+module
+
+public import Mathlib.Algebra.Module.Basic
+public import Mathlib.Data.Fintype.Basic
+public import Mathlib.Data.FunLike.IsApply
+public import Mathlib.Algebra.BigOperators.Ring.Finset
+public import Mathlib.Tactic
 
 /-!
 # Mahjong hands
@@ -54,6 +56,8 @@ Thus we refrain from annotate `Hand`'s defining lemma with `@[grind]` or `@[simp
 We provide `grind`/`simp`-annotated lemmas free of `∑` for downstream use,
 and non-`grind`/`simp`-annotated `xxx_eq_sum` lemmas for the rare occasions when `∑` is needed.
 -/
+
+@[expose] public section
 
 namespace Mahjong
 

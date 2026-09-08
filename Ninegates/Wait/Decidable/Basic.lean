@@ -1,5 +1,7 @@
-import Ninegates.Wait.Basic
-import Ninegates.Winning.Decidable
+module
+
+public import Ninegates.Wait.Basic
+public import Ninegates.Winning.Decidable
 
 /-!
 # Decidability of waits and full waits, the trivial version
@@ -26,6 +28,8 @@ as they
 - the $O(n)$ algorithm requires building prefix/suffix state sets,
   an overhead that can be expensive for small `n`.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand
 

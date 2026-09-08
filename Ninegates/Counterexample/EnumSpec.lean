@@ -1,7 +1,9 @@
-import Ninegates.Counterexample.EnumAlgo
-import Ninegates.Counterexample.Reduction
-import Ninegates.Wait.Decidable.Spec
-import Mathlib.Data.List.GetD
+module
+
+public import Ninegates.Counterexample.EnumAlgo
+public import Ninegates.Counterexample.Reduction
+public import Ninegates.Wait.Decidable.Spec
+public import Mathlib.Data.List.GetD
 
 /-!
 # Specifications for the finite counterexample enumeration
@@ -10,6 +12,8 @@ Verification of the enumeration algorithm in `EnumAlgo`.
 That is, every minimal live full-wait counterexample candidate
 of order `2` through `7` is indeed enumerated.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand.Counterexample
 

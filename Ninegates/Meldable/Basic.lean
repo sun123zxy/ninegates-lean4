@@ -1,4 +1,6 @@
-import Ninegates.Basic
+module
+
+public import Ninegates.Basic
 
 /-!
 # Meld decompositions
@@ -40,6 +42,8 @@ We design `toHand_apply` automation as follows:
 The effectiveness of this design is verified by the neat proof of
 `IsLiveFullWait.standardLiveFullWait`.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand
 

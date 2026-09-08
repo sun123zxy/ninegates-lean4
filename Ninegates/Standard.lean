@@ -1,11 +1,15 @@
-import Ninegates.Wait.Basic
-import Ninegates.Meldable.Basic
+module
+
+public import Ninegates.Wait.Basic
+public import Ninegates.Meldable.Basic
 
 /-!
 # Standard full-wait
 
 This file defines the standard full-wait and proves that it is indeed a live full wait.
 -/
+
+@[expose] public section
 
 namespace Mahjong.Hand
 

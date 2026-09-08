@@ -1,4 +1,6 @@
-import Ninegates.Counterexample.Uniqueness
-import Ninegates.Meldable.Decidable
-import Ninegates.Winning.Decidable
-import Ninegates.Wait.Decidable.Spec
+module
+
+public import Ninegates.Counterexample.Uniqueness
+public import Ninegates.Meldable.Decidable
+public import Ninegates.Winning.Decidable
+public import Ninegates.Wait.Decidable.Spec
