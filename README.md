@@ -46,7 +46,7 @@ Our formalization is verified in Lean `v4.33.0`. We use the standard axioms `pro
 
 Note that `native_decide` relies on the correctness of Lean 4's compiler. It is a reasonable assumption for our purpose, as enumerating small cases requires efficiency, and verifying executable algorithms is among the goals of this project. Switching to a `decide` version is technically possible, but it does not work smoothly with `ExtHashSet`'s opaque implementation (used by our DP-based winning check algorithm) and could be extremely slow for the program verification purpose.
 
-## AI use
+## Autoformalization, agentic coding and curated formalization
 
 Autoformalization is cool but often produces unmaintainable code. This repository is a human-written formalization with limited assistance from coding agents. We used AI to help us with the following tasks:
 
@@ -54,7 +54,9 @@ Autoformalization is cool but often produces unmaintainable code. This repositor
 
 - The second rewrite is a fresh human-written formalization with limited assistance from coding agents like Codex + GPT 5.6. It is curated to be readable and maintainable. Important definitions are written by humans, structural decisions are made by humans, and proof automation (e.g `simp` / `grind` annotation) is designed by humans. We only sit back and relax ourself a bit for the program verification part, which is generally acceptable and safe. 
 
-To wrap up, conscious effort has been made to rewrite the code into a clean and readable structure.
+To wrap up, AI did the first pass to verify the correctness, and accelerated our exploration of different formalization designs in the second pass. Conscious effort has been made to rewrite the code into a clean and readable structure. As one of the statistical milestones, on the path towards the proof of the counterexample reduction lemma, by carefully redesigning, restructuring, and annotating the Archon + GPT 5.5 generated 2604 lines of Lean code, we have reached a 70% reduction in line count, a 770-line Lean codebase that is much more maintainable and readable, while improving the proof structure and automation power. We observed that very often, with clean organization and proper annotation, mathematically proof-by-trivial lemmas can be indeed closed by a brainless `ext; simp_all; grind` combo.
+
+Hidden mathematical insights also emerge as we reorganize the codebase. The relationship among the canonical placement, canonicalization of a placement, and the meldability scanning algorithm is discovered during the second pass. It turns out that these ideas are of fundamental importance, if one broaden one's scope to a more general setting of Mahjong hands, which is among the future work of this project.
 
 ## `grind` / `simp` Automation Policy
 
@@ -127,7 +129,7 @@ Rich documentation is provided in the code itself. The following is a brief over
   - `Decidable/` implements how we decide waiting tiles and waits.
     
     - `Basic` defines some trivial procedures for deciding waits.
-    - `Algo` and `Spec` Oimplement the prefix/suffix waiting-tile algorithm and its correctness proof.
+    - `Algo` and `Spec` implement the prefix/suffix waiting-tile algorithm and its correctness proof.
 
 - [`Ninegates/Counterexample/`](Ninegates/Counterexample/) contains everything related to counterexample reduction, enumeration and elimination, including
 
@@ -154,6 +156,9 @@ Rich documentation is provided in the code itself. The following is a brief over
 
 - Module system: Currently Lean's module system is ported but not fully utilized. Our Mathlib-flavored design of `Hand` relies heavily on its internal representation. Future work should first redesign of `Hand`'s internal representation, then refactor the library to seperate implementation from interface, and finally make good use of the module system.
 
+- A more general algebraic Mahjong theory: As mentioned before, inspired by the properties of canonical placements discovered in the curation process, we are working on a more general framework where the uniqueness of full-sided waits becomes a special case of a general classification problem.
+
 ## TODOs
 
+- The non-live proof
 - TODO: comparator
