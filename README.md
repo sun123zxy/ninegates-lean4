@@ -152,7 +152,9 @@ Rich documentation is provided in the code itself. The following is a brief over
 
 ## Future work
 
-- Decoupling computation from Mathlib: Mathlib is designed to be noncomputable. The current instantiate-`Decidable` approach has already caused some friction. A canonical computable definition (established with a connection to the Mathlib-based definition) should be fixed. This layer should not be hidden and casually handovered to coding agents. We are aware of [Hex](https://github.com/leanprover/hex)'s practice of separating computation from Mathlib, and are considering applying a similar approach in our future work. It's also tempting to replace the current `Fin (3 * n) → ℕ` definition of `Hand` with a computationally-friendly `Vector (3 * n) ℕ` representation, which might reduce the glue work between the two layers.
+- Decoupling computation from Mathlib: Mathlib is designed to be noncomputable. The current instantiate-`Decidable` approach has already caused some friction, e.g. deciding `Winning` forces the use of `native_decide`. A canonical computable definition (established with a connection to the Mathlib-based definition) should be fixed. This layer should not be hidden and casually handovered to coding agents.
+
+  We are aware of [Hex](https://github.com/leanprover/hex)'s practice of separating computation from Mathlib, and are considering applying a similar approach in our future work. It's also tempting to replace the current `Fin (3 * n) → ℕ` definition of `Hand` with a computationally-friendly `Vector (3 * n) ℕ` representation, which might reduce the glue work between the two layers.
 
 - `vcgen`: We are aware of the newly emerged `vcgen` tactic in Lean 4. We tried to use it in our spec modules, but turned out to gain little benefit. Also, currently coding agents are not enough familiar with it.
 
