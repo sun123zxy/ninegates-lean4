@@ -20,20 +20,16 @@ namespace Mahjong.Hand
 
 theorem liveFullWait_unique (n : ℕ) (hn : n ≥ 2)
     (c : Hand n) (hc : c.IsLiveFullWait) : c = Standard.A n := by
-  classical
-  by_contra hne
-  have hex : ∃ m, 2 ≤ m ∧ ∃ d : Hand m, IsLiveFullWait d ∧ d ≠ Standard.A m :=
-    ⟨n, hn, c, hc, hne⟩
-  let m := Nat.find hex
-  obtain ⟨hm, d, hd⟩ := Nat.find_spec hex
-  have hmin : ∀ k, 2 ≤ k → k < m →
-      ¬ ∃ e : Hand k, IsLiveFullWait e ∧ e ≠ Standard.A k := by
-    intro k hk hkm hcounterexample
-    have := Nat.find_min' hex ⟨hk, hcounterexample⟩
-    omega
-  have hdmem :=
-    Counterexample.mem_minimalCandidates_of_minimal hm hd hmin
-  have hm' : m ≤ 7 := (Counterexample.mem_candidates_iff.mp hdmem).2.1
-  exact Counterexample.minimalCandidates_no_liveCE m hm hm' d hdmem hd
+  have hfull := (isLiveFullWait_iff_le_three.mp hc).1
+  have hfamily := Counterexample.fullWait_classification n hn c hfull
+  rcases hfamily with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · rfl
+  · exact False.elim ((Standard.B.not_isLiveFullWait n hn) hc)
+  · exact False.elim ((Standard.B'.not_isLiveFullWait n hn) hc)
+  · exact False.elim ((Standard.C.not_isLiveFullWait n hn) hc)
+  · exact False.elim ((Standard.C'.not_isLiveFullWait n hn) hc)
+  · exact False.elim ((Standard.D.not_isLiveFullWait n hn) hc)
+  · exact False.elim ((Standard.D'.not_isLiveFullWait n hn) hc)
+  · exact False.elim ((Standard.E.not_isLiveFullWait n hn) hc)
 
 end Mahjong.Hand

@@ -23,7 +23,7 @@ Insertion and its coordinate equivalence are provided by `Ninegates.Standard`.
 - `Meldable.of_insertSeqAt` shows that deleting a sequence preserves meldability.
 - `Winning.of_insertSeqAt` shows that deleting a sequence preserves winning property.
 - `Counterexample.IsCE_of_insertSeqAt` shows that deleting three singleton ranks preserves
-  ordinary counterexamples when the reduced order is at least two.
+  counterexamples when the reduced order is at least two.
 - `exists_insertSeqAt_of_large` finds a removable sequence in every sufficiently large full wait.
 - `fullWait_reduction` shows that a larger counterexample yields a smaller
   counterexample in the small cases, using `exists_insertSeqAt_of_large`.

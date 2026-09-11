@@ -8,7 +8,7 @@ module
 public import Ninegates.Counterexample.Basic
 
 /-!
-# Finite candidates for ordinary full waits
+# Finite candidates for full waits
 
 Orders one and two share a weak-composition enumeration. Orders three through
 seven enumerate candidates without an interior run of three singleton tiles.
@@ -59,7 +59,7 @@ def largeCandidateExcesses (n : Nat) : List (List Nat) := do
 def smallCandidateExcesses (n : Nat) : List (List Nat) :=
   boundedLists (List.replicate (3 * n) 6) 6
 
-/-- The excess vectors for ordinary full-wait candidates.  For orders one and
+/-- The excess vectors for full-wait candidates.  For orders one and
 two all weak compositions of six are retained.  For larger orders, internal
 zeros are placed in gaps of length at most two. -/
 def CandidateExcesses (n : Nat) : List (List Nat) :=

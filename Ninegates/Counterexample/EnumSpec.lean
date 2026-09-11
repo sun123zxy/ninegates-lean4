@@ -14,7 +14,7 @@ public import Mathlib.Data.List.GetD
 
 Verification of the enumeration algorithm in `EnumAlgo`.
 The numerical candidate conditions characterize membership in the enumeration.
-Every ordinary full-wait counterexample of minimal order at least two is enumerated.
+Every full-wait counterexample of minimal order at least two is enumerated.
 -/
 
 @[expose] public section
@@ -863,7 +863,7 @@ theorem mem_candidates_iff {n : Nat} {c : Hand n} :
       ⟨h.1, h.2.1, h.isCandidateExcess_excessOf⟩, ?_⟩
     exact handOfExcess_excessOf h.2.2.1
 
-/-- Every ordinary counterexample of minimal order at least two is a candidate. -/
+/-- Every counterexample of minimal order at least two is a candidate. -/
 theorem mem_candidates_of_minimal {n : Nat} {c : Hand n}
     (hn : 2 ≤ n) (hc : IsCE c)
     (hmin : ∀ m, 2 ≤ m → m < n → ¬ HasCE m) :
