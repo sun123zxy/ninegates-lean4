@@ -227,9 +227,10 @@ open Counterexample
 --     (hk₀ : 0 < k.val)
 --     (hc : IsCE (c.insertSeqAt k)) : IsCE c
 
-lemma Counterexample.IsLiveCE_of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
+lemma Counterexample.liveFullWait_ne_A_of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
     (hk₀ : 0 < k.val)
-    (hc : IsLiveCE (c.insertSeqAt k)) : IsLiveCE c := by
+    (hc : IsLiveFullWait (c.insertSeqAt k) ∧ c.insertSeqAt k ≠ Standard.A (n + 1)) :
+    IsLiveFullWait c ∧ c ≠ Standard.A n := by
   constructor
   · exact IsLiveFullWait.of_insertSeqAt k hc.1
   · intro hstandard
@@ -240,8 +241,8 @@ lemma Counterexample.IsLiveCE_of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
 --     ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ HasCE m
 
 theorem liveFullWait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n}
-    (hc : IsLiveCE c) :
-    ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ HasLiveCE m := by
+    (hc : IsLiveFullWait c ∧ c ≠ Standard.A n) :
+    ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ ∃ d : Hand m, IsLiveFullWait d ∧ d ≠ Standard.A m := by
   induction n using Nat.strong_induction_on with
   | h n ih =>
       by_cases hsmall : n ≤ 7
@@ -251,7 +252,7 @@ theorem liveFullWait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n}
         | succ m =>
             obtain ⟨d, k, hk₀, hcd⟩ :=
               IsLiveFullWait.exists_insertSeqAt_of_large (n := m) (by omega) hc.1
-            have hd := Counterexample.IsLiveCE_of_insertSeqAt k hk₀ (hcd ▸ hc)
+            have hd := Counterexample.liveFullWait_ne_A_of_insertSeqAt k hk₀ (hcd ▸ hc)
             exact ih m (by omega) (by omega) hd
 
 end

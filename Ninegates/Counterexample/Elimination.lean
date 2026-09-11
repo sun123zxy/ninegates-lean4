@@ -26,9 +26,10 @@ procedures available for compile-time execution of the certificate.
 namespace Mahjong.Hand.Counterexample
 
 theorem minimalCandidates_no_liveCE (n : Nat) (hn : 2 ≤ n) (hn' : n ≤ 7) :
-    ∀ c ∈ MinimalCandidates n, ¬ IsLiveCE c := by
+    ∀ c ∈ MinimalCandidates n, ¬ (IsLiveFullWait c ∧ c ≠ Standard.A n) := by
   have hcertificate :
-      (MinimalCandidates n).all (fun c => decide (¬ IsLiveCE c)) = true := by
+      (MinimalCandidates n).all
+        (fun c => decide (¬ (IsLiveFullWait c ∧ c ≠ Standard.A n))) = true := by
     interval_cases n <;> native_decide
   intro c hc
   have hdecide := List.all_eq_true.mp hcertificate c hc

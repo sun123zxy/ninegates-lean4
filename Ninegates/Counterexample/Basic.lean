@@ -10,24 +10,23 @@ public import Ninegates.Standard
 public import Ninegates.Wait.Basic
 
 /-!
-## Basic definitions for counterexamples
+## Counterexamples to the classification of ordinary full waits
+
+A counterexample is a full wait outside the eight standard families. The reduction
+argument uses these predicates at orders at least two; liveness is not part of either
+definition. Order-one classification uses the six standard hands separately.
 -/
 
 @[expose] public section
 
 namespace Mahjong.Hand.Counterexample
 
--- Need to settle on what are the positive examples first.
--- abbrev IsCE {n : ℕ} (c : Hand n) : Prop :=
---   IsFullWait c ∧ c ≠ Standard.A n
+/-- An ordinary full wait outside the eight standard families. -/
+abbrev IsCE {n : ℕ} (c : Hand n) : Prop :=
+  IsFullWait c ∧ ¬ IsEightFamily c
 
--- abbrev HasCE (n : ℕ) : Prop :=
---   ∃ c : Hand n, IsCE c
-
-abbrev IsLiveCE {n : ℕ} (c : Hand n) : Prop :=
-  IsLiveFullWait c ∧ c ≠ Standard.A n
-
-abbrev HasLiveCE (n : ℕ) : Prop :=
-  ∃ c : Hand n, IsLiveCE c
+/-- There exists an ordinary full wait outside the eight standard families. -/
+abbrev HasCE (n : ℕ) : Prop :=
+  ∃ c : Hand n, IsCE c
 
 end Mahjong.Hand.Counterexample

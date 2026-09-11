@@ -22,11 +22,12 @@ theorem liveFullWait_unique (n : ℕ) (hn : n ≥ 2)
     (c : Hand n) (hc : c.IsLiveFullWait) : c = Standard.A n := by
   classical
   by_contra hne
-  have hex : ∃ m, 2 ≤ m ∧ Counterexample.HasLiveCE m :=
+  have hex : ∃ m, 2 ≤ m ∧ ∃ d : Hand m, IsLiveFullWait d ∧ d ≠ Standard.A m :=
     ⟨n, hn, c, hc, hne⟩
   let m := Nat.find hex
   obtain ⟨hm, d, hd⟩ := Nat.find_spec hex
-  have hmin : ∀ k, 2 ≤ k → k < m → ¬ Counterexample.HasLiveCE k := by
+  have hmin : ∀ k, 2 ≤ k → k < m →
+      ¬ ∃ e : Hand k, IsLiveFullWait e ∧ e ≠ Standard.A k := by
     intro k hk hkm hcounterexample
     have := Nat.find_min' hex ⟨hk, hcounterexample⟩
     omega

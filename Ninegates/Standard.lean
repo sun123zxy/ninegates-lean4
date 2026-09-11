@@ -651,4 +651,24 @@ end One
 
 end Standard
 
+/-- Equality to one of the eight standard families for orders at least two. -/
+abbrev IsEightFamily {n : ℕ} (c : Hand n) : Prop :=
+  c = Standard.A n ∨
+  c = Standard.B n ∨
+  c = Standard.B' n ∨
+  c = Standard.C n ∨
+  c = Standard.C' n ∨
+  c = Standard.D n ∨
+  c = Standard.D' n ∨
+  c = Standard.E n
+
+/-- Equality to one of the six standard order-one hands. -/
+abbrev IsOrderOneFamily (c : Hand 1) : Prop :=
+  c = Standard.One.a ∨
+  c = Standard.One.b ∨
+  c = Standard.One.c ∨
+  c = Standard.One.c' ∨
+  c = Standard.One.d ∨
+  c = Standard.One.d'
+
 end Mahjong.Hand

@@ -973,8 +973,9 @@ theorem mem_minimalCandidates_iff {n : Nat} {c : Hand n} :
 
 /-- Every minimal live counterexample occurs in the finite enumeration. -/
 theorem mem_minimalCandidates_of_minimal
-    {n : Nat} {c : Hand n} (hn : 2 ≤ n) (hc : IsLiveCE c)
-    (hmin : ∀ m, 2 ≤ m → m < n → ¬ HasLiveCE m) :
+    {n : Nat} {c : Hand n} (hn : 2 ≤ n) (hc : IsLiveFullWait c ∧ c ≠ Standard.A n)
+    (hmin : ∀ m, 2 ≤ m → m < n →
+      ¬ ∃ d : Hand m, IsLiveFullWait d ∧ d ≠ Standard.A m) :
     c ∈ MinimalCandidates n := by
   apply mem_minimalCandidates_iff.mpr
   have hfull := isLiveFullWait_iff_le_three.mp hc.1 |>.1
@@ -1002,7 +1003,7 @@ theorem mem_minimalCandidates_of_minimal
         have hseq : HasSeqAt c k := by
           simpa only [k] using hones
         obtain ⟨d, k, hk, hcd⟩ := hseq.exists_insertSeqAt hk
-        have hd := Counterexample.IsLiveCE_of_insertSeqAt k hk (hcd ▸ hc)
+        have hd := Counterexample.liveFullWait_ne_A_of_insertSeqAt k hk (hcd ▸ hc)
         exact hmin m (by omega) (by omega) ⟨d, hd⟩
 
 end Mahjong.Hand.Counterexample
