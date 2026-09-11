@@ -6,14 +6,15 @@ Authors: Xingyu Zhong
 module
 
 public import Ninegates.Counterexample.EnumAlgo
+public import Ninegates.Counterexample.Reduction
 public import Mathlib.Data.List.GetD
 
 /-!
 # Specifications for the finite counterexample enumeration
 
 Verification of the enumeration algorithm in `EnumAlgo`.
-That is,  every minimal live full-wait counterexample candidate is
-indeed enumerated.
+The numerical candidate conditions characterize membership in the enumeration.
+Every ordinary full-wait counterexample of minimal order at least two is enumerated.
 -/
 
 @[expose] public section
@@ -83,19 +84,6 @@ lemma boundedBy_replicate_iff {bound n : Nat} {values : List Nat} :
           simp only [List.replicate_succ, BoundedBy, ih, List.length_cons,
             List.mem_cons]
           grind
-
-@[simp]
-lemma boundedBy_replicate_append_singleton_iff
-    {bound last : Nat} {values : List Nat} {lastValue : Nat} :
-    BoundedBy (List.replicate values.length bound ++ [last])
-        (values ++ [lastValue]) ↔
-      (∀ value ∈ values, value ≤ bound) ∧ lastValue ≤ last := by
-  induction values with
-  | nil => simp [BoundedBy]
-  | cons value values ih =>
-      simp only [List.length_cons, List.replicate_succ, List.cons_append,
-        BoundedBy, List.mem_cons, ih]
-      grind
 
 lemma list_split_boundaries {xs : List Nat} {m : Nat}
     (h : xs.length = m + 2) :
@@ -580,7 +568,6 @@ lemma largeCandidateExcesses_sound {n : Nat} {excess : List Nat} (hn : 3 ≤ n)
     positiveExcess, hpositive, gaps, hgaps, rfl⟩
   have hpositiveBound := boundedBy_replicate_iff.mp
     (mem_boundedLists_iff.mp hpositive).1
-  have hpositiveSum := (mem_boundedLists_iff.mp hpositive).2
   have hgapBound := boundedBy_replicate_iff.mp
     (mem_boundedLists_iff.mp hgaps).1
   have hgapSum := (mem_boundedLists_iff.mp hgaps).2
@@ -785,16 +772,12 @@ lemma handOfExcess_excessOf {n : Nat} {c : Hand n}
   by_cases hi : i.val = 0 ∨ i.val = 3 * n - 1
   · simp only [hi, ite_true, Nat.sub_zero, Nat.add_zero]
   · simp only [hi, ite_false]
-    rcases lt_or_ge i.val 1 with hi0 | hi1
-    · omega
-    · by_cases hilast : i.val = 3 * n - 1
-      · exact False.elim (hi (Or.inr hilast))
-      · have hpos : 1 ≤ c i := by
-          have hpos' := hc ⟨i.val - 1, by omega⟩
-          grind
-        omega
+    have hpos : 1 ≤ c i := by
+      have hpos' := hc ⟨i.val - 1, by omega⟩
+      grind
+    omega
 
-/-- An interior run of three ordinary entries. -/
+/-- Absence of an interior run of three singleton entries. -/
 def NoInteriorTripleOnes {n : Nat} (c : Hand n) : Prop :=
   ∀ i : Fin (3 * n - 4),
     ¬ (c ⟨i.val + 1, by omega⟩ = 1 ∧
@@ -879,5 +862,34 @@ theorem mem_candidates_iff {n : Nat} {c : Hand n} :
     refine ⟨excessOf n c, mem_candidateExcesses_iff.mpr
       ⟨h.1, h.2.1, h.isCandidateExcess_excessOf⟩, ?_⟩
     exact handOfExcess_excessOf h.2.2.1
+
+/-- Every ordinary counterexample of minimal order at least two is a candidate. -/
+theorem mem_candidates_of_minimal {n : Nat} {c : Hand n}
+    (hn : 2 ≤ n) (hc : IsCE c)
+    (hmin : ∀ m, 2 ≤ m → m < n → ¬ HasCE m) :
+    c ∈ Candidates n := by
+  apply mem_candidates_iff.mpr
+  have hn' : n ≤ 7 := by
+    by_contra hlarge
+    obtain ⟨m, hm, hm', hcounterexample⟩ := fullWait_reduction hn hc
+    exact hmin m hm (by omega) hcounterexample
+  refine ⟨by omega, hn', ?_, IsFullWait.size (by omega) hc.1, ?_⟩
+  · intro i
+    exact interior_positive c hc.1 ⟨i.val + 1, by omega⟩
+      ⟨by simp, by simp; omega⟩
+  · by_cases hn₂ : n ≤ 2
+    · exact Or.inl hn₂
+    · apply Or.inr
+      intro i hones
+      cases n with
+      | zero => omega
+      | succ m =>
+          let k : Fin (3 * m) := ⟨i.val + 1, by omega⟩
+          have hk : 0 < k.val := by simp [k]
+          have hseq : HasSeqAt c k := by
+            simpa only [k] using hones
+          obtain ⟨d, k, _, hcd⟩ := hseq.exists_insertSeqAt hk
+          have hd := IsCE_of_insertSeqAt k (by omega) (hcd ▸ hc)
+          exact hmin m (by omega) (by omega) ⟨d, hd⟩
 
 end Mahjong.Hand.Counterexample
