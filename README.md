@@ -5,7 +5,7 @@
 <p style="font-size: 200%">🀇🀇🀇🀈🀉🀊🀋🀌🀍🀎🀏🀏🀏</p>
 </h1>
 
-Uniqueness of the *Nine Gates (九蓮宝燈)* live full-sided wait in the generalized *Mahjong* game  
+Classification of full-sided waits and uniqueness of the *Nine Gates (九蓮宝燈)* live full-sided wait in the generalized *Mahjong* game  
 Formally verified in Lean 4
 
 [![Repository](https://img.shields.io/badge/Github-ninegates--lean4-2d4a66?style=flat-square&logo=github&logoColor=white)](https://github.com/sun123zxy/ninegates-lean4 "Github")
@@ -21,14 +21,19 @@ Nine Gates is the celebrated one-suit Mahjong wait `1112345678999`. With the usu
 
 ### Our work
 
-Our formalization proves the uniqueness theorem for all `n ≥ 2` in a single Lean 4 proof.
+Our formalization classifies all full-sided waits, without imposing the four-copy limit, and derives live uniqueness for all `n ≥ 2`.
 
-The main theorem, `Mahjong.Hand.liveFullWait_unique` in `Ninegates/Counterexample/Uniqueness.lean`, proves that for every `n ≥ 2`, every *live full wait* is exactly `standardLiveFullWait n`: "Live" means that each prospective draw still respects Mahjong's four-copy limit. In particular, the theorem covers the usual Nine Gates hand as `standardLiveFullWait 3`.
+The main results are in [`Ninegates/Classification.lean`](Ninegates/Classification.lean), in the `Mahjong.Hand` namespace:
+
+- `isFullWait_iff_eightFamily`: for `n ≥ 2`, the full-sided waits are exactly the eight standard families `A`, `B`, `B'`, `C`, `C'`, `D`, `D'`, and `E`.
+- `orderOne_isFullWait_iff_isOrderOneFamily`: for `n = 1`, the full-sided waits are exactly the six hands in `Standard.One`; all six are live.
+- `liveFullWait_unique`: for every `n ≥ 2`, every *live full-sided wait* is exactly `Standard.A n`. "Live" means that each prospective draw still respects Mahjong's four-copy limit. This follows from the classification by excluding the other seven families with the `<= 4` multiplicity condition. The usual Nine Gates hand is `Standard.A 3`.
 
 Our proof combines
 
-- formal mathematical reasoning that reduces the problem to a finite enumeration of small cases
-- efficient verified computation of small cases to rule out counterexamples
+- formal mathematical reasoning: reducing possible counterexamples to a finite set of small-order candidates
+- candidate enumeration: verifying ~5000 candidates for $n = 1,2$ and $3 \leq n \leq 7$ respectively, with correctness proofs
+- efficient verified computation: fast algorithms for deciding meldability, winning, and waiting, fully verified
 
 With Lean 4, all of these can be expressed in a single language.
 
@@ -42,13 +47,13 @@ We also prioritizes the following design goals:
 
 ## Soundness
 
-Our formalization is verified in Lean `v4.33.0`. We use the standard axioms `propext`, `Classical.choice`, `Quot.sound` with additional `native_decide`. You can check yourself with `#print axioms liveFullWait_unique`. The first three are standard in Lean 4, and the last is for the efficent small-case enumeration.
+Our formalization is verified in Lean `v4.33.0`. We use the standard axioms `propext`, `Classical.choice`, `Quot.sound` with additional `native_decide` certificates for finite checks. The first three are standard in Lean 4, and the last is for the efficent small-case enumeration and meldability / winning / waiting checks. You can inspect the dependencies with, for example, `#print axioms isFullWait_iff_eightFamily`.
 
 Note that `native_decide` relies on the correctness of Lean 4's compiler. It is a reasonable assumption for our purpose, as enumerating small cases requires efficiency, and verifying executable algorithms is among the goals of this project. Switching to a `decide` version is technically possible, but it does not work smoothly with `ExtHashSet`'s opaque implementation (used by our DP-based winning check algorithm) and could be extremely slow for the program verification purpose.
 
 ## Autoformalization, agentic coding and curated formalization
 
-Autoformalization is cool but often produces unmaintainable code. As of Augest 2026, full-auto AI formalization agents like Archon + GPT 5.6 has proven their growing capability of generating mathematically correct Lean code at scale, but they almost always produce redundant glue code and cumbersome proof steps, which can be tedious to maintain and verify. For example, native GPT 5.6 is still ignorant of the `grind` tactic and its automation power, nor can it annotate the code with `@[grind]` and `@[simp]` properly without human guidance. A neat, curated library design and annotation still require human expertise and intervention.
+Autoformalization is cool but often produces unmaintainable code. As of Augest 2026, full-auto AI formalization agents like Archon + GPT 5.5 has proven their growing capability of generating mathematically correct Lean code at scale, but they almost always produce redundant glue code and cumbersome proof steps, which can be tedious to maintain and verify. For example, native GPT 5.6 is still ignorant of the `grind` tactic and its automation power, nor can it annotate the code with `@[grind]` and `@[simp]` properly without human guidance. A neat, curated library design and annotation still require human expertise and intervention.
 
 This repository is a human-written formalization with limited assistance from coding agents. We used AI to help us with the following tasks:
 
@@ -56,9 +61,11 @@ This repository is a human-written formalization with limited assistance from co
 
 - The second rewrite is a fresh human-written formalization with limited assistance from coding agents like Codex + GPT 5.6. It is curated to be readable and maintainable. Important definitions are written by humans, structural decisions are made by humans, and proof automation (e.g `simp` / `grind` annotation) is designed by humans. We only sit back and relax ourself a bit for the program verification part, which is generally acceptable and safe. 
 
-To wrap up, AI did the first pass to verify the correctness, and accelerated our exploration of different formalization designs in the second pass. Conscious effort has been made to rewrite the code into a clean and readable structure. As one of the statistical milestones, on the path towards the proof of the counterexample reduction lemma of live full waits, by carefully redesigning, restructuring, and annotating the Archon + GPT 5.5 generated 2604 lines of Lean code, we have reached a 70% reduction in line count, a 770-line Lean codebase that is much more maintainable and readable, while improving the proof structure and automation power. We observed that  clean organization and proper annotation significantly simplifies the proof of trivial lemmas: most of them can be closed by a brainless `ext; simp_all; grind` combo if proper conditions are provided.
+To wrap up, AI did the first pass to verify the correctness, and accelerated our exploration of different formalization designs in the second pass. Conscious effort has been made to rewrite the code into a clean and readable structure. As one of the statistical milestones, on the path towards the proof of the counterexample reduction lemma of live full-sided waits, by carefully redesigning, restructuring, and annotating the Archon + GPT 5.5 generated 2604 lines of Lean code, we have reached a 70% reduction in line count, a 770-line Lean codebase that is much more maintainable and readable, while improving the proof structure and automation power. We observed that  clean organization and proper annotation significantly simplifies the proof of trivial lemmas: most of them can be closed by a brainless `ext; simp_all; grind` combo if proper conditions are provided.
 
 Hidden mathematical insights also emerge as we reorganize the codebase. The relationship among the canonical placement, canonicalization of a placement, and the meldability scanning algorithm is discovered during the second pass. It turns out that these ideas are of fundamental importance, if one broaden one's scope to a more general setting of Mahjong hands. This generalization is currently under our active development.
+
+> We report that recent advances in top-tier LLMs has shown their improved ability to generate organized Lean code. In some recent development of this repository, compared to the previous GPT 5.6 Sol model, we observed that GPT 6 Astra could generate neat proofs with significantly improved readability and maintainability, demonstrating its understanding of the `grind` tactic and the overall library structure. A basic SKILL file is used to guide the agent to read the official `grind` / `simp` guideline and follow the library's automation policy. One may expect that future LLMs may spare more human effort in curating the codebase.
 
 ## `grind` / `simp` Automation Policy
 
@@ -113,7 +120,7 @@ Rich documentation is provided in the code itself. The following is a brief over
 
 - [`Ninegates/Basic.lean`](Ninegates/Basic.lean) is the foundation: it represents a hand as a counting vector over `3 * n` ordered tile types and defines the elementary patterns, hand size, weighted sum, and four-copy validity.
 
-- [`Ninegates/Standard.lean`](Ninegates/Standard.lean) defines the generalized Nine Gates hand and proves that it is a live full wait.
+- [`Ninegates/Standard.lean`](Ninegates/Standard.lean) defines the eight full-wait families and six order-one hands, proves their full-wait and liveness properties, and provides `insertSeqAt` with the family insertion lemmas.
 
 - [`Ninegates/Meldable/`](Ninegates/Meldable/) formalizes decompositions into triplets and sequences. 
 
@@ -126,27 +133,31 @@ Rich documentation is provided in the code itself. The following is a brief over
     
   - `Decide` and `Decidable` implements a dynamic programming decision procedure for winning hands and proves its correctness.
 
-- [`Ninegates/Wait/`](Ninegates/Wait/) defines ordinary and live waits.
+- [`Ninegates/Wait/`](Ninegates/Wait/) defines waits and live waits.
 
   - `Decidable/` implements how we decide waiting tiles and waits.
     
     - `Basic` defines some trivial procedures for deciding waits.
     - `Algo` and `Spec` implement the prefix/suffix waiting-tile algorithm and its correctness proof.
 
-- [`Ninegates/Counterexample/`](Ninegates/Counterexample/) contains everything related to counterexample reduction, enumeration and elimination, including
+- [`Ninegates/Counterexample/`](Ninegates/Counterexample/) contains the counterexample reduction, enumeration and finite elimination:
 
-- `Reduction`: reduce the uniqueness problem to a finite verification of small hands.
-- `EnumAlgo` and `EnumSpec`: implement and verify the finite enumeration of small hands.
-- `Elimination`: eliminate the remaining small hands that are not live full waits.
-- `Uniqueness`: combine all the previous results to prove our main theorem.
+  - `Basic`: defines a counterexample as a full-sided wait outside the eight standard families.
+  - `Reduction`: reduces counterexamples to orders 2 through 7.
+  - `EnumAlgo` and `EnumSpec`: implement and verify the unified candidate enumeration for orders 1 through 7, and show that every minimal counterexample is enumerated.
+  - `Elimination`: rules out counterexamples among the candidates via `native_decide`.
+
+- [`Ninegates/Classification.lean`](Ninegates/Classification.lean) stores our main results: the classification of full-sided waits and the uniqueness of the live full-sided wait.
 
 ### Suggested reading order
 
+If you prefer a quick top-down tour, start from the main results in [`Classification.lean`](Ninegates/Classification.lean) and dive alongside the dependency graph. The following order is recommended for a more systematic reading:
+
 1. Start with [`Ninegates/Basic.lean`](Ninegates/Basic.lean), [`Ninegates/Meldable/Basic.lean`](Ninegates/Meldable/Basic.lean), [`Ninegates/Winning/Basic.lean`](Ninegates/Winning/Basic.lean), and [`Ninegates/Wait/Basic.lean`](Ninegates/Wait/Basic.lean) to learn the model and its core predicates.
 
-2. Read [`Ninegates/Standard.lean`](Ninegates/Standard.lean) to see the target hand and its full-wait proof, followed by [`Ninegates/Meldable/Split.lean`](Ninegates/Meldable/Split.lean) and [`Ninegates/Positivity.lean`](Ninegates/Positivity.lean) for the main structural ingredients.
+2. Read [`Ninegates/Standard.lean`](Ninegates/Standard.lean) to see the standard families and their full-wait proofs, followed by [`Ninegates/Meldable/Split.lean`](Ninegates/Meldable/Split.lean) and [`Ninegates/Positivity.lean`](Ninegates/Positivity.lean) for the main structural ingredients.
 
-3. Follow the main proof in [`Ninegates/Counterexample/Basic.lean`](Ninegates/Counterexample/Basic.lean), [`Reduction.lean`](Ninegates/Counterexample/Reduction.lean), [`EnumAlgo.lean`](Ninegates/Counterexample/EnumAlgo.lean), [`EnumSpec.lean`](Ninegates/Counterexample/EnumSpec.lean), [`Elimination.lean`](Ninegates/Counterexample/Elimination.lean), and [`Uniqueness.lean`](Ninegates/Counterexample/Uniqueness.lean).
+3. Follow the main proof in [`Ninegates/Counterexample/Basic.lean`](Ninegates/Counterexample/Basic.lean), [`Reduction.lean`](Ninegates/Counterexample/Reduction.lean), [`EnumAlgo.lean`](Ninegates/Counterexample/EnumAlgo.lean), [`EnumSpec.lean`](Ninegates/Counterexample/EnumSpec.lean), [`Elimination.lean`](Ninegates/Counterexample/Elimination.lean), and [`Classification.lean`](Ninegates/Classification.lean).
 
 4. Read the `Decidable` modules afterward if you want the verified algorithms: first meldability, then winning, then waiting.
 
@@ -164,5 +175,4 @@ Rich documentation is provided in the code itself. The following is a brief over
 
 ## TODOs
 
-- The non-live proof
 - TODO: comparator
