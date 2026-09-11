@@ -971,6 +971,19 @@ theorem mem_minimalCandidates_iff {n : Nat} {c : Hand n} :
       ⟨hn, hn', hcandidate⟩, ?_⟩
     exact handOfExcess_excessOf hpositive
 
+-- Temporary support for the live enumeration, until its ordinary replacement.
+private lemma liveFullWait_ne_A_of_insertSeqAt {n : ℕ} {c : Hand n}
+    (k : Fin (3 * n)) (hk : 0 < k.val)
+    (hc : IsLiveFullWait (c.insertSeqAt k) ∧ c.insertSeqAt k ≠ Standard.A (n + 1)) :
+    IsLiveFullWait c ∧ c ≠ Standard.A n := by
+  refine ⟨isLiveFullWait_iff_le_three.mpr ⟨?_, ?_⟩, ?_⟩
+  · exact IsFullWait.of_insertSeqAt k (fun i ↦ (hc.1 i).1)
+  · intro i
+    have h := hc.1.le_three (insertSeqEquiv k (.inl i))
+    grind
+  · intro h
+    exact hc.2 (h ▸ Standard.A.insertSeqAt k hk)
+
 /-- Every minimal live counterexample occurs in the finite enumeration. -/
 theorem mem_minimalCandidates_of_minimal
     {n : Nat} {c : Hand n} (hn : 2 ≤ n) (hc : IsLiveFullWait c ∧ c ≠ Standard.A n)
@@ -981,8 +994,12 @@ theorem mem_minimalCandidates_of_minimal
   have hfull := isLiveFullWait_iff_le_three.mp hc.1 |>.1
   have hn' : n ≤ 7 := by
     by_contra hn'
-    obtain ⟨m, hm, hm', hcounterexample⟩ := liveFullWait_reduction hn hc
-    exact hmin m hm (by omega) hcounterexample
+    cases n with
+    | zero => omega
+    | succ m =>
+        obtain ⟨d, k, hk, hcd⟩ := exists_insertSeqAt_of_large (by omega) hfull
+        have hd := liveFullWait_ne_A_of_insertSeqAt k hk (hcd ▸ hc)
+        exact hmin m (by omega) (by omega) ⟨d, hd⟩
   have hle : ∀ i, c i ≤ 3 := hc.1.le_three
   have hpositive :
       ∀ i : Fin (3 * n - 2), 1 ≤ c ⟨i.val + 1, by omega⟩ := by
@@ -1003,7 +1020,7 @@ theorem mem_minimalCandidates_of_minimal
         have hseq : HasSeqAt c k := by
           simpa only [k] using hones
         obtain ⟨d, k, hk, hcd⟩ := hseq.exists_insertSeqAt hk
-        have hd := Counterexample.liveFullWait_ne_A_of_insertSeqAt k hk (hcd ▸ hc)
+        have hd := liveFullWait_ne_A_of_insertSeqAt k hk (hcd ▸ hc)
         exact hmin m (by omega) (by omega) ⟨d, hd⟩
 
 end Mahjong.Hand.Counterexample

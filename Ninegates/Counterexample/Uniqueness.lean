@@ -31,12 +31,9 @@ theorem liveFullWait_unique (n : ℕ) (hn : n ≥ 2)
     intro k hk hkm hcounterexample
     have := Nat.find_min' hex ⟨hk, hcounterexample⟩
     omega
-  obtain ⟨k, hk, hk', hcounterexample⟩ :=
-    liveFullWait_reduction hm hd
-  have hmk : m ≤ k := Nat.find_min' hex ⟨hk, hcounterexample⟩
-  have hm' : m ≤ 7 := hmk.trans hk'
   have hdmem :=
     Counterexample.mem_minimalCandidates_of_minimal hm hd hmin
+  have hm' : m ≤ 7 := (Counterexample.mem_minimalCandidates_iff.mp hdmem).2.1
   exact Counterexample.minimalCandidates_no_liveCE m hm hm' d hdmem hd
 
 end Mahjong.Hand

@@ -13,18 +13,17 @@ public import Ninegates.Positivity
 
 ## Main definitions
 
-- `insertSeqAt` inserts one complete sequence (`{1,1,1}`) at an interior coordinate.
 - `HasSeqAt` records an interior run of three singleton tiles.
-- `insertSeqEquiv` identifies the old coordinates and the inserted sequence
-  with the coordinates of the enlarged hand.
 - `removeSeqAt` is the inverse operation used by the reduction step.
+
+Insertion and its coordinate equivalence are provided by `Ninegates.Standard`.
 
 ## Main results
 
 - `Meldable.of_insertSeqAt` shows that deleting a sequence preserves meldability.
 - `Winning.of_insertSeqAt` shows that deleting a sequence preserves winning property.
-- `IsCounterexample.of_insertSeqAt` shows that deleting an interior sequence preserves
-  counterexamples.
+- `Counterexample.IsCE_of_insertSeqAt` shows that deleting three singleton ranks preserves
+  ordinary counterexamples when the reduced order is at least two.
 - `exists_insertSeqAt_of_large` finds a removable sequence in every sufficiently large full wait.
 - `fullWait_reduction` shows that a larger counterexample yields a smaller
   counterexample in the small cases, using `exists_insertSeqAt_of_large`.
@@ -142,20 +141,6 @@ theorem IsFullWait.of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
   exact Winning.of_insertSeqAt k
     (hcomm.symm ▸ hc (insertSeqEquiv k (.inl i)))
 
-theorem IsLiveFullWait.of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
-    (hc : IsLiveFullWait (c.insertSeqAt k)) : IsLiveFullWait c := by
-  apply IsFullWait.toIsLiveFullWait
-    (IsFullWait.of_insertSeqAt k (fun i ↦ (hc i).1))
-  intro i
-  have hcomm := insertSeqAt_add_single c k i
-  have hvalid : Valid (c + single i) := by
-    intro x
-    have h := (hc (insertSeqEquiv k (.inl i))).2 (insertSeqEquiv k (.inl x))
-    have hEq := congrArg (fun z : Hand (n + 1) ↦ z (insertSeqEquiv k (.inl x))) hcomm
-    simp only [insertSeqAt_apply, insertSeqEquiv_inl_val] at hEq
-    grind
-  exact hvalid
-
 private lemma sum_comp_le_sum_of_injective {α β : Type*} [Fintype α] [Fintype β]
     (f : α → β) (hf : Function.Injective f) (g : β → ℕ) : ∑ i, g (f i) ≤ ∑ j, g j := by
   classical
@@ -214,35 +199,20 @@ theorem exists_insertSeqAt_of_large (hn : 6 < n) {c : Hand (n + 1)} (hc : IsFull
     grind [hc 0, hc 1, hc 2]
   exact hseq.exists_insertSeqAt hk₀
 
-theorem IsLiveFullWait.exists_insertSeqAt_of_large (hn : 6 < n)
-    {c : Hand (n + 1)} (hc : IsLiveFullWait c) :
-    ∃ d : Hand n, ∃ k : Fin (3 * n), 0 < k.val ∧ c = d.insertSeqAt k := by
-  exact Mahjong.Hand.exists_insertSeqAt_of_large hn (fun i ↦ (hc i).1)
-
 section
 
 open Counterexample
 
--- lemma Counterexample.IsCE_of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
---     (hk₀ : 0 < k.val)
---     (hc : IsCE (c.insertSeqAt k)) : IsCE c
+lemma Counterexample.IsCE_of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
+    (hn : 2 ≤ n)
+    (hc : IsCE (c.insertSeqAt k)) : IsCE c := by
+  refine ⟨IsFullWait.of_insertSeqAt k hc.1, ?_⟩
+  intro hfamily
+  apply hc.2
+  exact IsEightFamily.insertSeqAt hn hfamily k hc.1
 
-lemma Counterexample.liveFullWait_ne_A_of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
-    (hk₀ : 0 < k.val)
-    (hc : IsLiveFullWait (c.insertSeqAt k) ∧ c.insertSeqAt k ≠ Standard.A (n + 1)) :
-    IsLiveFullWait c ∧ c ≠ Standard.A n := by
-  constructor
-  · exact IsLiveFullWait.of_insertSeqAt k hc.1
-  · intro hstandard
-    apply hc.2
-    simpa only [hstandard] using Standard.A.insertSeqAt k hk₀
-
--- theorem fullWait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n} (hc : IsCE c) :
---     ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ HasCE m
-
-theorem liveFullWait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n}
-    (hc : IsLiveFullWait c ∧ c ≠ Standard.A n) :
-    ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ ∃ d : Hand m, IsLiveFullWait d ∧ d ≠ Standard.A m := by
+theorem fullWait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n} (hc : IsCE c) :
+    ∃ m, 2 ≤ m ∧ m ≤ 7 ∧ HasCE m := by
   induction n using Nat.strong_induction_on with
   | h n ih =>
       by_cases hsmall : n ≤ 7
@@ -250,9 +220,9 @@ theorem liveFullWait_reduction {n : ℕ} (hn : 2 ≤ n) {c : Hand n}
       · cases n with
         | zero => omega
         | succ m =>
-            obtain ⟨d, k, hk₀, hcd⟩ :=
-              IsLiveFullWait.exists_insertSeqAt_of_large (n := m) (by omega) hc.1
-            have hd := Counterexample.liveFullWait_ne_A_of_insertSeqAt k hk₀ (hcd ▸ hc)
+            obtain ⟨d, k, _, hcd⟩ :=
+              exists_insertSeqAt_of_large (n := m) (by omega) hc.1
+            have hd := Counterexample.IsCE_of_insertSeqAt k (by omega) (hcd ▸ hc)
             exact ih m (by omega) (by omega) hd
 
 end
