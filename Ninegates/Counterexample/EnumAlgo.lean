@@ -8,11 +8,11 @@ module
 public import Ninegates.Counterexample.Basic
 
 /-!
-# Finite candidates for minimal counterexamples
+# Finite candidates for ordinary full waits
 
-This file contains the enumeration algorithm for generating
-small candidates for minimal counterexamples.
-See `EnumSpec` for it's completeness.
+Orders one and two share a weak-composition enumeration. Orders three through
+seven enumerate candidates without an interior run of three singleton tiles.
+See `EnumSpec` for the characterization of these candidates.
 -/
 
 @[expose] public section
@@ -43,11 +43,11 @@ def placePositives : List Nat → List Nat → List Nat
   | [], _ :: _ => []
 
 def largeCandidateExcesses (n : Nat) : List (List Nat) := do
-  let left ← List.range 4
-  let right ← List.range 4
+  let left ← List.range 7
+  let right ← List.range 7
   let excessCount ← List.range 7
   if left + right + excessCount ≤ 6 then
-    let positiveExcess ← boundedLists (List.replicate excessCount 1)
+    let positiveExcess ← boundedLists (List.replicate excessCount 6)
       (6 - left - right - excessCount)
     let gaps ← boundedLists (List.replicate (excessCount + 1) 2)
       (3 * n - 2 - excessCount)
@@ -55,12 +55,16 @@ def largeCandidateExcesses (n : Nat) : List (List Nat) := do
     pure (left :: placePositives gaps positives ++ [right])
   else []
 
-/-- The excess vectors satisfying the necessary numerical conditions for a
-minimal live counterexample of small order.  Boundary entries have bound `3`,
-interior entries have bound `2`, and their total is `6`. -/
-def MinimalCandidateExcesses (n : Nat) : List (List Nat) :=
-  if n == 2 then
-    boundedLists (3 :: List.replicate (3 * n - 2) 2 ++ [3]) 6
+/-- Shared weak-composition enumeration for orders one and two. -/
+def smallCandidateExcesses (n : Nat) : List (List Nat) :=
+  boundedLists (List.replicate (3 * n) 6) 6
+
+/-- The excess vectors for ordinary full-wait candidates.  For orders one and
+two all weak compositions of six are retained.  For larger orders, internal
+zeros are placed in gaps of length at most two. -/
+def CandidateExcesses (n : Nat) : List (List Nat) :=
+  if 1 ≤ n && n ≤ 2 then
+    smallCandidateExcesses n
   else if 3 ≤ n && n ≤ 7 then
     largeCandidateExcesses n
   else []
@@ -75,8 +79,8 @@ lemma handOfExcess_apply (n : Nat) (excess : List Nat) (i : Fin (3 * n)) :
     handOfExcess n excess i =
       excess.getD i.val 0 + if i.val = 0 ∨ i.val = 3 * n - 1 then 0 else 1 := rfl
 
-/-- The hands represented by `MinimalCandidateExcesses`. -/
-def MinimalCandidates (n : Nat) : List (Hand n) :=
-  (MinimalCandidateExcesses n).map (handOfExcess n)
+/-- The hands represented by `CandidateExcesses`. -/
+def Candidates (n : Nat) : List (Hand n) :=
+  (CandidateExcesses n).map (handOfExcess n)
 
 end Mahjong.Hand.Counterexample

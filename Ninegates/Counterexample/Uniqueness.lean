@@ -33,7 +33,7 @@ theorem liveFullWait_unique (n : ℕ) (hn : n ≥ 2)
     omega
   have hdmem :=
     Counterexample.mem_minimalCandidates_of_minimal hm hd hmin
-  have hm' : m ≤ 7 := (Counterexample.mem_minimalCandidates_iff.mp hdmem).2.1
+  have hm' : m ≤ 7 := (Counterexample.mem_candidates_iff.mp hdmem).2.1
   exact Counterexample.minimalCandidates_no_liveCE m hm hm' d hdmem hd
 
 end Mahjong.Hand

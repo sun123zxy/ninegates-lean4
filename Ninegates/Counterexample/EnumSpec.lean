@@ -6,16 +6,14 @@ Authors: Xingyu Zhong
 module
 
 public import Ninegates.Counterexample.EnumAlgo
-public import Ninegates.Counterexample.Reduction
-public import Ninegates.Wait.Decidable.Spec
 public import Mathlib.Data.List.GetD
 
 /-!
 # Specifications for the finite counterexample enumeration
 
 Verification of the enumeration algorithm in `EnumAlgo`.
-That is, every minimal live full-wait counterexample candidate
-of order `2` through `7` is indeed enumerated.
+That is,  every minimal live full-wait counterexample candidate is
+indeed enumerated.
 -/
 
 @[expose] public section
@@ -32,7 +30,7 @@ lemma sum_getD (xs : List Nat) :
     (∑ i : Fin xs.length, xs.getD i.val 0) = xs.sum := by
   rw [← List.sum_ofFn, ofFn_getD]
 
-lemma sum_fin_boundaries {n : Nat} (hn : 2 ≤ n) (f : Fin (3 * n) → Nat) :
+lemma sum_fin_boundaries {n : Nat} (hn : 1 ≤ n) (f : Fin (3 * n) → Nat) :
     (∑ i : Fin (3 * n), f i) =
       f ⟨0, by omega⟩ +
         (∑ i : Fin (3 * n - 2), f ⟨i.val + 1, by omega⟩) +
@@ -548,39 +546,29 @@ lemma sum_largeCandidateExcesses {n : Nat} {excess : List Nat}
   simp only [List.sum_nil]
   omega
 
+/-- Excess vectors with total six and, above order two, no interior triple zeros. -/
 def IsCandidateExcess (n : Nat) (excess : List Nat) : Prop :=
   ∃ left interior right,
     excess = left :: interior ++ [right] ∧
     interior.length = 3 * n - 2 ∧
-    left ≤ 3 ∧ right ≤ 3 ∧
-    (∀ value ∈ interior, value ≤ 2) ∧
     excess.sum = 6 ∧
-    (n = 2 ∨ NoTripleZeros interior)
+    (n ≤ 2 ∨ NoTripleZeros interior)
 
 @[simp]
-lemma mem_orderTwoCandidateExcesses_iff {excess : List Nat} :
-    excess ∈ boundedLists (3 :: List.replicate 4 2 ++ [3]) 6 ↔
-      IsCandidateExcess 2 excess := by
+lemma mem_smallCandidateExcesses_iff {n : Nat} {excess : List Nat}
+    (hn : 1 ≤ n) (hn₂ : n ≤ 2) :
+    excess ∈ smallCandidateExcesses n ↔ IsCandidateExcess n excess := by
+  simp only [smallCandidateExcesses, mem_boundedLists_iff, boundedBy_replicate_iff]
   constructor
-  · intro h
-    rcases mem_boundedLists_iff.mp h with ⟨hbound, hsum⟩
-    have hlength := hbound.length_eq
-    simp only [List.length_cons, List.length_append, List.length_replicate] at hlength
-    obtain ⟨left, interior, right, rfl, hlen⟩ :=
-      list_split_boundaries (m := 4) (by omega)
-    have htail := hbound.2
-    rw [← hlen] at htail
-    have htail := boundedBy_replicate_append_singleton_iff.mp htail
-    exact ⟨left, interior, right, rfl, by omega, hbound.1, htail.2,
-      htail.1, hsum, Or.inl rfl⟩
-  · rintro ⟨left, interior, right, rfl, hlen, hleft, hright,
-      hvalues, hsum, _⟩
-    apply mem_boundedLists_iff.mpr
-    refine ⟨?_, hsum⟩
-    refine ⟨hleft, ?_⟩
-    have hlen' : interior.length = 4 := by omega
-    rw [← hlen']
-    exact boundedBy_replicate_append_singleton_iff.mpr ⟨hvalues, hright⟩
+  · rintro ⟨⟨hlen, _⟩, hsum⟩
+    obtain ⟨left, interior, right, rfl, hi⟩ :=
+      list_split_boundaries (xs := excess) (m := 3 * n - 2) (by omega)
+    exact ⟨left, interior, right, rfl, hi, hsum, Or.inl hn₂⟩
+  · rintro ⟨left, interior, right, rfl, hlen, hsum, _⟩
+    refine ⟨⟨by simp [hlen]; omega, ?_⟩, hsum⟩
+    intro value hvalue
+    have hle := List.single_le_sum (by intros; omega) value hvalue
+    omega
 
 lemma largeCandidateExcesses_sound {n : Nat} {excess : List Nat} (hn : 3 ≤ n)
     (h : excess ∈ largeCandidateExcesses n) : IsCandidateExcess n excess := by
@@ -610,21 +598,6 @@ lemma largeCandidateExcesses_sound {n : Nat} {excess : List Nat} (hn : 3 ≤ n)
     rw [hplace, hgapSum]
     simp only [positives, List.length_map]
     omega
-  have hvalues : ∀ value ∈ interior, value ≤ 2 := by
-    intro value hvalue
-    by_cases hzero : value = 0
-    · omega
-    · have hmem : value ∈ positiveEntries interior :=
-        mem_positiveEntries_iff.mpr ⟨hvalue, hzero⟩
-      have hentries := positiveEntries_placePositives
-        (gaps := gaps) (values := positives) (by
-          simp only [positives, List.length_map]
-          omega) hpositive
-      rw [hentries] at hmem
-      simp only [positives, List.mem_map] at hmem
-      rcases hmem with ⟨source, hsource, rfl⟩
-      have := hpositiveBound.2 source hsource
-      omega
   have htriple : NoTripleZeros interior := by
     apply noTripleZeros_of_zeroGaps_le_two
     have hzgaps := zeroGaps_placePositives
@@ -634,36 +607,33 @@ lemma largeCandidateExcesses_sound {n : Nat} {excess : List Nat} (hn : 3 ≤ n)
     intro gap hgap
     rw [hzgaps] at hgap
     exact hgapBound.2 gap hgap
-  refine ⟨left, interior, right, ?_, hlen, by omega, by omega,
-    hvalues, ?_, Or.inr htriple⟩
+  refine ⟨left, interior, right, ?_, hlen, ?_, Or.inr htriple⟩
   · rfl
   · exact hsum
 
 lemma largeCandidateExcesses_complete {n : Nat} {excess : List Nat} (hn : 3 ≤ n)
     (h : IsCandidateExcess n excess) : excess ∈ largeCandidateExcesses n := by
-  rcases h with ⟨left, interior, right, rfl, hlen, hleft, hright,
-    hvalues, hsum, hncase⟩
+  rcases h with ⟨left, interior, right, rfl, hlen, hsum, hncase⟩
   have htriple : NoTripleZeros interior := hncase.resolve_left (by omega)
   let positives := positiveEntries interior
   let positiveExcess := positives.map (fun value => value - 1)
   let gaps := zeroGaps interior
   let count := positives.length
-  have hpositive : ∀ value ∈ positives, 1 ≤ value ∧ value ≤ 2 := by
+  have hpositive : ∀ value ∈ positives, 1 ≤ value := by
     intro value hvalue
-    have hmem := mem_positiveEntries_iff.mp hvalue
-    exact ⟨Nat.one_le_iff_ne_zero.mpr hmem.2, hvalues value hmem.1⟩
+    exact Nat.one_le_iff_ne_zero.mpr (mem_positiveEntries_iff.mp hvalue).2
   have hpositiveSum : positives.sum = interior.sum := by
     exact sum_positiveEntries interior
   have hcountLe : count ≤ positives.sum := by
     exact List.length_le_sum_of_one_le positives (fun value hvalue =>
-      (hpositive value hvalue).1)
+      hpositive value hvalue)
   have htotal : left + interior.sum + right = 6 := by
     simpa only [List.sum_cons, List.sum_append, List.sum_singleton,
       List.sum_nil, Nat.add_zero] using hsum
   have hif : left + right + count ≤ 6 := by omega
   have hcount : count < 7 := by omega
   have hpositiveMem : positiveExcess ∈
-      boundedLists (List.replicate count 1) (6 - left - right - count) := by
+      boundedLists (List.replicate count 6) (6 - left - right - count) := by
     apply mem_boundedLists_iff.mpr
     constructor
     · apply boundedBy_replicate_iff.mpr
@@ -672,10 +642,10 @@ lemma largeCandidateExcesses_complete {n : Nat} {excess : List Nat} (hn : 3 ≤ 
       · intro value hvalue
         simp only [positiveExcess, List.mem_map] at hvalue
         rcases hvalue with ⟨source, hsource, rfl⟩
-        have := hpositive source hsource
+        have hle := List.single_le_sum (by intros; omega) source hsource
         omega
     · have hpred := sum_map_pred_add_length
-        (values := positives) (fun value hvalue => (hpositive value hvalue).1)
+        (values := positives) (fun value hvalue => hpositive value hvalue)
       simp only [positiveExcess, count]
       omega
   have hgapMem : gaps ∈
@@ -691,7 +661,7 @@ lemma largeCandidateExcesses_complete {n : Nat} {excess : List Nat} (hn : 3 ≤ 
       rw [hlen] at hgapSum
       omega
   have hmap : positiveExcess.map (fun value => value + 1) = positives := by
-    exact map_succ_map_pred (fun value hvalue => (hpositive value hvalue).1)
+    exact map_succ_map_pred (fun value hvalue => hpositive value hvalue)
   have hreconstruct : placePositives gaps positives = interior := by
     exact placePositives_zeroGaps interior
   simp only [largeCandidateExcesses, List.cons_append, List.pure_def,
@@ -704,26 +674,20 @@ lemma largeCandidateExcesses_complete {n : Nat} {excess : List Nat} (hn : 3 ≤ 
   rw [hmap, hreconstruct]
 
 @[simp]
-lemma mem_minimalCandidateExcesses_iff {n : Nat} {excess : List Nat} :
-    excess ∈ MinimalCandidateExcesses n ↔
-      2 ≤ n ∧ n ≤ 7 ∧ IsCandidateExcess n excess := by
-  by_cases hn2 : n = 2
-  · subst n
-    simpa [MinimalCandidateExcesses] using
-      (mem_orderTwoCandidateExcesses_iff (excess := excess))
-  · by_cases hn3 : 3 ≤ n
-    · by_cases hn7 : n ≤ 7
-      · constructor
-        · intro h
-          have hlarge : excess ∈ largeCandidateExcesses n := by
-            simpa [MinimalCandidateExcesses, hn2, hn3, hn7] using h
-          exact ⟨by omega, hn7, largeCandidateExcesses_sound hn3 hlarge⟩
-        · rintro ⟨_, _, hcandidate⟩
-          have hlarge := largeCandidateExcesses_complete hn3 hcandidate
-          simpa [MinimalCandidateExcesses, hn2, hn3, hn7] using hlarge
-      · simp [MinimalCandidateExcesses, hn2, hn3, hn7]
-    · have hnlow : ¬2 ≤ n := by omega
-      simp [MinimalCandidateExcesses, hn2, hn3, hnlow]
+lemma mem_candidateExcesses_iff {n : Nat} {excess : List Nat} :
+    excess ∈ CandidateExcesses n ↔
+      1 ≤ n ∧ n ≤ 7 ∧ IsCandidateExcess n excess := by
+  by_cases hn : 1 ≤ n
+  · by_cases hn₂ : n ≤ 2
+    · simp [CandidateExcesses, hn, hn₂, show n ≤ 7 by omega]
+    · have hn₃ : 3 ≤ n := by omega
+      by_cases hn₇ : n ≤ 7
+      · simp only [CandidateExcesses, hn, hn₂, hn₃, hn₇, decide_true, decide_false, Bool.and_false,
+        Bool.and_true, Bool.false_eq_true, ↓reduceIte, true_and]
+        exact ⟨largeCandidateExcesses_sound hn₃, largeCandidateExcesses_complete hn₃⟩
+      · simp [CandidateExcesses, hn, hn₂, hn₇]
+  · have hn₃ : ¬3 ≤ n := by omega
+    simp [CandidateExcesses, hn, hn₃]
 
 @[simp]
 lemma handOfExcess_interior (n : Nat) (excess : List Nat)
@@ -762,7 +726,7 @@ lemma handOfExcess_split_interior {n left right : Nat} {interior : List Nat}
   grind
 
 @[simp]
-lemma size_handOfExcess {n : Nat} {excess : List Nat} (hn : 2 ≤ n)
+lemma size_handOfExcess {n : Nat} {excess : List Nat} (hn : 1 ≤ n)
     (hlength : excess.length = 3 * n) :
     Hand.size (handOfExcess n excess) = excess.sum + (3 * n - 2) := by
   obtain ⟨left, interior, right, rfl, hlen⟩ :=
@@ -786,10 +750,10 @@ lemma size_handOfExcess {n : Nat} {excess : List Nat} (hn : 2 ≤ n)
   omega
 
 @[simp]
-lemma size_handOfExcess_of_candidate {n : Nat} {excess : List Nat} (hn : 2 ≤ n)
+lemma size_handOfExcess_of_candidate {n : Nat} {excess : List Nat} (hn : 1 ≤ n)
     (h : IsCandidateExcess n excess) :
     Hand.size (handOfExcess n excess) = 3 * n + 4 := by
-  rcases h with ⟨left, interior, right, rfl, hlen, _, _, _, hsum, _⟩
+  rcases h with ⟨left, interior, right, rfl, hlen, hsum, _⟩
   have hlength : (left :: interior ++ [right]).length = 3 * n := by
     simp [hlen]
     omega
@@ -839,7 +803,7 @@ def NoInteriorTripleOnes {n : Nat} (c : Hand n) : Prop :=
 
 @[simp]
 lemma noInteriorTripleOnes_handOfExcess_iff
-    {n left right : Nat} {interior : List Nat} (hn : 2 ≤ n)
+    {n left right : Nat} {interior : List Nat} (hn : 1 ≤ n)
     (hlen : interior.length = 3 * n - 2) :
     NoInteriorTripleOnes (handOfExcess n (left :: interior ++ [right])) ↔
       NoTripleZeros interior := by
@@ -866,161 +830,54 @@ lemma noInteriorTripleOnes_handOfExcess_iff
     grind [hvalue i.val hi₀, hvalue (i.val + 1) hi₁,
       hvalue (i.val + 2) hi₂]
 
-/-- The numerical conditions satisfied by a minimal live counterexample in the
-small range. -/
-def IsMinimalCandidate {n : Nat} (c : Hand n) : Prop :=
-  2 ≤ n ∧ n ≤ 7 ∧
-    (∀ i, c i ≤ 3) ∧
+/-- Numerical candidates: positive interiors, the required size, and above order two
+no interior run of three singleton tiles. No liveness bound is imposed. -/
+def IsCandidate {n : Nat} (c : Hand n) : Prop :=
+  1 ≤ n ∧ n ≤ 7 ∧
     (∀ i : Fin (3 * n - 2), 1 ≤ c ⟨i.val + 1, by omega⟩) ∧
     Hand.size c = 3 * n + 4 ∧
-    (n = 2 ∨ NoInteriorTripleOnes c)
+    (n ≤ 2 ∨ NoInteriorTripleOnes c)
 
-lemma IsCandidateExcess.isMinimalCandidate_handOfExcess
-    {n : Nat} {excess : List Nat} (hn : 2 ≤ n) (hn' : n ≤ 7)
-    (h : IsCandidateExcess n excess) :
-    IsMinimalCandidate (handOfExcess n excess) := by
+lemma IsCandidateExcess.isCandidate_handOfExcess
+    {n : Nat} {excess : List Nat} (hn : 1 ≤ n) (hn' : n ≤ 7)
+    (h : IsCandidateExcess n excess) : IsCandidate (handOfExcess n excess) := by
   have hsize := size_handOfExcess_of_candidate hn h
-  rcases h with ⟨left, interior, right, rfl, hlen, hleft, hright,
-    hvalues, _, hncase⟩
-  have hle : ∀ i, handOfExcess n (left :: interior ++ [right]) i ≤ 3 := by
-    intro i
-    by_cases hzero : i.val = 0
-    · have hi : i = ⟨0, by omega⟩ := Fin.ext hzero
-      simpa only [hi, handOfExcess_split_left n left interior right (by omega)]
-    by_cases hlast : i.val = 3 * n - 1
-    · have hi : i = ⟨3 * n - 1, by omega⟩ := Fin.ext hlast
-      simpa only [hi, handOfExcess_split_right (by omega) hlen]
-    · let j : Fin (3 * n - 2) := ⟨i.val - 1, by omega⟩
-      have hi : i = ⟨j.val + 1, by omega⟩ := by
-        apply Fin.ext
-        simp [j]
-        omega
-      have hj : j.val < interior.length := by omega
-      rw [hi, handOfExcess_split_interior hlen, List.getD_eq_getElem]
-      · have := hvalues _ (List.getElem_mem hj)
-        omega
-      · exact hj
-  have hpositive :
-      ∀ i : Fin (3 * n - 2),
-        1 ≤ handOfExcess n (left :: interior ++ [right])
-          ⟨i.val + 1, by omega⟩ := by
-    intro i
+  rcases h with ⟨left, interior, right, rfl, hlen, _, hncase⟩
+  refine ⟨hn, hn', ?_, hsize, ?_⟩
+  · intro i
     simp
-  refine ⟨hn, hn', hle, hpositive, hsize, ?_⟩
-  rcases hncase with rfl | htriple
-  · exact Or.inl rfl
-  · exact Or.inr (noInteriorTripleOnes_handOfExcess_iff hn hlen |>.mpr htriple)
+  · rcases hncase with hn₂ | htriple
+    · exact Or.inl hn₂
+    · exact Or.inr (noInteriorTripleOnes_handOfExcess_iff hn hlen |>.mpr htriple)
 
-lemma IsMinimalCandidate.isCandidateExcess_excessOf
-    {n : Nat} {c : Hand n} (h : IsMinimalCandidate c) :
-    IsCandidateExcess n (excessOf n c) := by
-  rcases h with ⟨hn, _, hle, hpositive, hsize, hncase⟩
+lemma IsCandidate.isCandidateExcess_excessOf {n : Nat} {c : Hand n}
+    (h : IsCandidate c) : IsCandidateExcess n (excessOf n c) := by
+  rcases h with ⟨hn, _, hpositive, hsize, hncase⟩
   obtain ⟨left, interior, right, hexcess, hlen⟩ :=
     list_split_boundaries (xs := excessOf n c) (m := 3 * n - 2) (by simp; omega)
   have hrecover := handOfExcess_excessOf hpositive
   rw [hexcess] at hrecover
-  have hleft : left ≤ 3 := by
-    have := hle ⟨0, by omega⟩
-    rw [← hrecover] at this
-    simpa only [handOfExcess_split_left n left interior right (by omega)] using this
-  have hright : right ≤ 3 := by
-    have := hle ⟨3 * n - 1, by omega⟩
-    rw [← hrecover] at this
-    simpa only [handOfExcess_split_right (by omega) hlen] using this
-  have hvalues : ∀ value ∈ interior, value ≤ 2 := by
-    intro value hmem
-    rcases List.mem_iff_getElem.mp hmem with ⟨i, hi, rfl⟩
-    have hc := hle ⟨i + 1, by omega⟩
-    rw [← hrecover] at hc
-    let j : Fin (3 * n - 2) := ⟨i, by omega⟩
-    change handOfExcess n (left :: interior ++ [right])
-      ⟨j.val + 1, by omega⟩ ≤ 3 at hc
-    rw [handOfExcess_split_interior hlen j] at hc
-    rw [List.getD_eq_getElem] at hc
-    · simp only [j] at hc
-      omega
-    · exact hi
   have hsizeExcess := size_handOfExcess (excess := excessOf n c) hn (by simp)
   rw [handOfExcess_excessOf hpositive, hsize] at hsizeExcess
-  have hsum : (excessOf n c).sum = 6 := by omega
-  refine ⟨left, interior, right, hexcess, hlen, hleft, hright,
-    hvalues, hsum, ?_⟩
-  rcases hncase with hn2 | htriple
-  · exact Or.inl hn2
+  refine ⟨left, interior, right, hexcess, hlen, by omega, ?_⟩
+  rcases hncase with hn₂ | htriple
+  · exact Or.inl hn₂
   · apply Or.inr
     apply (noInteriorTripleOnes_handOfExcess_iff
       (left := left) (right := right) hn hlen).mp
     exact hrecover.symm ▸ htriple
 
-/-- The enumeration contains exactly the hands satisfying its numerical
-conditions. -/
-theorem mem_minimalCandidates_iff {n : Nat} {c : Hand n} :
-    c ∈ MinimalCandidates n ↔ IsMinimalCandidate c := by
-  simp only [MinimalCandidates, List.mem_map]
+/-- Membership in the enumeration is exactly the numerical candidate condition. -/
+theorem mem_candidates_iff {n : Nat} {c : Hand n} :
+    c ∈ Candidates n ↔ IsCandidate c := by
+  simp only [Candidates, List.mem_map]
   constructor
   · rintro ⟨excess, hmem, rfl⟩
-    rcases mem_minimalCandidateExcesses_iff.mp hmem with
-      ⟨hn, hn', hcandidate⟩
-    exact hcandidate.isMinimalCandidate_handOfExcess hn hn'
+    rcases mem_candidateExcesses_iff.mp hmem with ⟨hn, hn', hcandidate⟩
+    exact hcandidate.isCandidate_handOfExcess hn hn'
   · intro h
-    rcases h with ⟨hn, hn', hle, hpositive, hsize, hncase⟩
-    have hminimal : IsMinimalCandidate c :=
-      ⟨hn, hn', hle, hpositive, hsize, hncase⟩
-    have hcandidate := hminimal.isCandidateExcess_excessOf
-    refine ⟨excessOf n c, mem_minimalCandidateExcesses_iff.mpr
-      ⟨hn, hn', hcandidate⟩, ?_⟩
-    exact handOfExcess_excessOf hpositive
-
--- Temporary support for the live enumeration, until its ordinary replacement.
-private lemma liveFullWait_ne_A_of_insertSeqAt {n : ℕ} {c : Hand n}
-    (k : Fin (3 * n)) (hk : 0 < k.val)
-    (hc : IsLiveFullWait (c.insertSeqAt k) ∧ c.insertSeqAt k ≠ Standard.A (n + 1)) :
-    IsLiveFullWait c ∧ c ≠ Standard.A n := by
-  refine ⟨isLiveFullWait_iff_le_three.mpr ⟨?_, ?_⟩, ?_⟩
-  · exact IsFullWait.of_insertSeqAt k (fun i ↦ (hc.1 i).1)
-  · intro i
-    have h := hc.1.le_three (insertSeqEquiv k (.inl i))
-    grind
-  · intro h
-    exact hc.2 (h ▸ Standard.A.insertSeqAt k hk)
-
-/-- Every minimal live counterexample occurs in the finite enumeration. -/
-theorem mem_minimalCandidates_of_minimal
-    {n : Nat} {c : Hand n} (hn : 2 ≤ n) (hc : IsLiveFullWait c ∧ c ≠ Standard.A n)
-    (hmin : ∀ m, 2 ≤ m → m < n →
-      ¬ ∃ d : Hand m, IsLiveFullWait d ∧ d ≠ Standard.A m) :
-    c ∈ MinimalCandidates n := by
-  apply mem_minimalCandidates_iff.mpr
-  have hfull := isLiveFullWait_iff_le_three.mp hc.1 |>.1
-  have hn' : n ≤ 7 := by
-    by_contra hn'
-    cases n with
-    | zero => omega
-    | succ m =>
-        obtain ⟨d, k, hk, hcd⟩ := exists_insertSeqAt_of_large (by omega) hfull
-        have hd := liveFullWait_ne_A_of_insertSeqAt k hk (hcd ▸ hc)
-        exact hmin m (by omega) (by omega) ⟨d, hd⟩
-  have hle : ∀ i, c i ≤ 3 := hc.1.le_three
-  have hpositive :
-      ∀ i : Fin (3 * n - 2), 1 ≤ c ⟨i.val + 1, by omega⟩ := by
-    intro i
-    exact interior_positive c hfull ⟨i.val + 1, by omega⟩
-      ⟨by simp, by simp; omega⟩
-  have hsize := IsLiveFullWait.size (by omega) hc.1
-  refine ⟨hn, hn', hle, hpositive, hsize, ?_⟩
-  by_cases hn2 : n = 2
-  · exact Or.inl hn2
-  · apply Or.inr
-    intro i hones
-    cases n with
-    | zero => omega
-    | succ m =>
-        let k : Fin (3 * m) := ⟨i.val + 1, by omega⟩
-        have hk : 0 < k.val := by simp [k]
-        have hseq : HasSeqAt c k := by
-          simpa only [k] using hones
-        obtain ⟨d, k, hk, hcd⟩ := hseq.exists_insertSeqAt hk
-        have hd := liveFullWait_ne_A_of_insertSeqAt k hk (hcd ▸ hc)
-        exact hmin m (by omega) (by omega) ⟨d, hd⟩
+    refine ⟨excessOf n c, mem_candidateExcesses_iff.mpr
+      ⟨h.1, h.2.1, h.isCandidateExcess_excessOf⟩, ?_⟩
+    exact handOfExcess_excessOf h.2.2.1
 
 end Mahjong.Hand.Counterexample
