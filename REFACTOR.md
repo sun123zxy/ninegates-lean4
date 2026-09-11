@@ -56,7 +56,17 @@ namespace Mahjong.Hand.Standard
 
 1. \(n\ge2\) 的八个参数族；
 2. \(n=1\) 的六个具体全面听；
-3. 每个标准解自己的坐标、size、full-wait、liveness 等基本事实。
+3. 每个标准解自己的坐标、size、full-wait、liveness 等基本事实；
+4. `insertSeqAt` 的定义、基础引理，以及各标准族的 insertion behavior。
+
+`insertSeqAt` 从 `Ninegates/Counterexample/Reduction.lean` 迁入
+`Ninegates/Standard.lean`，保留通用操作的名称 `Mahjong.Hand.insertSeqAt`。
+该定义及其基础引理写在 `Mahjong.Hand` namespace 中；标准对象及其专属引理
+写在 `Mahjong.Hand.Standard` 及各族 namespace 中。
+
+因此 `Standard.lean` 先提供插入操作，再证明各族的插入性质；
+`Counterexample/Reduction.lean` 导入并使用这些结果。
+`Standard.lean` 不得反向依赖 `Counterexample`，也不再由 `Counterexample` 提供插入操作。
 
 不要再保留：
 
@@ -225,6 +235,9 @@ abbrev IsOrderOneFamily (c : Hand 1) : Prop := ...
 
 但不要让 shallow wrapper 取代实际对象。
 
+这两个浅包装也定义在 `Standard.lean` 中，供标准族插入引理和
+`Counterexample.Basic` 共同使用，避免 `Standard` 依赖反例层。
+
 ---
 
 # 6. `Standard` 层必须证明的事实
@@ -378,6 +391,10 @@ Standard.A.isLiveFullWait
 
 然后完成其它七族和六个 order-one 对象的 trivial structural lemmas。
 
+同时将 `insertSeqAt` 的定义及其基础引理迁入 `Standard.lean`，
+包括坐标、size、索引对应和 `insertSeqAt_add_single` 等与插入操作直接相关的事实。
+本阶段完成迁移并更新下游引用；八族 insertion behavior 在 Stage 3 完成。
+
 特别注意 automation policy，适当给 `@[grind]` 和 `@[simp]`；
 
 **Stage 1 验收：**
@@ -385,6 +402,7 @@ Standard.A.isLiveFullWait
 * 所有标准对象已经存在；
 * 所有对象已证明真正 `IsFullWait`；
 * liveness status 已证明；
+* `insertSeqAt` 及其基础引理由 `Standard.lean` 提供；
 * `lake build` 通过。
 
 ---
@@ -418,10 +436,14 @@ standardLiveFullWait
 
 # 11. Stage 3 — `(1,1,1)` deletion / insertion 重构
 
-以下低层 theorem 已经是 ordinary `IsFullWait` 版本，应尽量直接保留：
+本阶段有两部分：`Standard.lean` 提供八族 insertion behavior，
+`Counterexample/Reduction.lean` 使用这些结果完成普通反例的删除约化。
+
+`insertSeqAt` 及其基础引理已在 Stage 1 迁入 `Standard.lean`。
+以下删除操作、ordinary deletion lemmas 和大阶数分解定理继续放在
+`Counterexample/Reduction.lean`，应尽量直接复用：
 
 ```lean
-insertSeqAt
 removeSeqAt
 HasSeqAt
 
@@ -442,7 +464,7 @@ insertSeqAt_standardLiveFullWait
 
 核心新增是八族 insertion behavior。
 
-这些事实优先放在：
+这些事实写在 `Standard.lean` 中的：
 
 ```text
 Standard.A
@@ -655,7 +677,7 @@ $$
 
 ---
 
-# 16. 重写 EnumSpec soundness/completeness
+# 16. Stage 5 — 重写 EnumSpec soundness/completeness
 
 同步重写：
 
@@ -697,9 +719,12 @@ Candidates
 
 不要为了保留旧命名而让数学含义变得奇怪。
 
+本阶段还需在 Lean 中实际验证 §27 的候选数：
+`28, 462, 1554, 2128, 1128, 203, 7`。
+
 ---
 
-# 17. Stage 5 — \(n\ge2\) minimal CE 进入统一 Candidates
+# 17. Stage 6 — \(n\ge2\) minimal CE 进入统一 Candidates
 
 对 \(n\ge2\)，重写当前：
 
@@ -733,7 +758,7 @@ isLiveFullWait_iff_le_three
 
 ---
 
-# 18. Stage 6 — finite elimination 同时服务 \(n=1\) 与 \(n\ge2\)
+# 18. Stage 7 — finite elimination 同时服务 \(n=1\) 与 \(n\ge2\)
 
 计算 certificate 应基于统一的 `Candidates n`。
 
@@ -774,7 +799,7 @@ theorem orderOne_candidates_classified :
 
 ---
 
-# 19. Stage 7 — \(n\ge2\) 主 classification
+# 19. Stage 8 — \(n\ge2\) 主 classification
 
 证明：
 
@@ -818,7 +843,7 @@ theorem isFullWait_iff_eightFamily
 Candidates 1
 ```
 
-的 28 个 weak-composition candidates 与 Stage 6 certificate 得到：
+的 28 个 weak-composition candidates 与 Stage 7 certificate 得到：
 
 ```lean
 theorem orderOne_fullWait_classification
@@ -893,7 +918,7 @@ liveFullWait_unique              -- n ≥ 2
 
 ---
 
-# 23. 需要删除的旧设计
+# 23. Stage 10 — 全仓库清理与最终验证
 
 最终仓库中不应残留：
 
@@ -927,6 +952,11 @@ IsOrderOneFamily
 ```
 
 但必须是 `abbrev` 型浅包装，不能替代实际标准解定义。
+
+同步更新 module docstrings，使其描述普通全面听分类及最终的 live corollary。
+README 由仓库作者负责更新，代理不得修改；更新 README 不属于代理的执行或验收任务。
+检查 imports，特别是 `Standard` 提供插入操作、`Counterexample.Reduction` 使用它的依赖方向。
+最后运行 `lake build`，并检查主要 theorem 的 axioms。
 
 ---
 
@@ -974,9 +1004,12 @@ Basic / Meldable / Winning / Wait
         ▼           ▼
    Positivity   Hand.Standard
                 │
+                ├─ insertSeqAt + 基础引理
+                │
                 ├─ OneA ... OneF
                 │
                 └─ A B B' C C' D D' E
+                   + 各族 insertion behavior
         │           │
         └─────┬─────┘
               ▼
@@ -1020,96 +1053,23 @@ liveness 不能重新渗透进这一条链。
 
 ---
 
-# 26. 推荐执行阶段
+# 26. 统一执行阶段索引
 
-## Stage 1
+全文使用以下唯一一套 Stage 1–10 编号。表中引用的章节给出详细要求；
+§19 和 §20 同属 Stage 8，分别陈述两个阶数范围的 classification。
 
-激进重写 `Standard.lean`：
-
-* 八个参数族；
-* 六个 order-one 标准解；
-* family namespaces；
-* coordinate / size；
-* full-wait；
-* liveness。
-
-## Stage 2
-
-重写 `Counterexample.Basic`：
-
-* `IsEightFamily`;
-* `IsCE`;
-* `HasCE`;
-* 删除全部 live CE API。
-
-## Stage 3
-
-重构 insertion/deletion：
-
-* 保留 ordinary deletion machinery；
-* family-specific insertion lemmas；
-* `IsEightFamily` insertion stability；
-* `IsCE_of_insertSeqAt`;
-* `fullWait_reduction`.
-
-## Stage 4
-
-重写 enumeration：
-
-* `n=1,2` 共用一个 weak-composition enumerator；
-* `3≤n≤7` 使用 gap-based enumerator；
-* 删除所有 live upper bounds。
-
-## Stage 5
-
-重写 EnumSpec：
-
-* candidate characterization；
-* soundness/completeness；
-* 统一覆盖 \(1\le n\le7\)；
-* 实际验证 counts
-
-  $$
-  28,462,1554,2128,1128,203,7.
-  $$
-
-## Stage 6
-
-连接 minimal CE：
-
-* \(n\ge2\) minimal CE 必在统一 `Candidates` 中。
-
-## Stage 7
-
-计算消除：
-
-* \(n=1\)：28 candidates 中 full waits 恰为六个标准解；
-* \(n=2,\dots,7\)：candidate full waits 全部属于八族。
-
-## Stage 8
-
-主 classification：
-
-* `orderOne_fullWait_classification`;
-* `fullWait_classification`;
-* 两个 iff theorem。
-
-## Stage 9
-
-最终 live corollary：
-
-* `liveFullWait_unique`.
-
-## Stage 10
-
-全仓库清理：
-
-* 删除旧命名；
-* 更新 module docstrings；
-* 更新 README；
-* 检查 imports；
-* `lake build`;
-* 检查主要 theorem axioms。
+| Stage | 工作与验收范围 | 详细规格 |
+|---|---|---|
+| 1 | 重写 `Standard.lean`：八族、六个一阶解、各自的坐标 / size / full-wait / liveness；迁入 `insertSeqAt` 及基础引理，更新下游引用，通过 `lake build` | §9 |
+| 2 | 使用 `Standard` 的浅包装，重写 `Counterexample.Basic` 为普通 `IsCE` / `HasCE`，开始清除 live CE API | §10 |
+| 3 | 在 `Standard.lean` 证明各族及 `IsEightFamily` 的插入性质；在 `Counterexample.Reduction` 复用 ordinary deletion，证明 `IsCE_of_insertSeqAt` 和 `fullWait_reduction` | §11 |
+| 4 | 重写枚举：`n=1,2` 共用 weak-composition branch，`3≤n≤7` 使用 gap branch，删除 live upper bounds | §12–15 |
+| 5 | 重写 EnumSpec：candidate characterization、soundness/completeness，统一覆盖 `1≤n≤7`，实际验证七个候选数 | §16、§27 |
+| 6 | 证明 `n≥2` 的 minimal CE 必在统一 `Candidates` 中 | §17 |
+| 7 | 计算消除：`Candidates 1` 中的全面听属于六个标准解；`Candidates 2` 至 `Candidates 7` 中的全面听属于八族 | §18 |
+| 8 | 证明 `orderOne_fullWait_classification`、`fullWait_classification` 及两个 iff theorem | §19–20 |
+| 9 | 由分类与各族 liveness 推出 `liveFullWait_unique` | §21 |
+| 10 | 清除旧命名，更新 module docstrings，检查 imports，通过 `lake build` 并检查主要 theorem axioms；README 由作者负责，代理不得修改 | §23 |
 
 ---
 
@@ -1142,7 +1102,7 @@ $$
 
 ```text
 Standard
-= 所有已知显式 full-wait 解
+= 所有已知显式 full-wait 解 + insertSeqAt 及各族插入性质
 
 n = 1
 = 六个标准解，全部 live
