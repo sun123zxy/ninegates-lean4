@@ -19,13 +19,13 @@ namespace Mahjong.Hand.Counterexample
 
 -- Need to settle on what are the positive examples first.
 -- abbrev IsCE {n : ℕ} (c : Hand n) : Prop :=
---   IsFullWait c ∧ c ≠ standardLiveFullWait n
+--   IsFullWait c ∧ c ≠ Standard.A n
 
 -- abbrev HasCE (n : ℕ) : Prop :=
 --   ∃ c : Hand n, IsCE c
 
 abbrev IsLiveCE {n : ℕ} (c : Hand n) : Prop :=
-  IsLiveFullWait c ∧ c ≠ standardLiveFullWait n
+  IsLiveFullWait c ∧ c ≠ Standard.A n
 
 abbrev HasLiveCE (n : ℕ) : Prop :=
   ∃ c : Hand n, IsLiveCE c

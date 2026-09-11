@@ -192,6 +192,43 @@ instance (c : Hand n) : Decidable (Valid c) := by
   apply decidable_of_iff (∀ i, c i ≤ 4)
   simp [Valid]
 
+/-- Reverse the order of the tile ranks. -/
+def reverse : Hand n →+ Hand n where
+  toFun c := ⟨fun i ↦ c i.rev⟩
+  map_zero' := by ext; rfl
+  map_add' _ _ := by ext; rfl
+
+@[simp, grind =]
+lemma reverse_apply (c : Hand n) (i : Fin (3 * n)) : reverse c i = c i.rev := rfl
+
+@[simp]
+lemma reverse_reverse (c : Hand n) : reverse (reverse c) = c := by ext; simp
+
+@[simp]
+lemma size_reverse (c : Hand n) : size (reverse c) = size c := by
+  let e : Fin (3 * n) ≃ Fin (3 * n) := ⟨Fin.rev, Fin.rev, Fin.rev_rev, Fin.rev_rev⟩
+  exact Equiv.sum_comp e c
+
+@[simp]
+lemma reverse_single (i : Fin (3 * n)) : reverse (single i) = single i.rev := by
+  ext j
+  simp only [reverse_apply, single_apply, Fin.rev]
+  grind
+
+@[simp]
+lemma reverse_pair (i : Fin (3 * n)) : reverse (pair i) = pair i.rev := by
+  simp [pair]
+
+@[simp]
+lemma reverse_triplet (i : Fin (3 * n)) : reverse (triplet i) = triplet i.rev := by
+  simp [triplet]
+
+@[simp]
+lemma reverse_sequence (i : Fin (3 * n - 2)) : reverse (sequence i) = sequence i.rev := by
+  ext j
+  simp only [reverse_apply, sequence_apply, Fin.rev]
+  grind
+
 end Hand
 
 end Mahjong

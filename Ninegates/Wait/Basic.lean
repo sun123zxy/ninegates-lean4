@@ -85,4 +85,9 @@ lemma IsLiveFullWait.size (hn : 0 < n) {c : Hand n} (hc : IsLiveFullWait c) :
 lemma IsLiveFullWait.le_three {c : Hand n} (hc : IsLiveFullWait c) : ∀ i, c i ≤ 3 := by
   exact isLiveFullWait_iff_le_three.mp hc |>.2
 
+theorem IsFullWait.reverse {c : Hand n} (hc : IsFullWait c) : IsFullWait (reverse c) := by
+  intro i
+  change Winning (Hand.reverse c + single i)
+  simpa only [map_add, reverse_single, Fin.rev_rev] using (hc i.rev).reverse
+
 end Mahjong.Hand

@@ -45,7 +45,7 @@ We design `toHand_apply` automation as follows:
   and `grind` is designed to handle case splits effectively.
 
 The effectiveness of this design is verified by the neat proof of
-`IsLiveFullWait.standardLiveFullWait`.
+`Standard.A.isFullWait`.
 -/
 
 @[expose] public section
@@ -281,6 +281,22 @@ theorem sum_mod_three {c : Hand n} (hc : Meldable c) : sum c % 3 = 0 := by
   simp only [map_nsmul, sum_triplet, sum_sequence, smul_eq_mul]
   simp_rw [mul_comm 3, ← mul_assoc]
   rw [← Finset.sum_mul, ← Finset.sum_mul, ← add_mul, Nat.mul_mod_left]
+
+lemma finset_sum {α : Type*} (s : Finset α) (f : α → Hand n)
+    (hf : ∀ i ∈ s, Meldable (f i)) : Meldable (∑ i ∈ s, f i) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp
+  | @insert a s ha ih =>
+      simp only [Finset.sum_insert ha]
+      exact add (hf a (by simp)) (ih (by grind))
+
+theorem reverse {c : Hand n} (hc : Meldable c) : Meldable (Hand.reverse c) := by
+  obtain ⟨p, rfl⟩ := hc
+  rw [Placement.toHand_eq_sum]
+  simp only [map_add, map_sum, map_nsmul, reverse_triplet, reverse_sequence]
+  exact add (finset_sum _ _ (by intros; exact triplet.nsmul _))
+    (finset_sum _ _ (by intros; exact sequence.nsmul _))
 
 end Meldable
 

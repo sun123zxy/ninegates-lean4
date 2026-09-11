@@ -26,4 +26,9 @@ def Winning (c : Hand n) : Prop :=
 
 lemma Winning.size {c : Hand n} (hc : Winning c) : size c = 3 * n + 5 := hc.1
 
+theorem Winning.reverse {c : Hand n} (hc : Winning c) : Winning (reverse c) := by
+  obtain ⟨hs, d, i, hd, h⟩ := hc
+  refine ⟨by simpa using hs, Hand.reverse d, i.rev, hd.reverse, ?_⟩
+  simp [h]
+
 end Mahjong.Hand

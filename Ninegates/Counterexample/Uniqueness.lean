@@ -19,7 +19,7 @@ The main theorem of our project.
 namespace Mahjong.Hand
 
 theorem liveFullWait_unique (n : ℕ) (hn : n ≥ 2)
-    (c : Hand n) (hc : c.IsLiveFullWait) : c = standardLiveFullWait n := by
+    (c : Hand n) (hc : c.IsLiveFullWait) : c = Standard.A n := by
   classical
   by_contra hne
   have hex : ∃ m, 2 ≤ m ∧ Counterexample.HasLiveCE m :=
