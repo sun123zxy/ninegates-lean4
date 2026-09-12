@@ -5,9 +5,8 @@ Authors: Xingyu Zhong
 -/
 module
 
-public import Ninegates.Basic
-public import Ninegates.Standard
-public import Ninegates.Wait.Basic
+public import Ninegates.Standard.Defs
+public import Ninegates.Wait.Defs
 
 /-!
 ## Counterexamples to the classification of full waits

@@ -6,6 +6,7 @@ Authors: Xingyu Zhong
 module
 
 public import Ninegates.Counterexample.Elimination
+public import Ninegates.Standard.Wait
 
 /-!
 

@@ -84,9 +84,9 @@ In general we follow the [official `grind` annotation guideline](https://lean-la
 
 This set of rules turns out to be effective, resulting a brainless `ext; simp_all; grind` combo almost always works for mathematically trivial lemmas. We have multiple positive examples in this library. Some of them are listed here for reference:
 
-- `Placement.toHand_apply`: For apply lemmas containing `if`. See `Meldable.Basic` documentation for a closer look.
+- `Placement.toHand_apply`: For apply lemmas containing `if`. See [`Meldable.Basic`](Ninegates/Meldable/Basic.lean) documentation for a closer look.
 
-- `Hand.size` and `Hand.sum`: For definitions containing `∑`. See `Basic` documentation for a closer look.
+- `Hand.size` and `Hand.sum`: For definitions containing `∑`. See [`Ninegates/Operations/Basic.lean`](Ninegates/Operations/Basic.lean) documentation for a closer look.
 
 In practice, as `grind` has a upper limit on the number of case splits (though it is configurable by `grind (splits := 20)`), it is still recommended to manually perform the case split and `simp` with the case conditions before invoking `grind` for the remaining proof obligations.
 
@@ -103,6 +103,23 @@ lake exe cache get
 
 Above commands download dependencies (like `Mathlib`) and their cache. Then a quick `lake build` serves as a basic verification of the library.
 
+### Comparator
+
+See the guidelines provided by [Comparator](https://github.com/leanprover/comparator) and configure it yourself if the strongest guarantee of correctness is desired.
+
+The following instructions give a more lightweight setup.
+
+```sh
+export COMPARATOR_LANDRUN="ComparatorChallenges/fake-landrun.sh"
+export COMPARATOR_LEAN4EXPORT=".lake/packages/lean4export/.lake/build/bin/lean4export.exe"
+lake exe comparator ComparatorChallenges/config.json
+```
+
+Some explanation: a serious verification requires
+
+- a sandbox environment provided by `landrun`. We lift the restriction via `ComparatorChallenges/fake-landrun.sh` for a lightweight setup.
+- a standalone `lean4export` executable. We include it as a dependency in our `lakefile`, hence once `lake build` is done, you find it at `.lake/packages/lean4export/.lake/build/bin/lean4export.exe`. We set the corresponding environment variable `COMPARATOR_LEAN4EXPORT` in the above command so that Comparator can find it.
+
 ### Agentic coding
 
 We use [lean-lsp-mcp](https://github.com/oOo0oOo/lean-lsp-mcp) + [repl](https://github.com/leanprover-community/repl) for compiler feedback.
@@ -116,11 +133,23 @@ See their documentation for detail instructions. In short, you'll need to add `l
 
 Rich documentation is provided in the code itself. The following is a brief overview of the library structure.
 
+### Conventions
+
+In general, `Defs` modules contain basic definitions, and `Basic` modules contain basic lemmas directly related to the definitions. (`Algo` / `Spec`), or (`Decide` / `Decidable`) modules contain executable algorithms and their correctness proofs.
+
+The separation of `Defs` and `Basic` modules allows us to state the main results without too many dependencies, imporant for a Comparator verification. As they are closely related, for simplicity, we do not distinguish between `Defs` and `Basic` modules when referencing them in the following map.
+
 ### Map
 
 - [`Ninegates/Basic.lean`](Ninegates/Basic.lean) is the foundation: it represents a hand as a counting vector over `3 * n` ordered tile types and defines the elementary patterns, hand size, weighted sum, and four-copy validity.
 
-- [`Ninegates/Standard.lean`](Ninegates/Standard.lean) defines the eight full-wait families and six order-one hands, proves their full-wait and liveness properties, and provides `insertSeqAt` with the family insertion lemmas.
+- [`Ninegates/Operations/`](Ninegates/Operations/) defines useful operations on hands, including insertion and removal of a sequence.
+
+- [`Ninegates/Standard/`](Ninegates/Standard.lean) concerns the eight full-wait families and six order-one hands.
+  
+  - `Basic` supplies the eight standard families and 6 order-one hands;
+  - `Insert` provides the family insertion lemmas;
+  - `Wait` proves their full-wait and liveness properties;
 
 - [`Ninegates/Meldable/`](Ninegates/Meldable/) formalizes decompositions into triplets and sequences. 
 
@@ -149,18 +178,6 @@ Rich documentation is provided in the code itself. The following is a brief over
 
 - [`Ninegates/Classification.lean`](Ninegates/Classification.lean) stores our main results: the classification of full-sided waits and the uniqueness of the live full-sided wait.
 
-### Suggested reading order
-
-If you prefer a quick top-down tour, start from the main results in [`Classification.lean`](Ninegates/Classification.lean) and dive alongside the dependency graph. The following order is recommended for a more systematic reading:
-
-1. Start with [`Ninegates/Basic.lean`](Ninegates/Basic.lean), [`Ninegates/Meldable/Basic.lean`](Ninegates/Meldable/Basic.lean), [`Ninegates/Winning/Basic.lean`](Ninegates/Winning/Basic.lean), and [`Ninegates/Wait/Basic.lean`](Ninegates/Wait/Basic.lean) to learn the model and its core predicates.
-
-2. Read [`Ninegates/Standard.lean`](Ninegates/Standard.lean) to see the standard families and their full-wait proofs, followed by [`Ninegates/Meldable/Split.lean`](Ninegates/Meldable/Split.lean) and [`Ninegates/Positivity.lean`](Ninegates/Positivity.lean) for the main structural ingredients.
-
-3. Follow the main proof in [`Ninegates/Counterexample/Basic.lean`](Ninegates/Counterexample/Basic.lean), [`Reduction.lean`](Ninegates/Counterexample/Reduction.lean), [`EnumAlgo.lean`](Ninegates/Counterexample/EnumAlgo.lean), [`EnumSpec.lean`](Ninegates/Counterexample/EnumSpec.lean), [`Elimination.lean`](Ninegates/Counterexample/Elimination.lean), and [`Classification.lean`](Ninegates/Classification.lean).
-
-4. Read the `Decidable` modules afterward if you want the verified algorithms: first meldability, then winning, then waiting.
-
 ## Future work
 
 - Decoupling computation from Mathlib: Mathlib is designed to be noncomputable. The current instantiate-`Decidable` approach has already caused some friction, e.g. deciding `Winning` forces the use of `native_decide`. A canonical computable definition (established with a connection to the Mathlib-based definition) should be fixed. This layer should not be hidden and casually handovered to coding agents.
@@ -175,4 +192,4 @@ If you prefer a quick top-down tour, start from the main results in [`Classifica
 
 ## TODOs
 
-- TODO: comparator
+- TODO: comparator, not verified now. will verify reduction only.

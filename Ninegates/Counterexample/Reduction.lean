@@ -5,7 +5,9 @@ Authors: Xingyu Zhong
 -/
 module
 
-public import Ninegates.Counterexample.Basic
+public import Ninegates.Counterexample.Defs
+public import Ninegates.Standard.Insert
+public import Ninegates.Operations.Basic
 public import Ninegates.Positivity
 
 /-!
@@ -13,10 +15,9 @@ public import Ninegates.Positivity
 
 ## Main definitions
 
-- `HasSeqAt` records an interior run of three singleton tiles.
-- `removeSeqAt` is the inverse operation used by the reduction step.
-
-Insertion and its coordinate equivalence are provided by `Ninegates.Standard`.
+Sequence insertion/removal and their coordinate lemmas are provided by
+`Ninegates.Operations.Basic`.
+The standard-family insertion lemmas are in `Ninegates.Standard.Insert`.
 
 ## Main results
 
@@ -30,8 +31,8 @@ Insertion and its coordinate equivalence are provided by `Ninegates.Standard`.
 
 ## Design notes
 
-- The automation design of `insertSeqAt_apply` and `removeSeqAt_apply` follow
-  our general automation policy of apply lemmas containing `if`.
+- The automation design of the insertion/removal apply lemmas follows our general
+  automation policy for apply lemmas containing `if`.
 -/
 
 @[expose] public section
@@ -39,44 +40,6 @@ Insertion and its coordinate equivalence are provided by `Ninegates.Standard`.
 namespace Mahjong.Hand
 
 variable {n : ℕ}
-
-abbrev HasSeqAt (c : Hand (n + 1)) (k : Fin (3 * n)) : Prop :=
-  c ⟨k.val, by omega⟩ = 1 ∧ c ⟨k.val + 1, by omega⟩ = 1 ∧ c ⟨k.val + 2, by omega⟩ = 1
-
-def removeSeqAt (c : Hand (n + 1)) (k : Fin (3 * n)) : Hand n :=
-  ⟨fun i ↦
-    if _h : i.val < k.val then c ⟨i.val, by omega⟩
-    else c ⟨i.val + 3, by omega⟩⟩
-
-@[grind =]
-lemma removeSeqAt_apply (c : Hand (n + 1)) (k : Fin (3 * n))
-    (i : Fin (3 * n)) :
-    removeSeqAt c k i =
-      if _h : i.val < k.val then c ⟨i.val, by omega⟩
-      else c ⟨i.val + 3, by omega⟩ := rfl
-
-@[simp]
-lemma removeSeqAt_apply_of_lt (c : Hand (n + 1)) (k : Fin (3 * n))
-    (i : Fin (3 * n)) (hi : i.val < k.val) :
-    removeSeqAt c k i = c ⟨i.val, by omega⟩ := by grind
-
-@[simp]
-lemma removeSeqAt_apply_of_ge (c : Hand (n + 1)) (k : Fin (3 * n))
-    (i : Fin (3 * n)) (hi : k.val ≤ i.val) :
-    removeSeqAt c k i = c ⟨i.val + 3, by omega⟩ := by grind
-
-@[simp, grind =]
-lemma insertSeqAt_removeSeqAt (c : Hand (n + 1))
-    (k : Fin (3 * n)) (h₀ : c ⟨k.val, by omega⟩ = 1)
-    (h₁ : c ⟨k.val + 1, by omega⟩ = 1) (h₂ : c ⟨k.val + 2, by omega⟩ = 1) :
-    (removeSeqAt c k).insertSeqAt k = c := by
-  ext i; grind
-
-@[grind →]
-lemma HasSeqAt.exists_insertSeqAt {c : Hand (n + 1)}
-    {k : Fin (3 * n)} (hc : HasSeqAt c k) (hk₀ : 0 < k.val) :
-    ∃ d : Hand n, ∃ k : Fin (3 * n), 0 < k.val ∧ c = d.insertSeqAt k := by
-  exact ⟨removeSeqAt c k, k, hk₀, by grind⟩
 
 /- Note that this is a standalone proof. It does not rely on the scan algorithm. -/
 theorem Meldable.of_insertSeqAt {c : Hand n} (k : Fin (3 * n))

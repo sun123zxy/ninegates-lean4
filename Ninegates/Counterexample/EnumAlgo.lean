@@ -5,7 +5,7 @@ Authors: Xingyu Zhong
 -/
 module
 
-public import Ninegates.Counterexample.Basic
+public import Ninegates.Counterexample.Defs
 
 /-!
 # Finite candidates for full waits

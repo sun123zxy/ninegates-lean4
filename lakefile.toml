@@ -19,5 +19,18 @@ name = "repl"
 scope = "leanprover-community"
 rev = "v4.33.0"
 
+[[require]]
+name = "lean4export"
+scope = "leanprover"
+rev = "v4.33.0"
+
+[[require]]
+name = "Comparator"
+scope = "leanprover"
+rev = "v4.33.0"
+
 [[lean_lib]]
 name = "Ninegates"
+
+[[lean_lib]]
+name = "ComparatorChallenges"
