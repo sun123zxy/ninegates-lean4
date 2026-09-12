@@ -16,6 +16,8 @@ public import Ninegates.Basic
 
 namespace Mahjong.Hand
 
+variable {n : ℕ}
+
 @[grind =]
 lemma insertSeqAt_apply (c : Hand n) (k : Fin (3 * n))
     (i : Fin (3 * (n + 1))) : c.insertSeqAt k i =
@@ -78,16 +80,7 @@ def insertSeqEquiv (k : Fin (3 * n)) :
     else if h₁ : i.val < k.val + 3 then .inr ⟨i.val - k.val, by omega⟩
     else .inl ⟨i.val - 3, by omega⟩
   left_inv x := by grind
-  right_inv i := by
-    apply Fin.ext
-    by_cases hi₀ : i.val < k.val
-    · simp [hi₀]
-    · by_cases hi₁ : i.val < k.val + 3
-      · simp [hi₀, hi₁]
-        omega
-      · have hi₂ : ¬i.val - 3 < k.val := by omega
-        simp [hi₀, hi₁, hi₂]
-        omega
+  right_inv i := by grind
 
 @[simp, grind =]
 lemma insertSeqEquiv_inl_val (k : Fin (3 * n)) (i : Fin (3 * n)) :
