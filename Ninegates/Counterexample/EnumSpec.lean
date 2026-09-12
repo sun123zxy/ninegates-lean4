@@ -778,11 +778,9 @@ lemma handOfExcess_excessOf {n : Nat} {c : Hand n}
     omega
 
 /-- Absence of an interior run of three singleton entries. -/
-def NoInteriorTripleOnes {n : Nat} (c : Hand n) : Prop :=
-  ∀ i : Fin (3 * n - 4),
-    ¬ (c ⟨i.val + 1, by omega⟩ = 1 ∧
-      c ⟨i.val + 2, by omega⟩ = 1 ∧
-      c ⟨i.val + 3, by omega⟩ = 1)
+def NoInteriorTripleOnes : {n : Nat} → Hand n → Prop
+  | 0, _ => True
+  | n + 1, c => ∀ k : Fin (3 * n), 0 < k.val → ¬ HasSeqAt c k
 
 @[simp]
 lemma noInteriorTripleOnes_handOfExcess_iff
@@ -794,24 +792,24 @@ lemma noInteriorTripleOnes_handOfExcess_iff
       handOfExcess n (left :: interior ++ [right]) ⟨i + 1, by omega⟩ =
         interior.getD i 0 + 1 := by
     exact handOfExcess_split_interior hlen ⟨i, by omega⟩
+  obtain ⟨n, rfl⟩ := Nat.exists_eq_succ_of_ne_zero (by omega : n ≠ 0)
   constructor
   · intro h
     apply (noTripleZeros_iff_getD interior).mpr
     intro i hi hzeros
-    let j : Fin (3 * n - 4) := ⟨i, by omega⟩
-    apply h j
+    apply h ⟨i + 1, by omega⟩ (by simp)
     have hi₀ : i < interior.length := by omega
     have hi₁ : i + 1 < interior.length := by omega
     have hi₂ : i + 2 < interior.length := by omega
     grind [hvalue i hi₀, hvalue (i + 1) hi₁, hvalue (i + 2) hi₂]
-  · intro h i hones
-    have hzeros := (noTripleZeros_iff_getD interior).mp h i.val (by omega)
+  · intro h k hk hones
+    have hzeros := (noTripleZeros_iff_getD interior).mp h (k.val - 1) (by omega)
     apply hzeros
-    have hi₀ : i.val < interior.length := by omega
-    have hi₁ : i.val + 1 < interior.length := by omega
-    have hi₂ : i.val + 2 < interior.length := by omega
-    grind [hvalue i.val hi₀, hvalue (i.val + 1) hi₁,
-      hvalue (i.val + 2) hi₂]
+    have hi₀ : k.val - 1 < interior.length := by omega
+    have hi₁ : k.val < interior.length := by omega
+    have hi₂ : k.val + 1 < interior.length := by omega
+    grind [hvalue (k.val - 1) hi₀, hvalue k.val hi₁,
+      hvalue (k.val + 1) hi₂]
 
 /-- Numerical candidates: positive interiors, the required size, and above order two
 no interior run of three singleton tiles. No liveness bound is imposed. -/
@@ -880,14 +878,10 @@ theorem mem_candidates_of_minimal {n : Nat} {c : Hand n}
   · by_cases hn₂ : n ≤ 2
     · exact Or.inl hn₂
     · apply Or.inr
-      intro i hones
       cases n with
       | zero => omega
       | succ m =>
-          let k : Fin (3 * m) := ⟨i.val + 1, by omega⟩
-          have hk : 0 < k.val := by simp [k]
-          have hseq : HasSeqAt c k := by
-            simpa only [k] using hones
+          intro k hk hseq
           obtain ⟨d, k, _, hcd⟩ := hseq.exists_insertSeqAt hk
           have hd := IsCE_of_insertSeqAt k (by omega) (hcd ▸ hc)
           exact hmin m (by omega) (by omega) ⟨d, hd⟩

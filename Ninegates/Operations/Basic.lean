@@ -59,8 +59,7 @@ lemma removeSeqAt_apply_of_ge (c : Hand (n + 1)) (k : Fin (3 * n))
 
 @[simp, grind =]
 lemma insertSeqAt_removeSeqAt (c : Hand (n + 1))
-    (k : Fin (3 * n)) (h₀ : c ⟨k.val, by omega⟩ = 1)
-    (h₁ : c ⟨k.val + 1, by omega⟩ = 1) (h₂ : c ⟨k.val + 2, by omega⟩ = 1) :
+    (k : Fin (3 * n)) (hc : HasSeqAt c k) :
     (removeSeqAt c k).insertSeqAt k = c := by
   ext i; grind
 

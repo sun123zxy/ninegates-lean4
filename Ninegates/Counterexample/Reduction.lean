@@ -55,17 +55,14 @@ theorem Meldable.of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
   have h₂ := hp_at k₂
   have hseq₁ (hk : 2 ≤ k.val) : p.seqNum k₁ = p.seqNum ⟨k.val - 2, by omega⟩ := by grind
   have hseq₂ (hk : 1 ≤ k.val) : p.seqNum k₂ = p.seqNum ⟨k.val - 1, by omega⟩ := by grind
-  let seqNum (i : Fin (3 * n)) :=
-    if _h : i.val < k.val then p.seqNum ⟨i.val, by omega⟩
-    else p.seqNum ⟨i.val + 3, by omega⟩
+  let seqNum := removeSeqAt (⟨p.seqNum⟩ : Hand (n + 1)) k
   have htail (i : Fin (3 * n)) (hi : 3 * n - 2 ≤ i.val) : seqNum i = 0 := by grind
   let q : Meldable.Placement n :=
-    ⟨(fun i ↦ if h : i.val < k.val then p.tripNum ⟨i.val, by omega⟩
-              else p.tripNum ⟨i.val + 3, by omega⟩),
+    ⟨removeSeqAt (⟨p.tripNum⟩ : Hand (n + 1)) k,
      seqNum,
      by constructor <;> intro i hi <;> apply htail i <;> omega⟩
   use q; unfold Meldable.IsWitness; ext i
-  simp only [q, Meldable.Placement.toHand_apply]
+  simp only [q, Meldable.Placement.toHand_apply, seqNum, removeSeqAt_apply, mk_apply]
   have hpi := hp_at (insertSeqEquiv k (.inl i))
   simp only [Meldable.Placement.toHand_apply, insertSeqAt_apply, insertSeqEquiv_inl_val] at hpi
   by_cases hi : i.val < k.val
@@ -86,8 +83,7 @@ theorem Winning.of_insertSeqAt {c : Hand n} (k : Fin (3 * n))
     have hEq := congrArg (fun z : Hand (n + 1) ↦ z (insertSeqEquiv k (.inr i))) hcd
     grind
   have hdEq : (removeSeqAt d k).insertSeqAt k = d :=
-    insertSeqAt_removeSeqAt d k (by simpa using hd_at 0)
-      (by simpa using hd_at 1) (by simpa using hd_at 2)
+    insertSeqAt_removeSeqAt d k (by grind [hd_at 0, hd_at 1, hd_at 2])
   let j' : Fin (3 * n) := ⟨if j.val < k.val then j.val else j.val - 3, by split <;> omega⟩
   have hd' : Meldable (removeSeqAt d k) := by
     apply Meldable.of_insertSeqAt k
