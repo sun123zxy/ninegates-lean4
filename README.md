@@ -53,7 +53,7 @@ We also prioritizes the following design goals:
 
 - all theorems are verified via a `lake build` with no `sorry`s or additional axioms
 
-- `fullWait_reduction` in [`Ninegates/Counterexample/Reduction.lean`](Ninegates/Counterexample/Reduction.lean) is verified by Comparator, which is the most mathematically significant part of the proof. We could not verify the main theorem with Comparator due to its lack of support for `native_decide`.
+- `fullWait_reduction` in [`Ninegates/Counterexample/Reduction.lean`](Ninegates/Counterexample/Reduction.lean) is verified by [Comparator](https://github.com/leanprover/comparator), which is the most mathematically significant part of the proof. We could not verify the main theorem with Comparator due to its lack of support for `native_decide`.
 
 Note that `native_decide` relies on the correctness of Lean 4's compiler. It is a reasonable assumption for our purpose, as enumerating small cases requires efficiency, and verifying executable algorithms is among the goals of this project. Switching to a `decide` version is technically possible, but it does not work smoothly with `ExtHashSet`'s opaque implementation (used by our DP-based winning check algorithm) and could be extremely slow for the program verification purpose.
 
@@ -179,7 +179,7 @@ The separation of `Defs` and `Basic` modules allows us to state the main results
 
 - [`Ninegates/Operations/`](Ninegates/Operations/) defines useful operations on hands, including insertion and removal of a sequence.
 
-- [`Ninegates/Standard/`](Ninegates/Standard.lean) concerns the eight full-wait families and six order-one hands.
+- [`Ninegates/Standard/`](Ninegates/Standard/) concerns the eight full-wait families and six order-one hands.
   
   - `Basic` supplies the eight standard families and 6 order-one hands;
   - `Insert` provides the family insertion lemmas;
