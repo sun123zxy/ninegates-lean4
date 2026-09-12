@@ -47,7 +47,13 @@ We also prioritizes the following design goals:
 
 ## Soundness
 
-Our formalization is verified in Lean `v4.33.0`. We use the standard axioms `propext`, `Classical.choice`, `Quot.sound` with additional `native_decide` certificates for finite checks. The first three are standard in Lean 4, and the last is for the efficent small-case enumeration and meldability / winning / waiting checks. You can inspect the dependencies with, for example, `#print axioms isFullWait_iff_eightFamily`.
+- verified in Lean `v4.33.0`
+
+- standard axioms `propext`, `Classical.choice`, `Quot.sound` applied; additional `native_decide` axiom for finite enumeration and meldability / winning / waiting algorithms
+
+- all theorems are verified via a `lake build` with no `sorry`s or additional axioms
+
+- `fullWait_reduction` in [`Ninegates/Counterexample/Reduction.lean`](Ninegates/Counterexample/Reduction.lean) is verified by Comparator, which is the most mathematically significant part of the proof. We could not verify the main theorem with Comparator due to its lack of support for `native_decide`.
 
 Note that `native_decide` relies on the correctness of Lean 4's compiler. It is a reasonable assumption for our purpose, as enumerating small cases requires efficiency, and verifying executable algorithms is among the goals of this project. Switching to a `decide` version is technically possible, but it does not work smoothly with `ExtHashSet`'s opaque implementation (used by our DP-based winning check algorithm) and could be extremely slow for the program verification purpose.
 
@@ -96,29 +102,57 @@ In practice, as `grind` has a upper limit on the number of case splits (though i
 
 You'll need a Lean 4 environment with `lake` installed. Then
 
-```
+```sh
 lake update
 lake exe cache get
 ```
 
-Above commands download dependencies (like `Mathlib`) and their cache. Then a quick `lake build` serves as a basic verification of the library.
+Above commands download dependencies (such as `Mathlib`) and their cache. Then a quick
+
+```sh
+lake build Ninegates
+```
+
+serves as a basic verification of the library.
 
 ### Comparator
 
-See the guidelines provided by [Comparator](https://github.com/leanprover/comparator) and configure it yourself if the strongest guarantee of correctness is desired.
+See the guidelines provided by [Comparator](https://github.com/leanprover/comparator) and configure it yourself if the strongest guarantee of correctness is desired. We provide our configuration below for your reference.
 
-The following instructions give a more lightweight setup.
+- First, you'll have to configure a Linux environment with [`landrun`](https://github.com/Zouuup/landrun) installed. 
 
-```sh
-export COMPARATOR_LANDRUN="ComparatorChallenges/fake-landrun.sh"
-export COMPARATOR_LEAN4EXPORT=".lake/packages/lean4export/.lake/build/bin/lean4export.exe"
-lake exe comparator ComparatorChallenges/config.json
-```
+  - This is the most convenient way to run Comparator. Otherwise things might go very tricky! Use WSL2 if you are on Windows.
+  - `landrun` is a Go program. Very likely, you'll have to install `go` as well.
 
-Some explanation: a serious verification requires
+- Comparator requires `lean4export` executable. We include it as a dependency in our `lakefile`, so build it with
+  
+  ```sh
+  lake build lean4export
+  ```
+  
+  so that you can find it at `.lake/packages/lean4export/.lake/build/bin/lean4export`.
 
-- a sandbox environment provided by `landrun`. We lift the restriction via `ComparatorChallenges/fake-landrun.sh` for a lightweight setup.
-- a standalone `lean4export` executable. We include it as a dependency in our `lakefile`, hence once `lake build` is done, you find it at `.lake/packages/lean4export/.lake/build/bin/lean4export.exe`. We set the corresponding environment variable `COMPARATOR_LEAN4EXPORT` in the above command so that Comparator can find it.
+- Set the environment variable `COMPARATOR_LEAN4EXPORT` to point to the executable, that is,
+  
+  ```sh
+  export COMPARATOR_LEAN4EXPORT=".lake/packages/lean4export/.lake/build/bin/lean4export"
+  ```
+
+  This tells Comparator where to find the executable.
+
+- Finally, run the following command to verify the main theorem:
+
+  ```sh
+  systemd-run --property=RestrictAddressFamilies=~AF_UNIX --user --pty -E PATH="$PATH" --working-directory $(pwd) -- bash -c 'lake exe comparator ComparatorChallenges/config.json'
+  ```
+
+  If it fails, retreat to a simpler version (less secure) without `systemd-run`:
+
+  ```sh
+  lake exe comparator ComparatorChallenges/config.json
+  ```
+
+  If you see `Your solution is okay!` in the output, congratulations! Verification is successful.
 
 ### Agentic coding
 
@@ -189,7 +223,3 @@ The separation of `Defs` and `Basic` modules allows us to state the main results
 - Module system: Currently Lean's module system is ported but not fully utilized. Our Mathlib-flavored design of `Hand` relies heavily on its internal representation. Future work should first redesign of `Hand`'s internal representation, then refactor the library to seperate implementation from interface, and finally make good use of the module system.
 
 - A more general algebraic Mahjong theory: As mentioned before, inspired by the properties of canonical placements discovered in the curation process, we are working on a more general framework where the uniqueness of full-sided waits becomes a special case of a general classification problem.
-
-## TODOs
-
-- TODO: comparator, not verified now. will verify reduction only.

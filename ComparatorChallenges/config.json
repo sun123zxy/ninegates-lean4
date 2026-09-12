@@ -2,7 +2,7 @@
   "challenge_module": "ComparatorChallenges.Challenge",
   "solution_module": "ComparatorChallenges.Solution",
   "theorem_names": [
-    "Mahjong.Hand.fullWait_reduction"
+    "ComparatorChallenges.fullWait_reduction"
   ],
   "permitted_axioms": [
     "propext", "Quot.sound", "Classical.choice"
