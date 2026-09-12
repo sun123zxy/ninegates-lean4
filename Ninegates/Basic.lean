@@ -47,6 +47,28 @@ lemma size_eq_sum (c : Hand n) : size c = ∑ i, c i := rfl
 
 lemma sum_eq_sum (c : Hand n) : sum c = ∑ i, i.val * c i := rfl
 
+/-- Split a sum over tile ranks into its two boundaries and its interior. -/
+lemma sum_fin_boundaries {n : Nat} (hn : 1 ≤ n) (f : Fin (3 * n) → Nat) :
+    (∑ i : Fin (3 * n), f i) =
+      f ⟨0, by omega⟩ +
+        (∑ i : Fin (3 * n - 2), f ⟨i.val + 1, by omega⟩) +
+      f ⟨3 * n - 1, by omega⟩ := by
+  have hsumFin (g : Fin ((3 * n - 2) + 2) → Nat) :
+      (∑ i, g i) =
+        g 0 + (∑ i : Fin (3 * n - 2), g i.castSucc.succ) +
+          g (Fin.last (3 * n - 2 + 1)) := by
+    grind [Fin.sum_univ_succ, Fin.sum_univ_castSucc]
+  let e : Fin ((3 * n - 2) + 2) ≃ Fin (3 * n) := finCongr (by omega)
+  have he0 : e 0 = ⟨0, by omega⟩ := by simp [Fin.ext_iff, e]
+  have heMid (i : Fin (3 * n - 2)) :
+      e i.castSucc.succ = ⟨i.val + 1, by omega⟩ := by
+    simp [Fin.ext_iff, e]
+  have heLast :
+      e (Fin.last (3 * n - 2 + 1)) = ⟨3 * n - 1, by omega⟩ := by
+    simp [Fin.ext_iff, e]
+    omega
+  grind [Equiv.sum_comp e f]
+
 @[simp, grind =]
 lemma single_apply (i j : Fin (3 * n)) :
     single i j = if j.val = i.val then 1 else 0 := by

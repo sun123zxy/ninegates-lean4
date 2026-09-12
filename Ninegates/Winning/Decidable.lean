@@ -89,12 +89,6 @@ lemma state_all (s : State) : s ∈ State.all := by
   rcases s with ⟨a, b, p⟩
   cases p <;> simp [State.all]
 
-lemma mem_fold_union (xs : List State) (f : State → StateSet) (acc : StateSet) (t : State) :
-    t ∈ xs.foldl (fun r q ↦ r ∪ f q) acc ↔
-      t ∈ acc ∨ ∃ q ∈ xs, t ∈ f q := by
-  induction xs generalizing acc <;>
-    simp_all only [List.foldl, Std.ExtHashSet.mem_union_iff, List.mem_cons] <;> grind
-
 lemma mem_fold_step (xs : List State) (x : Nat) (states : StateSet)
     (acc : StateSet) (t : State) :
     t ∈ xs.foldl
@@ -336,23 +330,6 @@ lemma replayChoices_pair_witness {s t : State} {xs : List Nat} {choices : List B
                   refine Fin.cases (fun hne => (hne rfl).elim) (fun j _ => ?_) j
                   simpa using hfalse j
 
-lemma replayChoices_pair_index {s t : State} {xs : List Nat} {choices : List Bool}
-    (hlen : choices.length = xs.length)
-    (h : replayChoices s xs choices = some t)
-    (hs : s.pairUsed = false) (ht : t.pairUsed = true) :
-    ∃ i : Fin choices.length,
-      choices.get i = true ∧ 2 ≤ xs.get ⟨i.val, by simpa [hlen] using i.isLt⟩ := by
-  grind only [replayChoices_pair_witness]
-
-lemma replayChoices_pair_unique {s t : State} {xs : List Nat} {choices : List Bool}
-    (h : replayChoices s xs choices = some t)
-    (hs : s.pairUsed = false) (ht : t.pairUsed = true) :
-    ∃ i : Fin choices.length, choices.get i = true ∧
-      ∀ j, j ≠ i → choices.get j = false := by
-  have hlen := replayChoices_length h
-  obtain ⟨i, hi, _, huniq⟩ := replayChoices_pair_witness hlen h hs ht
-  exact ⟨i, hi, huniq⟩
-
 lemma nextState_to_scanStep (s t : State) (takePair : Bool) (x : Nat)
     (h : nextState s takePair x = some t) :
     ∃ p : Meldable.Decidable.StepPlacement,
@@ -371,9 +348,6 @@ lemma nextState_to_scanStep (s t : State) (takePair : Bool) (x : Nat)
       cases h
       let residual := x - (s.a.val + s.b.val)
       refine ⟨⟨residual / 3, ⟨residual % 3, Nat.mod_lt _ (by omega)⟩⟩, ?_⟩
-      have hneed' : s.a.val + s.b.val ≤ x := by omega
-      have hsub : x - pairTiles false - (s.a.val + s.b.val) = residual := by
-        simp [pairTiles, residual]
       simp [Meldable.Decidable.step, scanState, pairTiles, hneed, residual]
   | true =>
       cases hp : s.pairUsed with

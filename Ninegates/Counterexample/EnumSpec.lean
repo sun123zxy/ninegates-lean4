@@ -31,27 +31,6 @@ lemma sum_getD (xs : List Nat) :
     (∑ i : Fin xs.length, xs.getD i.val 0) = xs.sum := by
   rw [← List.sum_ofFn, ofFn_getD]
 
-lemma sum_fin_boundaries {n : Nat} (hn : 1 ≤ n) (f : Fin (3 * n) → Nat) :
-    (∑ i : Fin (3 * n), f i) =
-      f ⟨0, by omega⟩ +
-        (∑ i : Fin (3 * n - 2), f ⟨i.val + 1, by omega⟩) +
-      f ⟨3 * n - 1, by omega⟩ := by
-  have hsumFin (g : Fin ((3 * n - 2) + 2) → Nat) :
-      (∑ i, g i) =
-        g 0 + (∑ i : Fin (3 * n - 2), g i.castSucc.succ) +
-          g (Fin.last (3 * n - 2 + 1)) := by
-    grind [Fin.sum_univ_succ, Fin.sum_univ_castSucc]
-  let e : Fin ((3 * n - 2) + 2) ≃ Fin (3 * n) := finCongr (by omega)
-  have he0 : e 0 = ⟨0, by omega⟩ := by simp [Fin.ext_iff, e]
-  have heMid (i : Fin (3 * n - 2)) :
-      e i.castSucc.succ = ⟨i.val + 1, by omega⟩ := by
-    simp [Fin.ext_iff, e]
-  have heLast :
-      e (Fin.last (3 * n - 2 + 1)) = ⟨3 * n - 1, by omega⟩ := by
-    simp [Fin.ext_iff, e]
-    omega
-  grind [Equiv.sum_comp e f]
-
 def BoundedBy : List Nat → List Nat → Prop
   | [], [] => True
   | _ :: _, [] => False
@@ -377,14 +356,6 @@ lemma zeroGaps_le_two_of_noTripleZeros (xs : List Nat)
                           · omega
                           · exact htail gap (by simp [zeroGaps, hgap])
 
-@[simp]
-lemma length_placePositives_empty (gaps : List Nat) :
-    (placePositives gaps []).length = gaps.sum := by
-  induction gaps with
-  | nil => simp [placePositives]
-  | cons gap gaps ih =>
-      simp [placePositives, List.bind_eq_flatMap]
-
 lemma sum_flatMap_replicate_zero (gaps : List Nat) :
     (gaps.flatMap (fun gap => List.replicate gap 0)).sum = 0 := by
   induction gaps with
@@ -392,66 +363,19 @@ lemma sum_flatMap_replicate_zero (gaps : List Nat) :
   | cons gap gaps ih => simp [ih]
 
 @[simp]
-lemma sum_placePositives_empty (gaps : List Nat) :
-    (placePositives gaps []).sum = 0 := by
-  simpa [placePositives, List.bind_eq_flatMap] using sum_flatMap_replicate_zero gaps
-
-lemma length_placePositives_of_nonempty {gaps : List Nat} {x : Nat}
-    {values : List Nat} (h : (x :: values).length ≤ gaps.length) :
-    (placePositives gaps (x :: values)).length = gaps.sum + (x :: values).length := by
-  induction gaps generalizing x values with
-  | nil => simp at h
-  | cons gap gaps ih =>
-      simp only [placePositives, List.length_append, List.length_replicate,
-        List.length_cons, List.sum_cons]
-      by_cases hvalues : values = []
-      · simp [hvalues, placePositives, List.bind_eq_flatMap]
-        omega
-      · cases values with
-        | nil => simp_all
-        | cons y values =>
-            have h' : (y :: values).length ≤ gaps.length := by grind
-            simp only [List.length_cons] at ⊢
-            rw [ih (x := y) (values := values) h']
-            simp only [List.length_cons]
-            omega
-
-@[simp]
 lemma length_placePositives {gaps values : List Nat}
     (h : values.length ≤ gaps.length) :
     (placePositives gaps values).length = gaps.sum + values.length := by
-  cases values with
-  | nil => simp
-  | cons x values => exact length_placePositives_of_nonempty h
-
-lemma sum_placePositives_of_nonempty {gaps : List Nat} {x : Nat}
-    {values : List Nat} (h : (x :: values).length ≤ gaps.length) :
-    (placePositives gaps (x :: values)).sum = x + values.sum := by
-  induction gaps generalizing x values with
-  | nil => simp at h
-  | cons gap gaps ih =>
-      simp only [placePositives, List.sum_append, List.sum_replicate,
-        List.sum_cons]
-      by_cases hvalues : values = []
-      · simp only [placePositives, List.bind_eq_flatMap, hvalues, nsmul_zero,
-          zero_add, Nat.add_left_cancel_iff]
-        exact sum_flatMap_replicate_zero gaps
-      · cases values with
-        | nil => simp_all
-        | cons y values =>
-            have h' : (y :: values).length ≤ gaps.length := by grind
-            rw [ih (x := y) (values := values) h']
-            simp
+  induction gaps generalizing values <;> cases values <;>
+    simp_all [placePositives, List.bind_eq_flatMap]
+  omega
 
 @[simp]
 lemma sum_placePositives {gaps values : List Nat}
     (h : values.length ≤ gaps.length) :
     (placePositives gaps values).sum = values.sum := by
-  cases values with
-  | nil => exact sum_placePositives_empty gaps
-  | cons x values =>
-      simpa only [List.sum_cons] using
-        sum_placePositives_of_nonempty h
+  induction gaps generalizing values <;> cases values <;>
+    simp_all [placePositives, List.bind_eq_flatMap, sum_flatMap_replicate_zero]
 
 @[simp]
 lemma sum_positiveEntries (xs : List Nat) :

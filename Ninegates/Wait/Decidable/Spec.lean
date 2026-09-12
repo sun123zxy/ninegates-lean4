@@ -35,14 +35,6 @@ private lemma vector_set_get_ne {α : Type} {m : Nat} (v : Vector α m) (i j : F
   · exact (h (Fin.ext ‹_›)).elim
   · rfl
 
-@[simp, grind =]
-private lemma finRange_append_last (k : Nat) :
-    List.finRange (k + 1) =
-      (List.finRange k).map Fin.castSucc ++ [(⟨k, by omega⟩ : Fin (k + 1))] := by
-  apply List.ext_getElem
-  · simp
-  · intros; simp [List.getElem_finRange]; grind
-
 private def prefixIndices (m k : Nat) (hk : k ≤ m) : List (Fin m) :=
   (List.finRange k).map (fun a => ⟨a.val, by omega⟩)
 
@@ -64,7 +56,7 @@ private def prefixSem (m : Nat) (f : Fin m → Nat) (j : Nat) : StateSet :=
 private lemma prefixIndices_succ (m k : Nat) (hk : k + 1 ≤ m) :
     prefixIndices m (k + 1) hk = prefixIndices m k (by omega) ++
       [⟨k, by omega⟩] := by
-  simp [prefixIndices]
+  simp [prefixIndices, List.finRange_succ_last]
 
 @[simp, grind =]
 private lemma prefixFold_succ (m : Nat) (f : Fin m → Nat) (k : Nat)
@@ -207,7 +199,7 @@ private def suffixSem (m : Nat) (f : Fin m → Nat) (j : Nat) :
 private lemma suffixIndices_succ (m k : Nat) (hk : k + 1 ≤ m) :
     suffixIndices m (k + 1) hk = suffixIndices m k (by omega) ++
       [⟨m - 1 - k, by omega⟩] := by
-  simp [suffixIndices]
+  simp [suffixIndices, List.finRange_succ_last]
 
 @[simp, grind =]
 private lemma suffixSem_succ (m : Nat) (f : Fin m → Nat) (j : Nat) (hj : j < m) :
@@ -323,13 +315,6 @@ private def suffixDoInner (count : Array Nat)
       good := good.insert q
   return good
 
-private def suffixDoUpdate (count : Array Nat)
-    (v : Vector Winning.Decidable.StateSet (count.size + 1)) (k : Fin count.size) :
-    Id (Vector Winning.Decidable.StateSet (count.size + 1)) := do
-  let i := count.size - 1 - k.val
-  let good ← suffixDoInner count v k
-  return v.set i good (by omega)
-
 @[grind =]
 private lemma suffixDoInner_eq (count : Array Nat)
     (v : Vector Winning.Decidable.StateSet (count.size + 1)) (k : Fin count.size) :
@@ -337,13 +322,6 @@ private lemma suffixDoInner_eq (count : Array Nat)
       (v.get ⟨count.size - 1 - k.val + 1, by omega⟩) := by
   unfold suffixDoInner
   exact buildSuffix_inner _ _
-
-private lemma foldlM_id {α β : Type} (f : β → α → Id β) (b : β) (xs : List α) :
-    (List.foldlM f b xs).run = List.foldl (fun b a => (f b a).run) b xs := by
-  induction xs generalizing b with
-  | nil => rfl
-  | cons a xs ih =>
-    simp [List.foldlM, List.foldl, ih]
 
 private def updateAt (xs : List Nat) (i : Nat) (hi : i < xs.length) : List Nat :=
   xs.set i (xs.get ⟨i, hi⟩ + 1)
@@ -358,16 +336,7 @@ private lemma list_ofFn_add_single (c : Hand n) (i : Fin (3 * n)) :
 @[grind =]
 private lemma updateAt_eq_take (xs : List Nat) (i : Nat) (hi : i < xs.length) :
     updateAt xs i hi = xs.take i ++ [xs.get ⟨i, hi⟩ + 1] ++ xs.drop (i + 1) := by
-  induction xs generalizing i with
-  | nil => simp at hi
-  | cons x xs ih =>
-      cases i with
-      | zero => simp [updateAt]
-      | succ i =>
-          simp only [updateAt, List.set_cons_succ, List.get_cons_succ,
-            List.take_succ_cons, List.drop_succ_cons]
-          have hi' : i < xs.length := by simpa using hi
-          exact congrArg (fun ys => x :: ys) (ih (i := i) hi')
+  simp [updateAt, List.set_eq_take_append_cons_drop, hi]
 
 private lemma fold_set_get {α : Type} : ∀ (N m : Nat) (hm : m ≤ N) (v : Vector α N)
     (f : Fin m → α) (j : Fin m),
@@ -378,7 +347,7 @@ private lemma fold_set_get {α : Type} : ∀ (N m : Nat) (hm : m ≤ N) (v : Vec
   | zero => intro hm v f j; exact Fin.elim0 j
   | succ m ih =>
       intro hm v f j
-      rw [finRange_append_last, List.foldl_append, List.foldl_map]
+      rw [List.finRange_succ_last, List.foldl_append, List.foldl_map]
       simp only [List.foldl_cons, List.foldl_nil]
       refine Fin.lastCases ?_ (fun j => ?_) j
       · grind
@@ -391,7 +360,7 @@ private lemma fold_set_get {α : Type} : ∀ (N m : Nat) (hm : m ≤ N) (v : Vec
             apply Fin.ne_of_val_ne
             change m ≠ j.val
             omega)
-        simpa [v'] using (hset.trans hv)
+        simpa [v', Fin.last] using (hset.trans hv)
 
 @[grind =]
 private lemma buildSuffix_eq_suffixFold (count : Array Nat) :
@@ -414,9 +383,10 @@ private lemma buildSuffix_eq_suffixFold (count : Array Nat) :
   have h' := congrArg Id.run h
   convert h' using 1
   · congr 2
-  · rw [foldlM_id, suffixFold, suffixIndices, List.foldl_map]
+  · change _ = (List.foldlM (m := Id) (fun b a => pure (g a b (f a b)))
+      init (List.finRange count.size)).run
+    rw [List.foldlM_pure, suffixFold, suffixIndices, List.foldl_map]
     simp [suffixUpdate, init, f, g, suffixDoInner_eq]
-    rfl
 
 @[simp, grind =]
 theorem decideCount_size (count : Array Nat) :
