@@ -18,8 +18,12 @@ public import Mathlib.Tactic
 
 - A `Hand n` records the counting vector of a hand.
   It's a wrapper around `Fin (3 * n) → ℕ`.
+  Recall that `![]` is Mathlib's convenient notation for functions over `Fin n`.
+
 - `single`, `pair`, `triplet`, and `sequence` are the elementary tile patterns.
+
 - `size` counts tiles, while `sum` is their value-weighted sum.
+
 - `Valid c` requires every legal multiplicity of `c` to be at most four.
 
 ## Design notes
@@ -43,7 +47,7 @@ We come to this choice after trialing and erroring with many other representatio
 
 - `Vector` as the counting vector might be the best choice with both mathematical
   and computational friendliness. Many algorithms are already using it.
-  We might consider a migration in the future.
+  However it's not a standard Mathlib accent.
 
 Basic properties are in `Ninegates.Basic`.
 -/
