@@ -9,9 +9,12 @@ Classification of full-sided waits and uniqueness of the *Nine Gates (九蓮宝�
 Formally verified in Lean 4
 
 [![Repository](https://img.shields.io/badge/Github-ninegates--lean4-2d4a66?style=flat-square&logo=github&logoColor=white)](https://github.com/sun123zxy/ninegates-lean4 "Github")
-[![Documentation](https://img.shields.io/badge/Documentation-ninegates--lean4-9aa4af?style=flat-square&logo=readthedocs&logoColor=white)](https://sun123zxy.github.io/ninegates-lean4/docs "Documentation")
+[![Documentation](https://img.shields.io/badge/Documentation-ninegates--lean4-2ea44f?style=flat-square&logo=readthedocs&logoColor=white)](https://sun123zxy.github.io/ninegates-lean4/docs "Documentation")
+[![Visualization](https://img.shields.io/badge/Visualization-ninegates--viz-6b4a8f?style=flat-square&logo=svg&logoColor=white)](https://sun123zxy.github.io/ninegates-viz/ "Visualization")
 
 </div>
+
+> We are working on a paper that focuses on the mathematical aspects of this project. It will be available on arXiv soon. Note that there have been substantial updates to the paper and the codebase may not be fully synchronized.
 
 ## Introduction
 
