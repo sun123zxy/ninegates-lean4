@@ -1,20 +1,21 @@
 <div align="center">
 
 <h1>
-<p>Nine Gates: A Lean 4 Mahjong Game Formalization</p>
-<p style="font-size: 200%">🀇🀇🀇🀈🀉🀊🀋🀌🀍🀎🀏🀏🀏</p>
+<p style="font-size: 300%">🀇🀇🀇🀈🀉🀊🀋🀌🀍🀎🀏🀏🀏</p>
+<p style="font-size: 125%">Beyond Nine Gates</p>
 </h1>
 
-Classification of full-sided waits and uniqueness of the *Nine Gates (九蓮宝燈)* live full-sided wait in the generalized *Mahjong* game  
+Classification of Full-Sided Mahjong Waits with 3n Ranks  
 Formally verified in Lean 4
 
+[![arXiv](https://img.shields.io/badge/arXiv-2611.06944-b31b1b?style=flat-square&logo=arxiv&logoColor=white)](https://arxiv.org/abs/2611.06944 "arXiv")
 [![Repository](https://img.shields.io/badge/Github-ninegates--lean4-2d4a66?style=flat-square&logo=github&logoColor=white)](https://github.com/sun123zxy/ninegates-lean4 "Github")
 [![Documentation](https://img.shields.io/badge/Documentation-ninegates--lean4-2ea44f?style=flat-square&logo=readthedocs&logoColor=white)](https://sun123zxy.github.io/ninegates-lean4/docs "Documentation")
 [![Visualization](https://img.shields.io/badge/Visualization-ninegates--viz-6b4a8f?style=flat-square&logo=svg&logoColor=white)](https://sun123zxy.github.io/ninegates-viz/ "Visualization")
 
 </div>
 
-> We are working on a paper that focuses on the mathematical aspects of this project. It will be available on arXiv soon. Note that there have been substantial updates to the paper and the codebase may not be fully synchronized.
+> Note that there has been a major rewrite of the paper since the formalization was completed. The current formalization, `v2`, is based on a previous version of the paper, which may differ substantially. The 8-family classification of full-sided waits is formalized in the current codebase, but the proof is not non-enumerative and relies on `native_decide`. We are working on a `v3` formalization to match the new paper's content.
 
 ## Introduction
 
@@ -226,3 +227,17 @@ The separation of `Defs` and `Basic` modules allows us to state the main results
 - Module system: Currently Lean's module system is ported but not fully utilized. Our Mathlib-flavored design of `Hand` relies heavily on its internal representation. Future work should first redesign of `Hand`'s internal representation, then refactor the library to seperate implementation from interface, and finally make good use of the module system.
 
 - A more general algebraic Mahjong theory: As mentioned before, inspired by the properties of canonical placements discovered in the curation process, we are working on a more general framework where the uniqueness of full-sided waits becomes a special case of a general classification problem.
+
+## Citation
+
+```bibtex
+@misc{xue_beyond_2026,
+	title = {Beyond Nine Gates: Classification of Full-Sided Mahjong Waits with \$3n\$ Ranks},
+	doi = {10.48550/arXiv.2611.06944},
+	number = {{arXiv}:2611.06944},
+	publisher = {{arXiv}},
+	author = {Xue, Shubin and Zhong, Xingyu},
+	eprinttype = {arxiv},
+	eprint = {2611.06944},
+}
+```
