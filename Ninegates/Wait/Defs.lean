@@ -1,37 +1,44 @@
 /-
-Copyright (c) 2026 Xingyu Zhong. All rights reserved.
+Copyright (c) 2026 Luna Luteus. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Xingyu Zhong
+Authors: Luna Luteus
 -/
 module
 
-public import Ninegates.Winning.Defs
+public import Ninegates.Meldable.Defs
 
 /-!
-# Wait predicates
+# Winning, waiting, and the draw-pair relation
 
-* `IsWaitingTile c i` tests whether adding tile `i` has a winning decomposition.
-* `IsLiveWaitingTile c i` additionally requires the resulting hand to be valid.
-* `IsWait` and `IsFullWait` allow dead tiles, while their `IsLive...` counterparts do not.
+The meld count `m` and the copy bound `cap` are separate parameters. Explicit
+size and nonnegativity conditions also rule out vacuous zero-rank full waits.
+Integer subtraction needs no truncated-subtraction side conditions: `Meldable`
+already guarantees that the remaining hand is nonnegative.
 -/
 
 @[expose] public section
 
-namespace Mahjong.Hand
+namespace Mahjong.VirtualHand
 
 variable {n : ℕ}
 
-def IsWaitingTile (c : Hand n) (i : Fin (3 * n)) : Prop := Winning (c + single i)
+def Winning (m : ℕ) (c : VirtualHand n) : Prop :=
+  size c = 3 * (m : ℤ) + 2 ∧ ∃ j, Meldable (c - pair j)
 
-def IsLiveWaitingTile (c : Hand n) (i : Fin (3 * n)) : Prop :=
-  IsWaitingTile c i ∧ Valid (c + single i)
+def DrawPair (c : VirtualHand n) (i j : Rank n) : Prop :=
+  Meldable (c + single i - pair j)
 
-def IsWait (c : Hand n) : Prop := ∃ i, IsWaitingTile c i
+def IsWaitingTile (m : ℕ) (c : VirtualHand n) (i : Rank n) : Prop := Winning m (c + single i)
 
-def IsLiveWait (c : Hand n) : Prop := ∃ i, IsLiveWaitingTile c i
+def IsLiveWaitingTile (cap m : ℕ) (c : VirtualHand n) (i : Rank n) : Prop :=
+  IsWaitingTile m c i ∧ Bounded cap (c + single i)
 
-def IsFullWait (c : Hand n) : Prop := ∀ i, IsWaitingTile c i
+def IsWait (m : ℕ) (c : VirtualHand n) : Prop := Nonnegative c ∧ ∃ i, IsWaitingTile m c i
 
-def IsLiveFullWait (c : Hand n) : Prop := ∀ i, IsLiveWaitingTile c i
+def IsFullWait (m : ℕ) (c : VirtualHand n) : Prop :=
+  Nonnegative c ∧ size c = 3 * (m : ℤ) + 1 ∧ ∀ i, IsWaitingTile m c i
 
-end Mahjong.Hand
+def IsLiveFullWait (cap m : ℕ) (c : VirtualHand n) : Prop :=
+  IsFullWait m c ∧ ∀ i, Bounded cap (c + single i)
+
+end Mahjong.VirtualHand

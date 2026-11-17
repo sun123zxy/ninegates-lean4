@@ -1,218 +1,246 @@
 <div align="center">
 
-<h1>
-<p style="font-size: 300%">🀇🀇🀇🀈🀉🀊🀋🀌🀍🀎🀏🀏🀏</p>
-<p style="font-size: 125%">Beyond Nine Gates</p>
-</h1>
+# 🀇🀇🀇🀈🀉🀊🀋🀌🀍🀎🀏🀏🀏
+# Beyond Nine Gates
 
 Classification of Full-Sided Mahjong Waits with 3n Ranks  
-Formally verified in Lean 4
+Structural formalization in Lean 4
 
-[![arXiv](https://img.shields.io/badge/arXiv-2611.06944-b31b1b?style=flat-square&logo=arxiv&logoColor=white)](https://arxiv.org/abs/2611.06944 "arXiv")
-[![Repository](https://img.shields.io/badge/Github-ninegates--lean4-2d4a66?style=flat-square&logo=github&logoColor=white)](https://github.com/sun123zxy/ninegates-lean4 "Github")
-[![Documentation](https://img.shields.io/badge/Documentation-ninegates--lean4-2ea44f?style=flat-square&logo=readthedocs&logoColor=white)](https://sun123zxy.github.io/ninegates-lean4/docs "Documentation")
-[![Visualization](https://img.shields.io/badge/Visualization-ninegates--viz-6b4a8f?style=flat-square&logo=svg&logoColor=white)](https://sun123zxy.github.io/ninegates-viz/ "Visualization")
+[![arXiv](https://img.shields.io/badge/arXiv-2611.06944-b31b1b?style=flat-square&logo=arxiv&logoColor=white)](https://arxiv.org/abs/2611.06944)
 
 </div>
 
-> Note that there has been a major rewrite of the paper since the formalization was completed. The current formalization, `v2`, is based on a previous version of the paper, which may differ substantially. The 8-family classification of full-sided waits is formalized in the current codebase, but the proof is not non-enumerative and relies on `native_decide`. We are working on a `v3` formalization to match the new paper's content.
+This is the structural rewrite on the `v3` branch, aligned with the public paper
+[arXiv:2611.06944v1](https://arxiv.org/abs/2611.06944v1), submitted 2 November 2026.
+The previous implementation is archived on [`v2`](https://github.com/lunaluteus/ninegates-lean4/tree/v2).
+The new library replaces its API completely and proves the classification
+structurally, without enumerating candidate hands or using `native_decide`.
 
-## Introduction
+## The model
 
-### Problem
+Nine Gates is the one-suit Mahjong wait `1112345678999`: drawing any of the nine
+ranks makes a winning hand. We study the same question on `3*n` ranks, allowing
+the order `n`, number of melds `m`, and copy bound `cap` to vary independently.
+A full-sided wait has `3*m+1` tiles; every possible draw completes `m` melds
+and a pair. Liveness additionally requires every draw to respect the copy bound.
 
-Nine Gates is the celebrated one-suit Mahjong wait `1112345678999`. With the usual nine ranks, this 13-tile hand wins after drawing *any* rank from `1` through `9`. We consider a generalized version with `3 * n` ordered tile types. In this generalization, `n + 1` melds and a pair are required to win. The uniqueness problem asks whether this pattern is the only legal hand that waits on every tile type. It's long been known that the answer is "yes" for the usual `n = 3` case, mostly with informal reasoning and computer search.
+`Mahjong.VirtualHand n` is an integer multiplicity vector on `Fin (3*n)`.
+`Nonnegative` specifies actual hands. Integer subtraction lets us express
+removing a pair or meld directly. A placement has one coefficient for each
+legal sequence start and each triplet rank; nonnegative coefficients describe
+actual meld decompositions, while integer coefficients describe virtual ones.
 
-### Our work
+Lean indices are zero-based. The rank used in the paper's weighted sum and
+congruences is `i.val+1`. The last two ranks are excluded from the sequence-start
+type, and both final scan states are checked in the meldability criterion.
 
-Our formalization classifies all full-sided waits, without imposing the four-copy limit, and derives live uniqueness for all `n ≥ 2`.
+## Results proved
 
-The main results are in [`Ninegates/Classification.lean`](Ninegates/Classification.lean), in the `Mahjong.Hand` namespace:
+The main declarations are in the `Mahjong.VirtualHand` namespace:
 
-- `isFullWait_iff_eightFamily`: for `n ≥ 2`, the full-sided waits are exactly the eight standard families `A`, `B`, `B'`, `C`, `C'`, `D`, `D'`, and `E`.
-- `orderOne_isFullWait_iff_isOrderOneFamily`: for `n = 1`, the full-sided waits are exactly the six hands in `Standard.One`; all six are live.
-- `liveFullWait_unique`: for every `n ≥ 2`, every *live full-sided wait* is exactly `Standard.A n`. "Live" means that each prospective draw still respects Mahjong's four-copy limit. This follows from the classification by excluding the other seven families with the `<= 4` multiplicity condition. The usual Nine Gates hand is `Standard.A 3`.
+- [`Classification`](Ninegates/Classification.lean): for `n>=2`, full-sided
+  waits with `m=n+1` are exactly the eight families `A`, `B`, `B'`, `C`, `C'`,
+  `D`, `D'`, and `E`. With live draws under copy bound four, only `A` remains.
+- [`Standard/One`](Ninegates/Standard/One.lean): at order one and meld count
+  two, the six full-sided waits are `(3,1,3)`, `(2,3,2)`, `(3,3,1)`,
+  `(1,3,3)`, `(3,2,2)`, and `(2,2,3)`. All are live.
+- [`Wait/Bounds`](Ninegates/Wait/Bounds.lean): every full-sided wait satisfies
+  `m>n`, without a copy bound.
+- [`Wait/Abundance`](Ninegates/Wait/Abundance.lean): sufficiently abundant hands
+  of the required size are full-sided; adding any meldable hand preserves
+  full-sidedness. At order one the sufficient threshold improves to `(2,2,2)`.
+- [`Minimal`](Ninegates/Minimal/Defs.lean): minimality excludes removal of any
+  nonzero meldable hand leaving a full-sided wait. Every full wait at `m=n+1`
+  is minimal, and all order-one minimal waits are among the six above.
+- [`Minimal/Maximum`](Ninegates/Minimal/Maximum.lean) and
+  [`Minimal/Double/Minimal`](Ninegates/Minimal/Double/Minimal.lean): the largest
+  minimal meld count `M(n)` exists for every positive order, `M(1)=2`, and
+  `2*n <= M(n) < 8*n`. The minimal family `(3,2,...,2)` gives the first lower bound;
+  the alternating families strengthen it to `9*n/2-3 <= M(n)` (integer division).
+- [`Minimal/Alternating/Minimal`](Ninegates/Minimal/Alternating/Minimal.lean): both
+  stronger even/odd alternating constructions are minimal full-sided waits, with
+  meld counts `9*a+6` and `9*a+10`. Their canonical sequence coefficients have
+  an exact formula for arbitrary order, draw, and pair. Critical draws rule out
+  each elementary removal and hence every nonzero meldable removal.
 
-Our proof combines
+[`Cardinality`](Ninegates/Cardinality.lean) proves the exact counts: eight
+full-sided and minimal waits at `m=n+1` for `n>=2`, exactly one of them live;
+six full-sided, minimal, and live waits at order one and meld count two.
+There are no full-sided waits for `m<=n`, and no other minimal waits at order one.
+The eight named families are proved distinct at every `n>=2`.
 
-- formal mathematical reasoning: reducing possible counterexamples to a finite set of small-order candidates
-- candidate enumeration: verifying ~5000 candidates for $n = 1,2$ and $3 \leq n \leq 7$ respectively, with correctness proofs
-- efficient verified computation: fast algorithms for deciding meldability, winning, and waiting, fully verified
+[`Wait/OrderOne`](Ninegates/Wait/OrderOne.lean) also characterizes order-one
+full waits for every meld count: the required size together with at least
+one tile at the fixed rank and two at each other rank is sufficient and
+necessary. [`Numerical/OrderOne`](Ninegates/Numerical/OrderOne.lean) gives the
+exact count `choose(3*m-2,2)` for `m>=2`, and zero for `m<=1`, with unrestricted
+multiplicities. A class-dependent five-tile translation gives a bijection
+with the nonnegative triples summing to `3*m-4`; stars and bars supplies the count.
 
-With Lean 4, all of these can be expressed in a single language.
+[`Minimal/Next`](Ninegates/Minimal/Next.lean) characterizes every nonminimal
+full-sided `(n,n+2)` wait for `n>=2` as a standard hand plus one elementary meld.
+[`Numerical/Taiwanese`](Ninegates/Numerical/Taiwanese.lean) consequently proves
+that exactly 122 Taiwanese `(3,5)` waits are nonminimal. The paper's total,
+live, and minimal counts `149/11/27` remain to be formalized.
 
-We also prioritizes the following design goals:
+[`Minimal/LiveNext`](Ninegates/Minimal/LiveNext.lean) sharpens the nonminimal
+classification under copy bound four: for `n>=2`, the live nonminimal
+`(n,n+2)` waits are exactly `A_n` plus one sequence avoiding both boundary
+ranks. There are exactly `3*n-4` of them, hence five in the Taiwanese case.
+Every live `(n,n+2)` wait missing a boundary rank is minimal. In particular,
+the class-bound sharpness family `(0,3,3,3,1^(3n-5),3)` is both minimal and live.
+These are structural consequences beyond the paper's numbered results.
 
-- **Maintainability**: This repository is a human-written formalization with limited assistance from coding agents. Conscious effort has been made to rewrite the code into a clean and readable structure.
+All 27 numbered propositions and Theorem 1.1 have proofs, as do Examples 4.5
+and 6.5. Example 6.6 (`149/11/27`) is deferred because the direct kernel
+computation was too expensive in the current prototype. All five unnumbered
+remarks now have proofs as well, including the general class-bound sharpness
+family and the fixed-class partition of the eight families. Problems 6.1 and 6.4
+and Conjecture 6.9 remain open; see
+[DEVELOPMENT.md](DEVELOPMENT.md#remaining-paper-statements).
+The exact general formula for `M(n)` is neither assumed nor presented as proved.
 
-- **Proof Automation**: Smooth `grind` and `simp` automation requires careful design of the library structure and lemma annotations.
+## Proof structure
 
-- **Program Verification**: We explored how to verify executable algorithms in Lean 4 and use them in a mathematical proof.
+Virtual meldability is characterized by size and rank sum modulo three.
+Each virtual meldable hand has a unique canonical placement, with sequence
+coefficients in `{0,1,2}`. Its triplet coefficients decide actual meldability.
+This gives the scan criterion, local tile-moving rules, and interval properties.
 
-## Soundness
+The draw-pair relation records which pair can accompany each winning draw.
+Missing-rank splits and class bounds force exact class sizes when `m=n+1`.
+Two distinguished ranks then supply the only possible pairs. Counting the
+sequence starts required by their moves determines the eight families.
+Their explicit constructions prove sufficiency, and their coordinate patterns
+exclude every live family except Nine Gates.
 
-- verified in Lean `v4.35.0`
+Minimality is defined for arbitrary meldable removals. A separate theorem
+reduces it to single triplet and sequence removals; the latter may either use
+a canonical sequence or borrow three covered triplets. No bound on the number
+of ranks or candidate hands is used in these arguments.
 
-- standard axioms `propext`, `Classical.choice`, `Quot.sound` applied; additional `native_decide` axiom for finite enumeration and meldability / winning / waiting algorithms
+## Build and validate
 
-- all theorems are verified via a `lake build` with no `sorry`s or additional axioms
-
-- `fullWait_reduction` in [`Ninegates/Counterexample/Reduction.lean`](Ninegates/Counterexample/Reduction.lean) is verified by [Comparator](https://github.com/leanprover/comparator), which is the most mathematically significant part of the proof. We could not verify the main theorem with Comparator due to its lack of support for `native_decide`.
-
-Note that `native_decide` relies on the correctness of Lean 4's compiler. It is a reasonable assumption for our purpose, as enumerating small cases requires efficiency, and verifying executable algorithms is among the goals of this project. Switching to a `decide` version is technically possible, but it does not work smoothly with `ExtHashSet`'s opaque implementation (used by our DP-based winning check algorithm) and could be extremely slow for the program verification purpose.
-
-## Autoformalization, agentic coding and curated formalization
-
-Autoformalization is cool but often produces unmaintainable code. As of Augest 2026, full-auto AI formalization agents like Archon + GPT 5.5 has proven their growing capability of generating mathematically correct Lean code at scale, but they almost always produce redundant glue code and cumbersome proof steps, which can be tedious to maintain and verify. For example, native GPT 5.6 is still ignorant of the `grind` tactic and its automation power, nor can it annotate the code with `@[grind]` and `@[simp]` properly without human guidance. A neat, curated library design and annotation still require human expertise and intervention.
-
-This repository is a human-written formalization with limited assistance from coding agents. We used AI to help us with the following tasks:
-
-- The first run is a complete autoformalization generated by [Archon](https://github.com/frenzymath/Archon) + Codex + GPT 5.5. The counterexample reduction lemma is formally verified, convincing ourselves that the proof is correct. See the archived results in the `v1` branch of this repository.
-
-- The second rewrite is a fresh human-written formalization with limited assistance from coding agents like Codex + GPT 5.6. It is curated to be readable and maintainable. Important definitions are written by humans, structural decisions are made by humans, and proof automation (e.g `simp` / `grind` annotation) is designed by humans. We only sit back and relax ourself a bit for the program verification part, which is generally acceptable and safe. 
-
-To wrap up, AI did the first pass to verify the correctness, and accelerated our exploration of different formalization designs in the second pass. Conscious effort has been made to rewrite the code into a clean and readable structure. As one of the statistical milestones, on the path towards the proof of the counterexample reduction lemma of live full-sided waits, by carefully redesigning, restructuring, and annotating the Archon + GPT 5.5 generated 2604 lines of Lean code, we have reached a 70% reduction in line count, a 770-line Lean codebase that is much more maintainable and readable, while improving the proof structure and automation power. (This is a historical milestone; the codespace is now much larger with more features and functionality.) We observed that  clean organization and proper annotation significantly simplifies the proof of trivial lemmas: most of them can be closed by a brainless `ext; simp_all; grind` combo if proper conditions are provided.
-
-Hidden mathematical insights also emerge as we reorganize the codebase. The relationship among the canonical placement, canonicalization of a placement, and the meldability scanning algorithm is discovered during the second pass. It turns out that these ideas are of fundamental importance, if one broaden one's scope to a more general setting of Mahjong hands. This generalization is currently under our active development.
-
-> We report that recent advances in top-tier LLMs has shown their improved ability to generate organized Lean code. In some recent development of this repository, compared to the previous GPT 5.6 Sol model, we observed that GPT 6 Astra could generate neat proofs with significantly improved readability and maintainability, demonstrating its understanding of the `grind` tactic and the overall library structure. A basic SKILL file is used to guide the agent to read the official `grind` / `simp` guideline and follow the library's automation policy. One may expect that future LLMs may spare more human effort in curating the codebase.
-
-## `grind` / `simp` Automation Policy
-
-Smooth `grind` and `simp` automation is the major design goals of this library. Intuitively, `simp` does a normal form reduction, while `grind` is a union-find algorithm that equates terms and splits cases. Respecting the heterogeneous nature of the two tactics' inner mechanisms is crucial to maximize the automation power of both.
-
-In general we follow the [official `grind` annotation guideline](https://lean-lang.org/doc/reference/latest/The--grind--tactic/Annotating-Libraries-for--grind/), which results in the following rules of thumb:
-
-- Make `xxx_apply` lemmas to hide `.mk`.
-
-- `@[simp]` apply lemmas it if it has no `if`.
-- `@[grind]` apply lemmas if it has `if`.
-- Do not `@[grind]` other apply lemmas if a general `if`-lemma is already `[@grind]`.
-- `@[grind]` definitions directly only if they have no corresponding lemma.
-
-- Hide the definition if it contains `∑`: Don't `@[grind]` or `@[simp]` it. Provide lemmas for downstream use. Reserve the responsibility manipulating `∑` on our side.
-
-This set of rules turns out to be effective, resulting a brainless `ext; simp_all; grind` combo almost always works for mathematically trivial lemmas. We have multiple positive examples in this library. Some of them are listed here for reference:
-
-- `Placement.toHand_apply`: For apply lemmas containing `if`. See [`Meldable.Basic`](Ninegates/Meldable/Basic.lean) documentation for a closer look.
-
-- `Hand.size` and `Hand.sum`: For definitions containing `∑`. See [`Ninegates/Operations/Basic.lean`](Ninegates/Operations/Basic.lean) documentation for a closer look.
-
-In practice, as `grind` has a upper limit on the number of case splits (though it is configurable by `grind (splits := 20)`), it is still recommended to manually perform the case split and `simp` with the case conditions before invoking `grind` for the remaining proof obligations.
-
-## Verification & development setup
-
-### Quick start
-
-You'll need a Lean 4 environment with `lake` installed. Then
+Use the pinned **Lean 4.35.0** toolchain and Mathlib revision in
+[`lake-manifest.json`](lake-manifest.json):
 
 ```sh
-lake update
 lake exe cache get
+lake build --wfail
+lake env lean -j2 -M4096 -DwarningAsError=true Audit.lean > axioms.log
+python3 scripts/check_axioms.py Audit.lean axioms.log
 ```
 
-Above commands download dependencies (such as `Mathlib`) and their cache. Then a quick
+The default library target is `Ninegates`. [`Ninegates.lean`](Ninegates.lean)
+imports the complete library. The axiom audit covers the foundational results,
+classification, bounds, constructions, and explicit examples; it checks the
+expected declarations and rejects extra diagnostics or forbidden axioms.
 
-```sh
-lake build Ninegates
-```
-
-serves as a basic verification of the library.
+The library has no placeholder proofs and uses only `propext`,
+`Classical.choice`, and `Quot.sound`. Small explicit examples and fixed prefix
+states use `decide +kernel`; no proof uses native evaluation.
 
 ### Comparator
 
-> Update: Start from Lean v4.35.0, `lake comparator` is directly available.
+The challenge and solution list all **43 numbered items in published order**,
+including definitions, examples, open problems, and the conjecture. Split
+statements stay together under their paper number. The public version, links,
+source hashes, declaration mapping, and gaps are recorded in
+[`paper.json`](ComparatorChallenges/paper.json). There are **120 verified
+Comparator targets**, including additional unnumbered constructions and bounds.
 
 ```sh
-lake comparator --config="ComparatorChallenges/config.json"
+python3 scripts/check_paper_coverage.py
+lake build --wfail ComparatorChallenges.Solution
+lake comparator --config=ComparatorChallenges/config.json
 ```
 
-If you see `Your solution is okay!` in the output, congratulations! Verification is successful.
+This uses the Comparator bundled with the pinned Lean toolchain and requires
+`bubblewrap` with working user namespaces on Linux. The normal command keeps
+the sandbox enabled. No external checker is enabled by this configuration.
 
-Use `--inadvisably-no-sandbox` if you are not on Linux, though it is not considered reliable.
+[`Challenge.lean`](ComparatorChallenges/Challenge.lean) fixes the theorem
+statements and imports [`Model.lean`](ComparatorChallenges/Model.lean). The model
+shares only the foundational hand, placement, wait, and minimality definitions
+with the library; it defines derived objects independently and imports no
+project proof modules. Intentional theorem holes are confined to the challenge
+and excluded from the default library build.
+[`Solution.lean`](ComparatorChallenges/Solution.lean) supplies the library's
+proofs, using [`Bridges.lean`](ComparatorChallenges/Bridges.lean) to connect the
+derived definitions. Example 6.6 has a visible challenge goal and an explicit
+deferred entry in the solution, and is excluded from the verified targets.
+The open problems and conjecture are not proof assumptions.
+Comparator exports and checks the proofs,
+compares their statements against the challenge, and permits only the three
+standard axioms above. This complements the larger axiom audit; it does not
+claim to certify unfinished results or replace review of the definitions.
+The statements use ordinary function notation and explicit zero-based rank
+indices. Redundant generated coercions and function-type annotations have been
+removed; cast locations and the claims themselves are unchanged. The companion
+checker verifies the pinned inventory, order, full source signatures (including
+named arguments), and target list with
+[`check_paper_coverage.py`](scripts/check_paper_coverage.py).
 
-See the proof verification guidelines [Comparator](https://lean-lang.org/doc/reference/latest/ValidatingProofs/) for more details.
+See the [Lean proof-validation documentation](https://lean-lang.org/doc/reference/latest/ValidatingProofs/)
+for the meaning and trust assumptions of these checks.
 
-### Agentic coding
+## Library map and conventions
 
-We use [lean-lsp-mcp](https://github.com/oOo0oOo/lean-lsp-mcp) + [repl](https://github.com/leanprover-community/repl) for compiler feedback.
+| Path | Contents |
+| --- | --- |
+| `Hand/` | Vectors, elementary patterns, sums, classes, intervals, reversal |
+| `Meldable/` | Placements, canonicalization, scan, movement, splitting, removal |
+| `Wait/` | Draw-pair graph, positivity, class bounds, pillars, constructions |
+| `Standard/` | Eight named families and the six order-one hands |
+| `Classification.lean` | Classification and live uniqueness |
+| `Minimal/` | Arbitrary removals, maximal meld counts, lower-bound families |
+| `Numerical/` | Exact counts from structural bijections or finite reductions |
+| `*Examples.lean` | Explicit examples checking boundaries and hypotheses |
 
-- `lean-lsp-mcp` is a MCP server that allows agentic interaction with the Lean theorem prover via the Language Server Protocol, provides a range of tools for LLM agents to understand, analyze and interact with Lean projects.
-- `repl` is a Lean 4 REPL. Used by `lean-lsp-mcp` to accelerate the agent-compiler feedback loop.
-
-See their documentation for detail instructions. In short, you'll need to add `lean-lsp-mcp` as an MCP server for your agent. The command to run the server is `uvx lean-lsp-mcp --repl`. Note that `repl` is already included in our dependency list. So just run `lake build repl` to build it before use.
-
-## Reading the code
-
-Rich documentation is provided in the code itself. The following is a brief overview of the library structure.
-
-### Conventions
-
-In general, `Defs` modules contain basic definitions, and `Basic` modules contain basic lemmas directly related to the definitions. (`Algo` / `Spec`), or (`Decide` / `Decidable`) modules contain executable algorithms and their correctness proofs.
-
-The separation of `Defs` and `Basic` modules allows us to state the main results without too many dependencies, imporant for a Comparator verification. As they are closely related, for simplicity, we do not distinguish between `Defs` and `Basic` modules when referencing them in the following map.
-
-### Map
-
-- [`Ninegates/Basic.lean`](Ninegates/Basic.lean) is the foundation: it represents a hand as a counting vector over `3 * n` ordered tile types and defines the elementary patterns, hand size, weighted sum, and four-copy validity.
-
-- [`Ninegates/Operations/`](Ninegates/Operations/) defines useful operations on hands, including insertion and removal of a sequence.
-
-- [`Ninegates/Standard/`](Ninegates/Standard/) concerns the eight full-wait families and six order-one hands.
-  
-  - `Basic` supplies the eight standard families and 6 order-one hands;
-  - `Insert` provides the family insertion lemmas;
-  - `Wait` proves their full-wait and liveness properties;
-
-- [`Ninegates/Meldable/`](Ninegates/Meldable/) formalizes decompositions into triplets and sequences. 
-
-  - `Basic` supplies meld placements and `Meldable`;
-  - `Split` allows you to split a meldable hand by a zero rank in the middle.
-  - `Canonical` defines when a placement is considered canonical.
-  - `Decidable` verifies an executable left-to-right scanner that decides whether a hand is meldable, and when it is, produces a canonical placement.
-
-- [`Ninegates/Winning/`](Ninegates/Winning/) defines winning hands as a meldable remainder plus a pair.
-    
-  - `Decide` and `Decidable` implements a dynamic programming decision procedure for winning hands and proves its correctness.
-
-- [`Ninegates/Wait/`](Ninegates/Wait/) defines waits and live waits.
-
-  - `Decidable/` implements how we decide waiting tiles and waits.
-    
-    - `Basic` defines some trivial procedures for deciding waits.
-    - `Algo` and `Spec` implement the prefix/suffix waiting-tile algorithm and its correctness proof.
-
-- [`Ninegates/Counterexample/`](Ninegates/Counterexample/) contains the counterexample reduction, enumeration and finite elimination:
-
-  - `Basic`: defines a counterexample as a full-sided wait outside the eight standard families.
-  - `Reduction`: reduces counterexamples to orders 2 through 7.
-  - `EnumAlgo` and `EnumSpec`: implement and verify the unified candidate enumeration for orders 1 through 7, and show that every minimal counterexample is enumerated.
-  - `Elimination`: rules out counterexamples among the candidates via `native_decide`.
-
-- [`Ninegates/Classification.lean`](Ninegates/Classification.lean) stores our main results: the classification of full-sided waits and the uniqueness of the live full-sided wait.
-
-## Future work
-
-- Decoupling computation from Mathlib: Mathlib is designed to be noncomputable. The current instantiate-`Decidable` approach has already caused some friction, e.g. deciding `Winning` forces the use of `native_decide`. A canonical computable definition (established with a connection to the Mathlib-based definition) should be fixed. This layer should not be hidden and casually handovered to coding agents.
-
-  We are aware of [Hex](https://github.com/leanprover/hex)'s practice of separating computation from Mathlib, and are considering applying a similar approach in our future work.
-
-- `vcgen`: We are aware of the newly emerged `vcgen` tactic in Lean 4. We tried to use it in our spec modules, but turned out to gain little benefit. Also, currently coding agents are not enough familiar with it.
-
-- Module system: Currently Lean's module system is ported but not fully utilized. Our Mathlib-flavored design of `Hand` relies heavily on its internal representation. Future work should first redesign of `Hand`'s internal representation, then refactor the library to seperate implementation from interface, and finally make good use of the module system.
-
-- A more general algebraic Mahjong theory: As mentioned before, inspired by the properties of canonical placements discovered in the curation process, we are working on a more general framework where the uniqueness of full-sided waits becomes a special case of a general classification problem.
+We aim for readable structural arguments and reusable local lemmas. Follow the
+[Lean `grind` annotation guidance](https://lean-lang.org/doc/reference/latest/The--grind--tactic/Annotating-Libraries-for--grind/):
+apply lemmas without conditionals use `@[simp]`; conditional apply lemmas use
+`@[grind]`. Avoid redundant annotations. Keep finite sums inside their owning
+modules and provide lemmas for downstream use. Definitions and theorem
+statements deserve the same care as their proofs.
 
 ## Citation
 
 ```bibtex
 @misc{xue_beyond_2026,
-	title = {Beyond Nine Gates: Classification of Full-Sided Mahjong Waits with \$3n\$ Ranks},
-	doi = {10.48550/arXiv.2611.06944},
-	number = {{arXiv}:2611.06944},
-	publisher = {{arXiv}},
-	author = {Xue, Shubin and Zhong, Xingyu},
-	eprinttype = {arxiv},
-	eprint = {2611.06944},
+  title = {Beyond Nine Gates: Classification of Full-Sided Mahjong Waits with $3n$ Ranks},
+  doi = {10.48550/arXiv.2611.06944},
+  number = {{arXiv}:2611.06944},
+  publisher = {{arXiv}},
+  author = {Xue, Shubin and Zhong, Xingyu},
+  eprinttype = {arxiv},
+  eprint = {2611.06944},
 }
 ```
+
+## AI disclosure
+
+The `v3` branch was developed by **Luna**, an autonomous agent designed by
+[sun123zxy](https://github.com/sun123zxy), running on **Codex + GPT 6.1 Sol**,
+based on the work in the `v2` branch.
+
+The recorded elapsed time from the `v3` task request to the commit containing
+the non-enumerative eight-family classification proof was **4 hours 47 minutes
+41 seconds**, rounded to the nearest second.
+
+| Milestone | Commit | Library Lean LOC | Total Lean LOC |
+| --- | --- | ---: | ---: |
+| `v2` baseline | [e45fd51](https://github.com/lunaluteus/ninegates-lean4/commit/e45fd512ebb2cd0bac7d69690f3163647bdc3bc8) | 5,426 | 5,466 |
+| Eight-family structural classification | [486a557](https://github.com/lunaluteus/ninegates-lean4/commit/486a55762bf812ae0ac44d98bc422d038e68c251) | 6,781 | 7,183 |
+| First stable `v3` snapshot | [a001009](https://github.com/lunaluteus/ninegates-lean4/commit/a001009c34b9e8c35fab82c18ffeb67d2f490141) | 10,594 | 13,436 |
+
+Counts are physical lines in tracked `.lean` sources, including comments and
+blank lines, and excluding dependencies. Library LOC covers the implementation;
+total LOC also includes its Comparator and audit sources. At the eight-family
+milestone, the new implementation was under `Ninegates/V3/` with root
+`NinegatesV3.lean` and audit `V3Audit.lean`; the unchanged `v2` sources that still
+coexisted in that commit are excluded from its counts.
+
+As of November 2026, development through the first stable snapshot used roughly
+**10% of the weekly usage limit of a US$100 ChatGPT subscription**, according to
+the account holder's estimate.

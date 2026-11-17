@@ -2,6 +2,7 @@ name = "ninegates"
 version = "0.1.0"
 keywords = ["math"]
 defaultTargets = ["Ninegates"]
+moreLeanArgs = ["-j2", "-M4096"]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`

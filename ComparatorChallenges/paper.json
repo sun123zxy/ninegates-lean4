@@ -1,0 +1,816 @@
+{
+  "arxiv_id": "2611.06944",
+  "version": 1,
+  "version_id": "2611.06944v1",
+  "submitted_utc": "2026-11-02T06:23:21Z",
+  "title": "Beyond Nine Gates: Classification of Full-Sided Mahjong Waits with 3n Ranks",
+  "authors": [
+    "Shubin Xue",
+    "Xingyu Zhong"
+  ],
+  "abstract_url": "https://arxiv.org/abs/2611.06944v1",
+  "pdf_url": "https://arxiv.org/pdf/2611.06944v1",
+  "html_url": "https://arxiv.org/html/2611.06944v1",
+  "source_url": "https://arxiv.org/src/2611.06944v1",
+  "sha256": {
+    "2611.06944v1.pdf": "174b9a8be2f5c01fe31550a7d4695e35d70047597b328064abaaa86b49eb8b50",
+    "2611.06944v1.html": "e63b8ab64a381a0bb962e4f8b3b2b87b0d4e1b061b89e5fda47ce95cff194a79",
+    "2611.06944v1-source.tar": "d5fd5c921fa2fef06ce76712cb7d53d4c4f90e17f5c0408696e7e75b30a9ff0c"
+  },
+  "retrieved_utc": "2026-11-16T05:39:00.389307+00:00",
+  "numbered_items": [
+    {
+      "kind": "Theorem",
+      "number": "1.1",
+      "anchor": "S1.Thmcounter1",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.theorem_1_1_orderOne_isFullWait_iff_isOrderOneFamily",
+        "ComparatorChallenges.theorem_1_1_orderOne_isLiveFullWait_iff_isOrderOneFamily",
+        "ComparatorChallenges.theorem_1_1_fullWait_card_six",
+        "ComparatorChallenges.theorem_1_1_isFullWait_iff_eightFamily",
+        "ComparatorChallenges.theorem_1_1_fullWait_card_eight",
+        "ComparatorChallenges.theorem_1_1_isLiveFullWait_iff_eq_A",
+        "ComparatorChallenges.theorem_1_1_reverse_A",
+        "ComparatorChallenges.theorem_1_1_reverse_E",
+        "ComparatorChallenges.theorem_1_1_valid_succ"
+      ],
+      "title": "Theorem 1.1 (Classification of full-sided waits).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.orderOne_isFullWait_iff_isOrderOneFamily",
+        "Mahjong.VirtualHand.orderOne_isLiveFullWait_iff_isOrderOneFamily",
+        "Mahjong.VirtualHand.fullWait_card_six",
+        "Mahjong.VirtualHand.isFullWait_iff_eightFamily",
+        "Mahjong.VirtualHand.fullWait_card_eight",
+        "Mahjong.VirtualHand.isLiveFullWait_iff_eq_A",
+        "Mahjong.VirtualHand.Standard.reverse_A",
+        "Mahjong.VirtualHand.Standard.reverse_E",
+        "Mahjong.VirtualHand.IsFullWait.valid_succ"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "2.1",
+      "anchor": "S2.Thmcounter1",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_2_1_size_eq_classSizes",
+        "ComparatorChallenges.proposition_2_1_rankSum_cast_eq_classSizes",
+        "ComparatorChallenges.proposition_2_1_classSizes_congruent_iff",
+        "ComparatorChallenges.proposition_2_1_rank_sum_difference"
+      ],
+      "title": "Proposition 2.1.",
+      "library_declarations": [
+        "Mahjong.VirtualHand.size_eq_classSizes",
+        "Mahjong.VirtualHand.rankSum_cast_eq_classSizes",
+        "Mahjong.VirtualHand.classSizes_congruent_iff"
+      ]
+    },
+    {
+      "kind": "Definition",
+      "number": "2.2",
+      "anchor": "S2.Thmcounter2",
+      "status": "definition",
+      "declarations": [
+        "ComparatorChallenges.definition_2_2_isFullWait_iff",
+        "ComparatorChallenges.definition_2_2_isLiveFullWait_iff"
+      ],
+      "model_declarations": "IsFullWait, IsLiveFullWait",
+      "title": "Definition 2.2.",
+      "library_declarations": [
+        "Mahjong.VirtualHand.isFullWait_iff",
+        "Mahjong.VirtualHand.isLiveFullWait_iff"
+      ]
+    },
+    {
+      "kind": "Definition",
+      "number": "3.1",
+      "anchor": "S3.Thmcounter1",
+      "status": "definition",
+      "declarations": [
+        "ComparatorChallenges.definition_3_1_toHand_apply",
+        "ComparatorChallenges.definition_3_1_sequenceHand_apply"
+      ],
+      "model_declarations": "Placement, Placement.Nonnegative, Placement.toHand; Spec.sequenceHand, Spec.Sequential",
+      "title": "Definition 3.1 (Meld placement).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.Placement.toHand_apply",
+        "Mahjong.VirtualHand.sequenceHand_apply"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "3.2",
+      "anchor": "S3.Thmcounter2",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_3_2_sequenceScan_closed_form",
+        "ComparatorChallenges.proposition_3_2_sequenceScan_boundary",
+        "ComparatorChallenges.proposition_3_2_sequenceHand_injective",
+        "ComparatorChallenges.proposition_3_2_virtuallySequential_iff_classSizes",
+        "ComparatorChallenges.proposition_3_2_sequential_iff_classSizes",
+        "ComparatorChallenges.proposition_3_2_unique",
+        "ComparatorChallenges.proposition_3_2_recurrence_uniqueness"
+      ],
+      "title": "Proposition 3.2 (Characterization of virtual sequence placements).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.sequenceScan_closed_form",
+        "Mahjong.VirtualHand.sequenceScan_boundary",
+        "Mahjong.VirtualHand.sequenceHand_injective",
+        "Mahjong.VirtualHand.virtuallySequential_iff_classSizes",
+        "Mahjong.VirtualHand.sequential_iff_classSizes",
+        "Mahjong.VirtualHand.VirtuallySequential.unique"
+      ]
+    },
+    {
+      "kind": "Definition",
+      "number": "3.3",
+      "anchor": "S3.Thmcounter3",
+      "status": "definition",
+      "declarations": [],
+      "model_declarations": "Spec.Placement.Canonic",
+      "title": "Definition 3.3 (Canonicity).",
+      "library_declarations": []
+    },
+    {
+      "kind": "Proposition",
+      "number": "3.4",
+      "anchor": "S3.Thmcounter4",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_3_4_canonic_canonicalize",
+        "ComparatorChallenges.proposition_3_4_toHand_canonicalize",
+        "ComparatorChallenges.proposition_3_4_nonnegative_canonicalize"
+      ],
+      "title": "Proposition 3.4 (Canonicalization).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.Placement.canonic_canonicalize",
+        "Mahjong.VirtualHand.Placement.toHand_canonicalize",
+        "Mahjong.VirtualHand.Placement.nonnegative_canonicalize"
+      ]
+    },
+    {
+      "kind": "Definition",
+      "number": "3.5",
+      "anchor": "S3.Thmcounter5",
+      "status": "definition",
+      "declarations": [
+        "ComparatorChallenges.definition_3_5_canonicalSequence_zero",
+        "ComparatorChallenges.definition_3_5_canonicalSequence_succ",
+        "ComparatorChallenges.definition_3_5_canonicalTriplet_eq",
+        "ComparatorChallenges.definition_3_5_canonicalSequence_bounds"
+      ],
+      "model_declarations": "Spec.canonicalSequence, Spec.canonicalTriplet, Spec.scanPlacement",
+      "title": "Definition 3.5 (Triplet-greedy scan).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.canonicalSequence_zero",
+        "Mahjong.VirtualHand.canonicalSequence_succ",
+        "Mahjong.VirtualHand.canonicalTriplet_eq",
+        "Mahjong.VirtualHand.canonicalSequence_bounds"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "3.6",
+      "anchor": "S3.Thmcounter6",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_3_6_canonicalSequence_weighted",
+        "ComparatorChallenges.proposition_3_6_canonicalSequence_boundary",
+        "ComparatorChallenges.proposition_3_6_exists_unique_canonical_iff",
+        "ComparatorChallenges.proposition_3_6_virtuallyMeldable_iff_canonicalSequence",
+        "ComparatorChallenges.proposition_3_6_virtuallyMeldable_iff_classSizes",
+        "ComparatorChallenges.proposition_3_6_virtuallyMeldable_iff_size_rankSum",
+        "ComparatorChallenges.proposition_3_6_meldable_iff_tripletGreedy",
+        "ComparatorChallenges.proposition_3_6_scanPlacement_canonic",
+        "ComparatorChallenges.proposition_3_6_scanPlacement_toHand",
+        "ComparatorChallenges.proposition_3_6_scanPlacement_eq",
+        "ComparatorChallenges.proposition_3_6_VirtuallyMeldable_unique_canonical",
+        "ComparatorChallenges.proposition_3_6_Meldable_unique_canonical"
+      ],
+      "title": "Proposition 3.6 (Criterion of (virtual) meldability).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.canonicalSequence_weighted",
+        "Mahjong.VirtualHand.canonicalSequence_boundary",
+        "Mahjong.VirtualHand.exists_unique_canonical_iff",
+        "Mahjong.VirtualHand.virtuallyMeldable_iff_canonicalSequence",
+        "Mahjong.VirtualHand.virtuallyMeldable_iff_classSizes",
+        "Mahjong.VirtualHand.virtuallyMeldable_iff_size_rankSum",
+        "Mahjong.VirtualHand.meldable_iff_tripletGreedy",
+        "Mahjong.VirtualHand.scanPlacement_canonic",
+        "Mahjong.VirtualHand.scanPlacement_toHand",
+        "Mahjong.VirtualHand.Placement.Canonic.scanPlacement_eq",
+        "Mahjong.VirtualHand.VirtuallyMeldable.unique_canonical",
+        "Mahjong.VirtualHand.Meldable.unique_canonical"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "3.7",
+      "anchor": "S3.Thmcounter7",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_3_7_canonicalSequence_prefix_iff"
+      ],
+      "title": "Proposition 3.7.",
+      "library_declarations": [
+        "Mahjong.VirtualHand.canonicalSequence_prefix_iff"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "3.8",
+      "anchor": "S3.Thmcounter8",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_3_8_sequential_moveTile_right_iff",
+        "ComparatorChallenges.proposition_3_8_sequential_moveTile_left_iff",
+        "ComparatorChallenges.proposition_3_8_sequenceHand_shiftAlong",
+        "ComparatorChallenges.proposition_3_8_sequenceHand_shiftAlongLeft"
+      ],
+      "title": "Proposition 3.8 (Sequential tile moving).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.sequential_moveTile_right_iff",
+        "Mahjong.VirtualHand.sequential_moveTile_left_iff",
+        "Mahjong.VirtualHand.Moving.sequenceHand_shiftAlong",
+        "Mahjong.VirtualHand.Moving.sequenceHand_shiftAlongLeft"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "3.9",
+      "anchor": "S3.Thmcounter9",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_3_9_meldable_right_iff",
+        "ComparatorChallenges.proposition_3_9_canonical_step_seqNum",
+        "ComparatorChallenges.proposition_3_9_canonical_step_tripNum",
+        "ComparatorChallenges.proposition_3_9_meldable_right_of_long",
+        "ComparatorChallenges.proposition_3_9_moveTile_right_steps"
+      ],
+      "title": "Proposition 3.9 (Tile moving).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.Moving.meldable_right_iff",
+        "Mahjong.VirtualHand.Moving.canonical_step_seqNum",
+        "Mahjong.VirtualHand.Moving.canonical_step_tripNum",
+        "Mahjong.VirtualHand.Moving.meldable_right_of_long",
+        "Mahjong.VirtualHand.Meldable.moveTile_right_steps"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "3.10",
+      "anchor": "S3.Thmcounter10",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_3_10_moveTile_interval",
+        "ComparatorChallenges.proposition_3_10_moveTile_interval_of_endpoints"
+      ],
+      "title": "Proposition 3.10 (Interval property of tile moving).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.Meldable.moveTile_interval",
+        "Mahjong.VirtualHand.moveTile_interval_of_endpoints"
+      ]
+    },
+    {
+      "kind": "Definition",
+      "number": "4.1",
+      "anchor": "S4.Thmcounter1",
+      "status": "definition",
+      "declarations": [],
+      "model_declarations": "DrawPair",
+      "title": "Definition 4.1 (Draw-pair relation).",
+      "library_declarations": []
+    },
+    {
+      "kind": "Proposition",
+      "number": "4.2",
+      "anchor": "S4.Thmcounter2",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_4_2_congruence"
+      ],
+      "title": "Proposition 4.2.",
+      "library_declarations": [
+        "Mahjong.VirtualHand.DrawPair.congruence"
+      ]
+    },
+    {
+      "kind": "Definition",
+      "number": "4.3",
+      "anchor": "S4.Thmcounter3",
+      "status": "definition",
+      "declarations": [
+        "ComparatorChallenges.definition_4_3_pairedClass_pairedClass",
+        "ComparatorChallenges.definition_4_3_pairedClass_eq_self_iff",
+        "ComparatorChallenges.definition_4_3_pairedClass_eq_fixed_iff"
+      ],
+      "model_declarations": "Spec.fixedClass, Spec.pairedClass",
+      "title": "Definition 4.3.",
+      "library_declarations": [
+        "Mahjong.VirtualHand.pairedClass_pairedClass",
+        "Mahjong.VirtualHand.pairedClass_eq_self_iff",
+        "Mahjong.VirtualHand.pairedClass_eq_fixed_iff"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "4.4",
+      "anchor": "S4.Thmcounter4",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_4_4_classSize_nonfixed_congruence"
+      ],
+      "title": "Proposition 4.4.",
+      "library_declarations": [
+        "Mahjong.VirtualHand.classSize_nonfixed_congruence"
+      ]
+    },
+    {
+      "kind": "Example",
+      "number": "4.5",
+      "anchor": "S4.Thmcounter5",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.example_4_5"
+      ],
+      "title": "Example 4.5 (Draw-pair relation of $\\mathbf{A}_{n}$ ).",
+      "library_declarations": []
+    },
+    {
+      "kind": "Proposition",
+      "number": "4.6",
+      "anchor": "S4.Thmcounter6",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_4_6_incoming_interval",
+        "ComparatorChallenges.proposition_4_6_same_draw_class"
+      ],
+      "title": "Proposition 4.6 (Incoming interval property).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.DrawPair.incoming_interval",
+        "Mahjong.VirtualHand.DrawPair.same_draw_class"
+      ]
+    },
+    {
+      "kind": "Definition",
+      "number": "4.7",
+      "anchor": "S4.Thmcounter7",
+      "status": "definition",
+      "declarations": [],
+      "model_declarations": "Spec.TwoPair",
+      "title": "Definition 4.7 (Two-pair decomposition).",
+      "library_declarations": []
+    },
+    {
+      "kind": "Proposition",
+      "number": "4.8",
+      "anchor": "S4.Thmcounter8",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_4_8_bidirectional_iff_twoPair"
+      ],
+      "title": "Proposition 4.8 (Bidirectional edges and two-pair decompositions).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.bidirectional_iff_twoPair"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "4.9",
+      "anchor": "S4.Thmcounter9",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_4_9_canonicalTriplet_right_mono"
+      ],
+      "title": "Proposition 4.9.",
+      "library_declarations": [
+        "Mahjong.VirtualHand.Moving.canonicalTriplet_right_mono"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "4.10",
+      "anchor": "S4.Thmcounter10",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_4_10_consecutive_class",
+        "ComparatorChallenges.proposition_4_10_consecutive"
+      ],
+      "title": "Proposition 4.10.",
+      "library_declarations": [
+        "Mahjong.VirtualHand.DrawPair.consecutive_class",
+        "Mahjong.VirtualHand.DrawPair.consecutive"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "4.11",
+      "anchor": "S4.Thmcounter11",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_4_11_incoming_mutual",
+        "ComparatorChallenges.proposition_4_11_twoPair_at",
+        "ComparatorChallenges.proposition_4_11_exists_twoPair",
+        "ComparatorChallenges.proposition_4_11_remainder_meldableWith"
+      ],
+      "title": "Proposition 4.11 (Two-pair decomposition of full-sided waits).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.IsFullWait.incoming_mutual",
+        "Mahjong.VirtualHand.IsFullWait.twoPair_at",
+        "Mahjong.VirtualHand.IsFullWait.exists_twoPair",
+        "Mahjong.VirtualHand.TwoPair.remainder_meldableWith"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "5.1",
+      "anchor": "S5.Thmcounter1",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_5_1_meldable_split"
+      ],
+      "title": "Proposition 5.1 (Split at a missing rank).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.meldable_split"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "5.2",
+      "anchor": "S5.Thmcounter2",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_5_2_missing_side_sizes",
+        "ComparatorChallenges.proposition_5_2_across_missing_left",
+        "ComparatorChallenges.proposition_5_2_across_missing_right"
+      ],
+      "title": "Proposition 5.2.",
+      "library_declarations": [
+        "Mahjong.VirtualHand.missing_side_sizes",
+        "Mahjong.VirtualHand.DrawPair.across_missing_left",
+        "Mahjong.VirtualHand.DrawPair.across_missing_right"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "5.3",
+      "anchor": "S5.Thmcounter3",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_5_3_interior_positive"
+      ],
+      "title": "Proposition 5.3 (Interior positivity).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.IsFullWait.interior_positive"
+      ]
+    },
+    {
+      "kind": "Definition",
+      "number": "5.4",
+      "anchor": "S5.Thmcounter4",
+      "status": "definition",
+      "declarations": [
+        "ComparatorChallenges.definition_5_4_classSize_const",
+        "ComparatorChallenges.definition_5_4_classSize_interiorOnes"
+      ],
+      "model_declarations": "Rank; Spec.interiorOnes; boundary rank indices 0 and 3*n-1",
+      "title": "Definition 5.4.",
+      "library_declarations": [
+        "Mahjong.VirtualHand.classSize_const",
+        "Mahjong.VirtualHand.classSize_interiorOnes"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "5.5",
+      "anchor": "S5.Thmcounter5",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_5_5_incoming_both_sides"
+      ],
+      "title": "Proposition 5.5.",
+      "library_declarations": [
+        "Mahjong.VirtualHand.DrawPair.incoming_both_sides"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "5.6",
+      "anchor": "S5.Thmcounter6",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_5_6_fixed_class_size",
+        "ComparatorChallenges.proposition_5_6_nonfixed_class_size"
+      ],
+      "title": "Proposition 5.6 (Lower bounds on congruence class sizes).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.IsFullWait.fixed_class_size",
+        "Mahjong.VirtualHand.IsFullWait.nonfixed_class_size"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "5.7",
+      "anchor": "S5.Thmcounter7",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_5_7_meldCount_gt_order"
+      ],
+      "title": "Proposition 5.7.",
+      "library_declarations": [
+        "Mahjong.VirtualHand.IsFullWait.meldCount_gt_order"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "5.8",
+      "anchor": "S5.Thmcounter8",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_5_8_fixed_class_size_succ",
+        "ComparatorChallenges.proposition_5_8_nonfixed_class_size_succ"
+      ],
+      "title": "Proposition 5.8 (Sizes of congruence classes).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.IsFullWait.fixed_class_size_succ",
+        "Mahjong.VirtualHand.IsFullWait.nonfixed_class_size_succ"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "5.9",
+      "anchor": "S5.Thmcounter9",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_5_9_exists_pillar",
+        "ComparatorChallenges.proposition_5_9_fixed_count_succ",
+        "ComparatorChallenges.proposition_5_9_fixed_pair_unique_succ",
+        "ComparatorChallenges.proposition_5_9_fixed_draw_placement_succ"
+      ],
+      "title": "Proposition 5.9 (Two pillars).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.IsFullWait.exists_pillar",
+        "Mahjong.VirtualHand.IsFullWait.fixed_count_succ",
+        "Mahjong.VirtualHand.IsFullWait.fixed_pair_unique_succ",
+        "Mahjong.VirtualHand.IsFullWait.fixed_draw_placement_succ"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "5.10",
+      "anchor": "S5.Thmcounter10",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_5_10"
+      ],
+      "title": "Proposition 5.10 (Draw-pair relation and two-pair decomposition).",
+      "library_declarations": []
+    },
+    {
+      "kind": "Problem",
+      "number": "6.1",
+      "anchor": "S6.Thmcounter1",
+      "status": "open_problem",
+      "declarations": [],
+      "title": "Problem 6.1.",
+      "library_declarations": []
+    },
+    {
+      "kind": "Proposition",
+      "number": "6.2",
+      "anchor": "S6.Thmcounter2",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_6_2_drawPair_of_abundant",
+        "ComparatorChallenges.proposition_6_2_isFullWait_of_abundant",
+        "ComparatorChallenges.proposition_6_2_exists_full"
+      ],
+      "title": "Proposition 6.2 (Abundance of full-sided waits).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.drawPair_of_abundant",
+        "Mahjong.VirtualHand.isFullWait_of_abundant"
+      ]
+    },
+    {
+      "kind": "Definition",
+      "number": "6.3",
+      "anchor": "S6.Thmcounter3",
+      "status": "definition",
+      "declarations": [],
+      "model_declarations": "IsMinimalFullWait (arbitrary nonzero meldable removals)",
+      "title": "Definition 6.3 (Minimal full-sided wait).",
+      "library_declarations": []
+    },
+    {
+      "kind": "Problem",
+      "number": "6.4",
+      "anchor": "S6.Thmcounter4",
+      "status": "open_problem",
+      "declarations": [],
+      "title": "Problem 6.4.",
+      "library_declarations": []
+    },
+    {
+      "kind": "Example",
+      "number": "6.5",
+      "anchor": "S6.Thmcounter5",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.example_6_5_minimal_succ",
+        "ComparatorChallenges.example_6_5_minimalFullWait_card_zero",
+        "ComparatorChallenges.example_6_5_minimalFullWait_card_eight",
+        "ComparatorChallenges.example_6_5_minimalFullWait_card_six"
+      ],
+      "title": "Example 6.5 (Standard Mahjong).",
+      "library_declarations": [
+        "Mahjong.VirtualHand.IsFullWait.minimal_succ",
+        "Mahjong.VirtualHand.minimalFullWait_card_zero",
+        "Mahjong.VirtualHand.minimalFullWait_card_eight",
+        "Mahjong.VirtualHand.minimalFullWait_card_six"
+      ]
+    },
+    {
+      "kind": "Example",
+      "number": "6.6",
+      "anchor": "S6.Thmcounter6",
+      "status": "deferred_expensive_computation",
+      "declarations": [
+        "ComparatorChallenges.example_6_6"
+      ],
+      "title": "Example 6.6 (Taiwanese Mahjong).",
+      "library_declarations": []
+    },
+    {
+      "kind": "Proposition",
+      "number": "6.7",
+      "anchor": "S6.Thmcounter7",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_6_7_orderOne_isMinimalFullWait_iff",
+        "ComparatorChallenges.proposition_6_7_orderOne_allMinimalFullWait_card"
+      ],
+      "title": "Proposition 6.7.",
+      "library_declarations": [
+        "Mahjong.VirtualHand.orderOne_isMinimalFullWait_iff",
+        "Mahjong.VirtualHand.orderOne_allMinimalFullWait_card"
+      ]
+    },
+    {
+      "kind": "Proposition",
+      "number": "6.8",
+      "anchor": "S6.Thmcounter8",
+      "status": "formalized",
+      "declarations": [
+        "ComparatorChallenges.proposition_6_8_exists_maximal_minimal_meldCount"
+      ],
+      "title": "Proposition 6.8.",
+      "library_declarations": [
+        "Mahjong.VirtualHand.exists_maximal_minimal_meldCount"
+      ]
+    },
+    {
+      "kind": "Conjecture",
+      "number": "6.9",
+      "anchor": "S6.Thmcounter9",
+      "status": "open_conjecture",
+      "declarations": [],
+      "statement_declaration": "ComparatorChallenges.conjecture_6_9",
+      "title": "Conjecture 6.9.",
+      "library_declarations": []
+    }
+  ],
+  "validation": {
+    "paper_coverage": "passed: all 43 numbered v1 items and all 5 remarks in published order; 120 selected targets",
+    "solution_build": "passed: strict fresh-project build of Ninegates and ComparatorChallenges.Solution (3252 jobs), source commit 7b6149793573a8a60c4c916aa06da9268e172e6a",
+    "comparator": "passed: sandbox enabled; Lean default kernel accepts all 120 selected targets; regular checkout source-matched to the fresh build",
+    "permitted_axioms": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "external_kernels": false,
+    "library_build": "passed: empty project build directory in detached checkout, pinned dependency cache shared; all 109 library modules reachable",
+    "axiom_audit": "passed: strict audit in detached checkout; 606 declarations; standard axioms only",
+    "coverage_negative_controls": "passed: 17 rejected temporary mutations, including a changed conclusion after a named argument",
+    "scope": "The exact arbitrary-meld-count order-one criterion/count are further development consequences. Nat subtraction handles m<=1 as zero; for m>=2 the count is the usual binomial choose(3m-2,2), without a copy bound. The five remarks and all claimed numbered results except deferredExample6.6 remain covered. Problems6.1/6.4 andConjecture6.9 remain open in general. Inventory checks do not replace manual semantic source review.",
+    "statement_preservation": "passed: 122 Lean rfl checks against 1078e6b275b0136f496353920b428112e54897ff; all 121 theorem types and the open conjecture proposition definitionally unchanged; different-proposition control rejected; model, configuration and proof bodies unchanged"
+  },
+  "additional_declarations": [
+    "ComparatorChallenges.alternating_even",
+    "ComparatorChallenges.alternating_odd",
+    "ComparatorChallenges.alternating_even_minimal",
+    "ComparatorChallenges.alternating_odd_minimal",
+    "ComparatorChallenges.maximal_minimal_wait_strong",
+    "ComparatorChallenges.taiwanese_nonminimal_cardinality",
+    "ComparatorChallenges.remark_4_11_nonunique_twoPair",
+    "ComparatorChallenges.remark_4_11_fixed_no_loop",
+    "ComparatorChallenges.remark_5_6_A_classSizes",
+    "ComparatorChallenges.remark_5_6_sharpness_coordinates",
+    "ComparatorChallenges.remark_5_6_sharpness",
+    "ComparatorChallenges.remark_5_6_orderOne",
+    "ComparatorChallenges.remark_5_8_orderOne_exception",
+    "ComparatorChallenges.remark_5_9_D_attainment",
+    "ComparatorChallenges.remark_5_10_difference",
+    "ComparatorChallenges.remark_5_10_partition",
+    "ComparatorChallenges.next_live_nonminimal_classification",
+    "ComparatorChallenges.next_live_nonminimal_cardinality",
+    "ComparatorChallenges.sharpness_minimal_live",
+    "ComparatorChallenges.orderOne_full_criterion",
+    "ComparatorChallenges.orderOne_full_cardinality"
+  ],
+  "unnumbered_remarks": [
+    {
+      "after": "4.11",
+      "anchor": "Thmremarkx1",
+      "status": "formalized",
+      "library_declarations": [
+        "Mahjong.Examples.largeHand_twoPair_left",
+        "Mahjong.Examples.largeHand_twoPair_right",
+        "Mahjong.Examples.fixedNoLoop_isFullWait",
+        "Mahjong.Examples.fixedNoLoop_incoming",
+        "Mahjong.Examples.largeHand_isFullWait",
+        "Mahjong.Examples.fixedNoLoop_fixedClass",
+        "Mahjong.Examples.fixedNoLoop_no_self"
+      ],
+      "note": "Two explicit decompositions and all six specified winning pairs of (0,2,2,4,2,3), and the fixed-class incoming interval without a self-loop.",
+      "declarations": [
+        "ComparatorChallenges.remark_4_11_nonunique_twoPair",
+        "ComparatorChallenges.remark_4_11_fixed_no_loop"
+      ]
+    },
+    {
+      "after": "5.6",
+      "anchor": "Thmremarkx2",
+      "status": "formalized",
+      "note": "Sharpness at every positive order: A_n fixed-class counts; order-one (2,3,2); general family (0,3,3,3,1^(3n-5),3), all asserted edges, fixed class, class-one size, and the reversed witness for class zero.",
+      "declarations": [
+        "ComparatorChallenges.remark_5_6_A_classSizes",
+        "ComparatorChallenges.remark_5_6_sharpness_coordinates",
+        "ComparatorChallenges.remark_5_6_sharpness",
+        "ComparatorChallenges.remark_5_6_orderOne"
+      ],
+      "library_declarations": [
+        "Mahjong.VirtualHand.Standard.A_classSizes",
+        "Mahjong.VirtualHand.ClassBoundSharpness.hand_apply",
+        "Mahjong.VirtualHand.ClassBoundSharpness.full",
+        "Mahjong.VirtualHand.ClassBoundSharpness.fixedClass_hand",
+        "Mahjong.VirtualHand.ClassBoundSharpness.classSize_one",
+        "Mahjong.VirtualHand.ClassBoundSharpness.drawPair_fourth",
+        "Mahjong.VirtualHand.ClassBoundSharpness.drawPair_last",
+        "Mahjong.VirtualHand.ClassBoundSharpness.drawPair_self",
+        "Mahjong.VirtualHand.ClassBoundSharpness.reverse_sharp",
+        "Mahjong.Examples.orderOneMiddleTriple_isFullWait",
+        "Mahjong.Examples.orderOneMiddleTriple_fixedClass",
+        "Mahjong.Examples.orderOneMiddleTriple_classSizes"
+      ]
+    },
+    {
+      "after": "5.8",
+      "anchor": "Thmremarkx3",
+      "status": "formalized",
+      "library_declarations": [
+        "Mahjong.Examples.orderOneMiddleTriple_isFullWait",
+        "Mahjong.Examples.orderOneMiddleTriple_fixedClass",
+        "Mahjong.Examples.orderOneMiddleTriple_classSizes"
+      ],
+      "note": "Order-one (2,3,2) is a full wait with fixed class two and class sizes (2,2,3), exhibiting the n>=2 hypothesis.",
+      "declarations": [
+        "ComparatorChallenges.remark_5_8_orderOne_exception"
+      ]
+    },
+    {
+      "after": "5.9",
+      "anchor": "Thmremarkx4",
+      "status": "formalized",
+      "note": "D_n has fixed class one and multiplicity two at paper rank four.",
+      "declarations": [
+        "ComparatorChallenges.remark_5_9_D_attainment"
+      ],
+      "library_declarations": [
+        "Mahjong.VirtualHand.Standard.D_fixed_bound_sharp"
+      ]
+    },
+    {
+      "after": "5.10",
+      "anchor": "Thmremarkx5",
+      "status": "formalized",
+      "note": "Virtually meldable difference iff same fixed class, strengthened to arbitrary meld counts; explicit three-way partition of the standard eight families.",
+      "declarations": [
+        "ComparatorChallenges.remark_5_10_difference",
+        "ComparatorChallenges.remark_5_10_partition"
+      ],
+      "library_declarations": [
+        "Mahjong.VirtualHand.IsFullWait.virtuallyMeldable_sub_iff",
+        "Mahjong.VirtualHand.Standard.fixedClass_partition"
+      ]
+    }
+  ],
+  "additional_declaration_notes": {
+    "ComparatorChallenges.next_live_nonminimal_classification": "Further consequence, not a numbered paper result: live nonminimal (n,n+2) waits are exactly A_n plus one sequence avoiding both boundary ranks, for n>=2.",
+    "ComparatorChallenges.next_live_nonminimal_cardinality": "Structural cardinality 3*n-4; specializes to five Taiwanese live nonminimal waits. Does not certify the deferred 149/11/27 counts.",
+    "ComparatorChallenges.sharpness_minimal_live": "The class-bound sharpness family is both minimal and live for every n>=2, beyond the full-sidedness asserted in the public remark.",
+    "ComparatorChallenges.orderOne_full_criterion": "Further development consequence: order-one full waits at arbitrary meld count are exactly the hands of required size with at least one tile at the fixed rank and two at each other rank.",
+    "ComparatorChallenges.orderOne_full_cardinality": "Further development consequence: full order-one count is choose(3*m-2,2) for m>=2, and zero for m<=1. The Lean statement uses natural subtraction. Proved by a class-dependent five-tile translation and stars and bars, without candidate-hand enumeration."
+  }
+}

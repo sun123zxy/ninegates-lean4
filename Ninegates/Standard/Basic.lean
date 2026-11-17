@@ -1,138 +1,85 @@
 /-
-Copyright (c) 2026 Xingyu Zhong. All rights reserved.
+Copyright (c) 2026 Luna Luteus. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Xingyu Zhong
+Authors: Luna Luteus
 -/
 module
 
-public import Ninegates.Standard.Insert
+public import Ninegates.Standard.Defs
 
-/-!
-# Basic properties of standard families
-
-Hand sizes for the eight families and coordinate formulas and sizes for the six order-one hands.
-Full-wait and liveness results are in `Ninegates.Standard.Wait`.
--/
+/-! Coordinate patterns and reflection of the standard families. -/
 
 @[expose] public section
 
-namespace Mahjong.Hand
+namespace Mahjong.VirtualHand.Standard
 
 variable {n : ℕ}
 
-namespace Standard
+@[grind =]
+lemma A_apply (i : Rank n) : A n i = if i.val = 0 ∨ i.val + 1 = 3 * n then 3 else 1 := by
+  have bound := i.isLt
+  simp only [A, Pi.add_apply, Pi.smul_apply, smul_eq_mul, interiorOnes_apply, singleAt_apply]
+  split_ifs <;> omega
 
-@[simp, grind =]
-lemma A.size (n : ℕ) (hn : 0 < n) :
-    size (A n) = 3 * n + 4 := by
-  simp only [size_eq_sum, A.apply]
-  have hsplit (i : Fin (3 * n)) :
-      (if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1) =
-        1 + (if i.val = 0 then 2 else 0) +
-          (if i.val = 3 * n - 1 then 2 else 0) := by grind
-  have hsingle (k : ℕ) (hk : k < 3 * n) :
-      (∑ i : Fin (3 * n), if i.val = k then 2 else 0) = 2 := by
-    rw [Finset.sum_eq_single ⟨k, hk⟩] <;> grind
-  simp [hsplit, Finset.sum_add_distrib, hsingle 0 (by omega), hsingle (3 * n - 1) (by omega)]
+@[grind =]
+lemma B_apply (order : 2 ≤ n) (i : Rank n) :
+    B n i = if i.val = 0 then 3 else if i.val = 3 * n - 4 then 4
+      else if i.val + 1 = 3 * n then 0 else 1 := by
+  have bound := i.isLt
+  simp only [B, Pi.add_apply, Pi.smul_apply, smul_eq_mul, interiorOnes_apply, singleAt_apply]
+  split_ifs <;> omega
 
-@[simp, grind =]
-lemma B.size (n : ℕ) (hn : 2 ≤ n) : Hand.size (B n) = 3 * n + 4 := by
-  have h : B n + triplet ⟨3 * n - 1, by omega⟩ =
-      A n + triplet ⟨3 * n - 4, by omega⟩ := by
-    ext i
-    simp only [B.apply, A.apply, add_apply, triplet_apply]
-    grind
-  have hs := congrArg Hand.size h
-  simp only [map_add, size_triplet, A.size n (by omega)] at hs
-  omega
+@[grind =]
+lemma C_apply (order : 2 ≤ n) (i : Rank n) :
+    C n i = if i.val = 2 then 4 else if i.val = 3 * n - 2 then 3
+      else if i.val + 1 = 3 * n then 0 else 1 := by
+  have bound := i.isLt
+  simp only [C, Pi.add_apply, Pi.smul_apply, smul_eq_mul, segment_apply, singleAt_apply]
+  split_ifs <;> omega
 
-@[simp, grind =]
-lemma B'.size (n : ℕ) (hn : 2 ≤ n) : Hand.size (B' n) = 3 * n + 4 := by
-  simpa using B.size n hn
+@[grind =]
+lemma D_apply (order : 2 ≤ n) (i : Rank n) :
+    D n i = if i.val = 0 ∨ i.val + 1 = 3 * n then 0 else if i.val = 2 then 4
+      else if i.val = 3 then 2 else if i.val = 3 * n - 2 then 3 else 1 := by
+  have bound := i.isLt
+  simp only [D, Pi.add_apply, Pi.smul_apply, smul_eq_mul, segment_apply, singleAt_apply]
+  split_ifs <;> omega
 
-@[simp, grind =]
-lemma C.size (n : ℕ) (hn : 2 ≤ n) : Hand.size (C n) = 3 * n + 4 := by
-  have h : C n + pair ⟨0, by omega⟩ + triplet ⟨3 * n - 1, by omega⟩ =
-      A n + triplet ⟨2, by omega⟩ + pair ⟨3 * n - 2, by omega⟩ := by
-    ext i
-    simp only [C.apply, A.apply, add_apply, triplet_apply, pair_apply]
-    grind
-  have hs := congrArg Hand.size h
-  simp only [map_add, size_triplet, size_pair, A.size n (by omega)] at hs
-  omega
-
-@[simp, grind =]
-lemma C'.size (n : ℕ) (hn : 2 ≤ n) : Hand.size (C' n) = 3 * n + 4 := by
-  simpa using C.size n hn
-
-@[simp, grind =]
-lemma D.size (n : ℕ) (hn : 2 ≤ n) : Hand.size (D n) = 3 * n + 4 := by
-  have h : D n + triplet ⟨0, by omega⟩ + triplet ⟨3 * n - 1, by omega⟩ =
-      A n + triplet ⟨2, by omega⟩ + single ⟨3, by omega⟩ + pair ⟨3 * n - 2, by omega⟩ := by
-    ext i
-    simp only [D.apply, A.apply, add_apply, triplet_apply, pair_apply, single_apply]
-    grind
-  have hs := congrArg Hand.size h
-  simp only [map_add, size_triplet, size_pair, size_single, A.size n (by omega)] at hs
-  omega
-
-@[simp, grind =]
-lemma D'.size (n : ℕ) (hn : 2 ≤ n) : Hand.size (D' n) = 3 * n + 4 := by
-  simpa using D.size n hn
-
-@[simp, grind =]
-lemma E.size (n : ℕ) (hn : 2 ≤ n) : Hand.size (E n) = 3 * n + 4 := by
-  by_cases hn₂ : n = 2
-  · subst n; decide
-  have h : E n + triplet ⟨0, by omega⟩ + triplet ⟨3 * n - 1, by omega⟩ =
-      A n + triplet ⟨3, by omega⟩ + triplet ⟨3 * n - 4, by omega⟩ := by
-    ext i
-    simp only [E.apply, A.apply, add_apply, triplet_apply]
-    grind
-  have hs := congrArg Hand.size h
-  simp only [map_add, size_triplet, A.size n (by omega)] at hs
-  omega
-
-namespace One
+@[grind =]
+lemma E_apply (order : 2 ≤ n) (i : Rank n) :
+    E n i = if i.val = 0 ∨ i.val + 1 = 3 * n then 0
+      else if i.val = 3 ∨ i.val = 3 * n - 4 then 4 else 1 := by
+  have bound := i.isLt
+  simp only [E, Pi.add_apply, Pi.smul_apply, smul_eq_mul, interiorOnes_apply, singleAt_apply]
+  split_ifs <;> omega
 
 @[simp]
-lemma a.apply (i : Fin 3) : a i = ![3, 1, 3] i := rfl
-
-@[simp, grind =]
-lemma a.size : Hand.size a = 7 := by decide
-
-@[simp]
-lemma b.apply (i : Fin 3) : b i = ![2, 3, 2] i := rfl
-
-@[simp, grind =]
-lemma b.size : Hand.size b = 7 := by decide
+lemma reverse_A (n : ℕ) : reverse (A n) = A n := by
+  ext i
+  have bound := i.isLt
+  simp only [reverse_apply, A_apply, Fin.val_rev]
+  split_ifs <;> omega
 
 @[simp]
-lemma c.apply (i : Fin 3) : c i = ![3, 3, 1] i := rfl
+lemma reverse_E (order : 2 ≤ n) : reverse (E n) = E n := by
+  ext i
+  have bound := i.isLt
+  simp only [reverse_apply, E_apply order, Fin.val_rev]
+  split_ifs <;> omega
 
-@[simp, grind =]
-lemma c.size : Hand.size c = 7 := by decide
+lemma B'_eq (order : 2 ≤ n) :
+    B' n = interiorOnes + (3 : ℤ) • singleAt 3 + (3 : ℤ) • singleAt (3 * n - 1) := by
+  ext i
+  have bound := i.isLt
+  simp only [B', reverse_apply, B_apply order, Fin.val_rev, Pi.add_apply, Pi.smul_apply,
+    smul_eq_mul, interiorOnes_apply, singleAt_apply]
+  split_ifs <;> omega
 
-@[simp]
-lemma c'.apply (i : Fin 3) : c' i = ![1, 3, 3] i := rfl
+lemma EightFamily.reverse (order : 2 ≤ n) {c : VirtualHand n} (h : EightFamily c) :
+    EightFamily (reverse c) := by
+  rcases h with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  all_goals
+    simp only [EightFamily, B', C', D', reverse_reverse, reverse_A, reverse_E order]
+    tauto
 
-@[simp, grind =]
-lemma c'.size : Hand.size c' = 7 := by decide
-
-@[simp]
-lemma d.apply (i : Fin 3) : d i = ![3, 2, 2] i := rfl
-
-@[simp, grind =]
-lemma d.size : Hand.size d = 7 := by decide
-
-@[simp]
-lemma d'.apply (i : Fin 3) : d' i = ![2, 2, 3] i := rfl
-
-@[simp, grind =]
-lemma d'.size : Hand.size d' = 7 := by decide
-
-end One
-
-end Standard
-
-end Mahjong.Hand
+end Mahjong.VirtualHand.Standard

@@ -1,164 +1,91 @@
 /-
-Copyright (c) 2026 Xingyu Zhong. All rights reserved.
+Copyright (c) 2026 Luna Luteus. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Xingyu Zhong
+Authors: Luna Luteus
 -/
 module
 
-public import Ninegates.Meldable.Basic
+public import Ninegates.Hand.Cut
+public import Ninegates.Meldable.Reverse
+public import Ninegates.Meldable.Triplets
 
-/-!
-# Splitting a meldable hand by a zero
-
-## Main definitions
-
-- `filter` keeps selected coordinates of a hand and zeros the rest.
-- `restrictLT` and `restrictGT` retain the hand before or after a chosen coordinate.
-- `Meldable.Placement.filter`, `Meldable.Placement.restrictLT`, and
-  `Meldable.Placement.restrictGT` is the placement-side analogues of the above.
-
-## Main results
-
-- The single and pair restriction lemmas show how elementary additions behave
-  on either side of the cut.
-- `Meldable.IsWitness.split_at_zero` splits a witness at a zero coordinate.
-- `Meldable.split_at_zero` lifts the witness split to meldability.
-
-## Automation
-
-- The `filter_apply`, `restrictLT_apply`, and `restrictGT_apply` lemmas
-  follow our general automation policy of apply lemmas containing `if`.
--/
+/-! A missing rank separates actual meld placements. Nonnegativity rules out
+every sequence crossing the cut, without a canonical-placement assumption. -/
 
 @[expose] public section
 
-namespace Mahjong.Hand
+namespace Mahjong.VirtualHand
 
 variable {n : ℕ}
 
-def filter (keep : Fin (3 * n) → Prop) [DecidablePred keep] : Hand n →+ Hand n where
-  toFun c := ⟨fun i ↦ if keep i then c i else 0⟩
-  map_zero' := by apply Hand.ext; intro i; change (if keep i then 0 else 0) = 0; simp
-  map_add' _ _ := by
-    ext i
-    change (if keep i then _ + _ else 0) =
-      (if keep i then _ else 0) + (if keep i then _ else 0)
-    split <;> rfl
+namespace Placement
 
-@[grind =]
-lemma filter_apply (keep : Fin (3 * n) → Prop) [DecidablePred keep]
-    (c : Hand n) (i : Fin (3 * n)) :
-    filter keep c i = if keep i then c i else 0 := rfl
+lemma Nonnegative.coefficients_of_zero {p : Placement n} (h : p.Nonnegative)
+    (k : Rank n) (missing : p.toHand k = 0) :
+    coefficient p.seqNum k.val = 0 ∧ coefficient p.seqNum ((k.val : ℤ) - 1) = 0 ∧
+      coefficient p.seqNum ((k.val : ℤ) - 2) = 0 ∧ p.tripNum k = 0 := by
+  have current := coefficient_nonnegative h.1 (k.val : ℤ)
+  have previous := coefficient_nonnegative h.1 ((k.val : ℤ) - 1)
+  have older := coefficient_nonnegative h.1 ((k.val : ℤ) - 2)
+  have triplet : 0 ≤ p.tripNum k := h.2 k
+  rw [toHand_apply] at missing
+  omega
 
-def restrictLT (k : Fin (3 * n)) : Hand n →+ Hand n :=
-  filter (fun i ↦ i.val < k.val)
+def leftOf (p : Placement n) (k : Rank n) : Placement n where
+  seqNum j := if j.val < k.val then p.seqNum j else 0
+  tripNum i := if i.val < k.val then p.tripNum i else 0
 
-def restrictGT (k : Fin (3 * n)) : Hand n →+ Hand n :=
-  filter (fun i ↦ k.val < i.val)
+lemma Nonnegative.leftOf {p : Placement n} (h : p.Nonnegative) (k : Rank n) :
+    (p.leftOf k).Nonnegative := by
+  constructor <;> intro i <;> dsimp [Placement.leftOf] <;> split_ifs
+  · exact h.1 i
+  · norm_num
+  · exact h.2 i
+  · norm_num
 
-@[grind =]
-lemma restrictLT_apply (k i : Fin (3 * n)) (c : Hand n) :
-    restrictLT k c i = if i.val < k.val then c i else 0 := rfl
+lemma Nonnegative.toHand_leftOf {p : Placement n} (h : p.Nonnegative) (k : Rank n)
+    (missing : p.toHand k = 0) : (p.leftOf k).toHand = VirtualHand.leftOf k p.toHand := by
+  obtain ⟨_, previous, older, _⟩ := h.coefficients_of_zero k missing
+  have stopped (t : ℤ) (lower : (k.val : ℤ) - 2 ≤ t) :
+      coefficient (p.leftOf k).seqNum t = 0 := by
+    rw [Placement.leftOf, coefficient_restrict_lt]
+    split_ifs with before
+    · have boundary : t = (k.val : ℤ) - 1 ∨ t = (k.val : ℤ) - 2 := by omega
+      rcases boundary with rfl | rfl <;> assumption
+    · rfl
+  ext i
+  by_cases before : i.val < k.val
+  · simp only [toHand_apply, Placement.leftOf, coefficient_restrict_lt, VirtualHand.leftOf_apply]
+    have current : (i.val : ℤ) < k.val := by omega
+    have previous : (i.val : ℤ) - 1 < k.val := by omega
+    have older : (i.val : ℤ) - 2 < k.val := by omega
+    simp only [ite_eq_left before, ite_eq_left current, ite_eq_left previous, ite_eq_left older]
+  · simp only [toHand_apply, VirtualHand.leftOf_apply, ite_eq_right before]
+    rw [stopped i.val (by omega), stopped ((i.val : ℤ) - 1) (by omega),
+      stopped ((i.val : ℤ) - 2) (by omega)]
+    simp only [Placement.leftOf, ite_eq_right before, mul_zero, add_zero]
 
-@[grind =]
-lemma restrictGT_apply (k i : Fin (3 * n)) (c : Hand n) :
-    restrictGT k c i = if k.val < i.val then c i else 0 := rfl
+end Placement
 
-namespace Meldable.Placement
+lemma Meldable.leftOf {c : VirtualHand n} (h : Meldable c) (k : Rank n) (missing : c k = 0) :
+    Meldable (VirtualHand.leftOf k c) := by
+  obtain ⟨p, positive, rfl⟩ := h
+  exact ⟨p.leftOf k, positive.leftOf k, positive.toHand_leftOf k missing⟩
 
-def filter
-    (tripKeep seqKeep : Fin (3 * n) → Prop)
-    [DecidablePred tripKeep] [DecidablePred seqKeep] : Placement n →+ Placement n where
-  toFun p :=
-    ⟨fun i ↦ if tripKeep i then p.tripNum i else 0,
-      fun i ↦ if seqKeep i then p.seqNum i else 0,
-      by grind⟩
-  map_zero' := by ext i <;> grind
-  map_add' _ _ := by ext i <;> grind
+lemma Meldable.rightOf {c : VirtualHand n} (h : Meldable c) (k : Rank n) (missing : c k = 0) :
+    Meldable (VirtualHand.rightOf k c) := by
+  have reflected := h.reverse.leftOf k.rev (by simpa using missing)
+  rw [leftOf_reverse] at reflected
+  simpa using reflected.reverse
 
-@[grind =]
-lemma tripNum_filter (tripKeep seqKeep : Fin (3 * n) → Prop)
-    [DecidablePred tripKeep] [DecidablePred seqKeep]
-    (p : Placement n) (i : Fin (3 * n)) :
-    (filter tripKeep seqKeep p).tripNum i =
-      if tripKeep i then p.tripNum i else 0 := rfl
+/-- `prp-meldable-split`: a missing rank separates the two actual remainders. -/
+lemma meldable_split {c : VirtualHand n} (k : Rank n) (missing : c k = 0) :
+    Meldable c ↔ Meldable (leftOf k c) ∧ Meldable (rightOf k c) := by
+  constructor
+  · intro h
+    exact ⟨h.leftOf k missing, h.rightOf k missing⟩
+  · rintro ⟨left, right⟩
+    have combined := left.add right
+    rwa [leftOf_add_rightOf c k missing] at combined
 
-@[grind =]
-lemma seqNum_filter (tripKeep seqKeep : Fin (3 * n) → Prop)
-    [DecidablePred tripKeep] [DecidablePred seqKeep]
-    (p : Placement n) (i : Fin (3 * n)) :
-    (filter tripKeep seqKeep p).seqNum i =
-      if seqKeep i then p.seqNum i else 0 := rfl
-
-def restrictLT (k : Fin (3 * n)) : Placement n →+ Placement n :=
-  filter (fun i ↦ i.val < k.val) (fun i ↦ i.val + 2 < k.val)
-
-def restrictGT (k : Fin (3 * n)) : Placement n →+ Placement n :=
-  filter (fun i ↦ k.val < i.val) (fun i ↦ k.val < i.val)
-
-@[grind =]
-lemma tripNum_restrictLT_apply (k i : Fin (3 * n)) (p : Placement n) :
-    (restrictLT k p).tripNum i = if i.val < k.val then p.tripNum i else 0 := rfl
-
-@[grind =]
-lemma seqNum_restrictLT_apply (k i : Fin (3 * n)) (p : Placement n) :
-    (restrictLT k p).seqNum i = if i.val + 2 < k.val then p.seqNum i else 0 := rfl
-
-@[grind =]
-lemma tripNum_restrictGT_apply (k i : Fin (3 * n)) (p : Placement n) :
-    (restrictGT k p).tripNum i = if k.val < i.val then p.tripNum i else 0 := rfl
-
-@[grind =]
-lemma seqNum_restrictGT_apply (k i : Fin (3 * n)) (p : Placement n) :
-    (restrictGT k p).seqNum i = if k.val < i.val then p.seqNum i else 0 := rfl
-
-end Meldable.Placement
-
-@[simp, grind =]
-lemma restrictLT_single_of_lt (k i : Fin (3 * n)) (hi : i.val < k.val) :
-    restrictLT k (single i) = single i := by grind
-
-@[simp, grind =]
-lemma restrictLT_single_of_not_lt (k i : Fin (3 * n)) (hi : ¬i.val < k.val) :
-    restrictLT k (single i) = 0 := by grind
-
-@[simp, grind =]
-lemma restrictGT_single_of_gt (k i : Fin (3 * n)) (hi : k.val < i.val) :
-    restrictGT k (single i) = single i := by grind
-
-@[simp, grind =]
-lemma restrictGT_single_of_not_gt (k i : Fin (3 * n)) (hi : ¬k.val < i.val) :
-    restrictGT k (single i) = 0 := by grind
-
-@[simp, grind =]
-lemma restrictLT_pair_of_lt (k i : Fin (3 * n)) (hi : i.val < k.val) :
-    restrictLT k (pair i) = pair i := by grind
-
-@[simp, grind =]
-lemma restrictLT_pair_of_not_lt (k i : Fin (3 * n)) (hi : ¬i.val < k.val) :
-    restrictLT k (pair i) = 0 := by grind
-
-@[simp, grind =]
-lemma restrictGT_pair_of_gt (k i : Fin (3 * n)) (hi : k.val < i.val) :
-    restrictGT k (pair i) = pair i := by grind
-
-@[simp, grind =]
-lemma restrictGT_pair_of_not_gt (k i : Fin (3 * n)) (hi : ¬k.val < i.val) :
-    restrictGT k (pair i) = 0 := by grind
-
-theorem Meldable.IsWitness.split_at_zero {p : Meldable.Placement n} {c : Hand n}
-    (hp : IsWitness p c) (k : Fin (3 * n)) (hk : c k = 0) :
-    IsWitness (Meldable.Placement.restrictLT k p) (restrictLT k c) ∧
-      IsWitness (Meldable.Placement.restrictGT k p) (restrictGT k c) := by
-  have hcross (j : Fin (3 * n)) :
-      j.val ≤ k.val → k.val ≤ j.val + 2 → p.seqNum j = 0 := by grind
-  grind (splits := 12)
-
-theorem Meldable.split_at_zero {c : Hand n} (hc : Meldable c)
-    (k : Fin (3 * n)) (hk : c k = 0) :
-    Meldable (restrictLT k c) ∧ Meldable (restrictGT k c) := by
-  obtain ⟨p, hp⟩ := hc
-  have ⟨hLT, hGT⟩ := hp.split_at_zero k hk
-  exact ⟨⟨p.restrictLT k, hLT⟩, ⟨p.restrictGT k, hGT⟩⟩
-
-end Mahjong.Hand
+end Mahjong.VirtualHand

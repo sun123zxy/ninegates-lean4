@@ -1,77 +1,88 @@
 /-
-Copyright (c) 2026 Xingyu Zhong. All rights reserved.
+Copyright (c) 2026 Luna Luteus. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Xingyu Zhong
+Authors: Luna Luteus
 -/
 module
 
 public import Ninegates.Wait.Defs
-public import Ninegates.Winning.Basic
+public import Ninegates.Meldable.Basic
 
-/-!
-# Basic properties of waits
--/
+/-! Basic properties of the new paper's draw-pair relation. -/
 
 @[expose] public section
 
-namespace Mahjong.Hand
+namespace Mahjong.VirtualHand
 
-variable {n : ℕ}
+variable {n m cap : ℕ} {c : VirtualHand n} {i j : Rank n}
 
-lemma isLiveWaitingTile_iff {c : Hand n} {i : Fin (3 * n)} :
-    IsLiveWaitingTile c i ↔ IsWaitingTile c i ∧ Valid c ∧ c i ≤ 3 := by
-  simp [IsLiveWaitingTile, IsWaitingTile, Valid]
-  grind
+lemma size_cast_of_wait_size (count : size c = 3 * (m : ℤ) + 1) :
+    (size c : ZMod 3) = 1 := by
+  rw [count]
+  push_cast
+  rw [show (3 : ZMod 3) = 0 from ZMod.natCast_self 3, zero_mul, zero_add]
 
-lemma IsWait.size {c : Hand n} (hc : IsWait c) : size c = 3 * n + 4 := by
-  obtain ⟨i, hi⟩ := hc
-  have hsize := hi.size
-  rw [map_add, size_single] at hsize
+lemma IsFullWait.size_cast (full : IsFullWait m c) : (size c : ZMod 3) = 1 :=
+  size_cast_of_wait_size full.2.1
+
+lemma Winning.nonnegative (h : Winning m c) : Nonnegative c := by
+  obtain ⟨j, remainder⟩ := h.2
+  exact (nonnegative_pair j).trans (sub_nonneg.mp remainder.nonnegative)
+
+@[simp]
+lemma not_isFullWait_order_zero (m : ℕ) (c : VirtualHand 0) : ¬IsFullWait m c := by
+  rintro ⟨_, count, _⟩
+  have empty : size c = 0 := by simp [size]
+  rw [empty] at count
   omega
 
-lemma IsWait.toIsLiveWait {c : Hand n} (hc : IsWait c)
-    (hvalid : ∀ i, IsWaitingTile c i → Valid (c + single i)) :
-    IsLiveWait c := by
-  obtain ⟨i, hi⟩ := hc
-  exact ⟨i, hi, hvalid i hi⟩
+lemma isWaitingTile_iff (hc : size c = 3 * (m : ℤ) + 1) :
+    IsWaitingTile m c i ↔ ∃ j, DrawPair c i j := by
+  simp [IsWaitingTile, Winning, DrawPair, hc, add_assoc]
 
-lemma IsLiveWait.size {c : Hand n} (hc : IsLiveWait c) : size c = 3 * n + 4 := by
-  obtain ⟨i, hi⟩ := hc
-  exact IsWait.size ⟨i, hi.1⟩
+lemma isFullWait_iff : IsFullWait m c ↔
+    Nonnegative c ∧ size c = 3 * (m : ℤ) + 1 ∧ ∀ i, ∃ j, DrawPair c i j := by
+  unfold IsFullWait
+  constructor <;> rintro ⟨nonnegative, size, all⟩
+  · exact ⟨nonnegative, size, fun i ↦ (isWaitingTile_iff size).mp (all i)⟩
+  · exact ⟨nonnegative, size, fun i ↦ (isWaitingTile_iff size).mpr (all i)⟩
 
-lemma IsLiveWait.valid (c : Hand n) (hc : IsLiveWait c) : Valid c := by
-  obtain ⟨w, ⟨_, hwvalid⟩⟩ := hc
-  intro i
-  have hi := hwvalid i
-  simp only [add_apply] at hi
+/-- Proposition `prp-draw-pair-congruence`, using one-based paper ranks. -/
+lemma DrawPair.congruence (h : DrawPair c i j) :
+    rankClass i + rankClass j = -(rankSum c : ZMod 3) := by
+  have eq := (Meldable.virtuallyMeldable h).rankSum_cast
+  simp only [map_sub, map_add, rankSum_single, rankSum_pair] at eq
+  push_cast at eq
+  change (rankSum c : ZMod 3) + rankClass i - 2 * rankClass j = 0 at eq
+  have three : (3 : ZMod 3) * rankClass j = 0 := by
+    rw [show (3 : ZMod 3) = 0 from ZMod.natCast_self 3, zero_mul]
+  linear_combination eq + three
+
+lemma DrawPair.pair_available (h : DrawPair c i j) (different : i ≠ j) : 2 ≤ c j := by
+  have bound := Meldable.nonnegative h j
+  simp [single, pair, Ne.symm different] at bound
   omega
 
-lemma IsFullWait.toIsLiveFullWait {c : Hand n} (hc : IsFullWait c)
-    (hvalid : ∀ i, Valid (c + single i)) : IsLiveFullWait c := by
-  intro i
-  exact ⟨hc i, hvalid i⟩
+lemma DrawPair.self_positive (h : DrawPair c i i) : 1 ≤ c i := by
+  have bound := Meldable.nonnegative h i
+  simp [single, pair] at bound
+  omega
 
-lemma isLiveFullWait_iff_le_three {c : Hand n} :
-    IsLiveFullWait c ↔ IsFullWait c ∧ ∀ i, c i ≤ 3 := by
-  simp only [IsLiveFullWait, IsFullWait, isLiveWaitingTile_iff]
-  grind
+lemma isLiveFullWait_iff :
+    IsLiveFullWait cap m c ↔ IsFullWait m c ∧ ∀ i, c i + 1 ≤ cap := by
+  constructor
+  · rintro ⟨full, live⟩
+    refine ⟨full, ?_⟩
+    intro i
+    have bound := (live i).2 i
+    simpa using bound
+  · rintro ⟨full, bound⟩
+    refine ⟨full, ?_⟩
+    intro i
+    refine ⟨full.1.add (nonnegative_single i), ?_⟩
+    intro j
+    have at_j := bound j
+    simp only [Pi.add_apply, single]
+    split <;> omega
 
-lemma IsFullWait.size (hn : 0 < n) {c : Hand n} (hc : IsFullWait c) :
-    size c = 3 * n + 4 := by
-  let i : Fin (3 * n) := ⟨0, by omega⟩
-  exact IsWait.size ⟨i, hc i⟩
-
-lemma IsLiveFullWait.size (hn : 0 < n) {c : Hand n} (hc : IsLiveFullWait c) :
-    size c = 3 * n + 4 :=
-  let i : Fin (3 * n) := ⟨0, by omega⟩
-  IsLiveWait.size ⟨i, hc i⟩
-
-lemma IsLiveFullWait.le_three {c : Hand n} (hc : IsLiveFullWait c) : ∀ i, c i ≤ 3 := by
-  exact isLiveFullWait_iff_le_three.mp hc |>.2
-
-theorem IsFullWait.reverse {c : Hand n} (hc : IsFullWait c) : IsFullWait (reverse c) := by
-  intro i
-  change Winning (Hand.reverse c + single i)
-  simpa only [map_add, reverse_single, Fin.rev_rev] using (hc i.rev).reverse
-
-end Mahjong.Hand
+end Mahjong.VirtualHand

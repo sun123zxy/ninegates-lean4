@@ -1,88 +1,44 @@
 /-
-Copyright (c) 2026 Xingyu Zhong. All rights reserved.
+Copyright (c) 2026 Luna Luteus. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Xingyu Zhong
+Authors: Luna Luteus
 -/
 module
 
-public import Ninegates.Defs
+public import Ninegates.Hand.Segment
+public import Ninegates.Hand.Interior
 
-/-!
-# Standard full-wait families
-
-The eight parameter families, six order-one hands, and their membership predicates.
-Full-wait and liveness properties are in `Ninegates.Standard.Wait`.
-Coordinate formulas and insertion properties are in `Ninegates.Standard.Insert`.
--/
+/-! The paper's eight standard families. The interval descriptions handle the
+overlapping end patterns of `E 2` uniformly. At order one, `A` is `(3,1,3)`. -/
 
 @[expose] public section
 
-namespace Mahjong.Hand
+namespace Mahjong.VirtualHand.Standard
 
-namespace Standard
+def A (n : ℕ) : VirtualHand n :=
+  interiorOnes + (3 : ℤ) • singleAt 0 + (3 : ℤ) • singleAt (3 * n - 1)
 
-def A (n : ℕ) : Hand n :=
-  ⟨fun i ↦ if i.val = 0 ∨ i.val = 3 * n - 1 then 3 else 1⟩
+def B (n : ℕ) : VirtualHand n :=
+  interiorOnes + (3 : ℤ) • singleAt 0 + (3 : ℤ) • singleAt (3 * n - 4)
 
-def B (n : ℕ) : Hand n :=
-  ⟨fun i ↦ if i.val = 0 then 3 else if i.val = 3 * n - 4 then 4
-    else if i.val = 3 * n - 1 then 0 else 1⟩
+def C (n : ℕ) : VirtualHand n :=
+  segment 0 (3 * n - 2) + (3 : ℤ) • singleAt 2 + (3 : ℤ) • singleAt (3 * n - 2)
 
-def B' (n : ℕ) : Hand n := reverse (B n)
+def D (n : ℕ) : VirtualHand n :=
+  segment 3 (3 * n - 2) + segment 1 4 +
+    (3 : ℤ) • singleAt 2 + (3 : ℤ) • singleAt (3 * n - 2)
 
-def C (n : ℕ) : Hand n :=
-  ⟨fun i ↦ if i.val = 2 then 4 else if i.val = 3 * n - 2 then 3
-    else if i.val = 3 * n - 1 then 0 else 1⟩
+def E (n : ℕ) : VirtualHand n :=
+  interiorOnes + (3 : ℤ) • singleAt 3 + (3 : ℤ) • singleAt (3 * n - 4)
 
-def C' (n : ℕ) : Hand n := reverse (C n)
+def B' (n : ℕ) : VirtualHand n := reverse (B n)
+def C' (n : ℕ) : VirtualHand n := reverse (C n)
+def D' (n : ℕ) : VirtualHand n := reverse (D n)
 
-def D (n : ℕ) : Hand n :=
-  ⟨fun i ↦ if i.val = 0 ∨ i.val = 3 * n - 1 then 0 else if i.val = 2 then 4
-    else if i.val = 3 then 2 else if i.val = 3 * n - 2 then 3 else 1⟩
+def Eight (n : ℕ) : Fin 8 → VirtualHand n :=
+  ![A n, B n, B' n, C n, C' n, D n, D' n, E n]
 
-def D' (n : ℕ) : Hand n := reverse (D n)
+def EightFamily {n : ℕ} (c : VirtualHand n) : Prop :=
+  c = A n ∨ c = B n ∨ c = B' n ∨ c = C n ∨ c = C' n ∨ c = D n ∨ c = D' n ∨ c = E n
 
-def E (n : ℕ) : Hand n :=
-  ⟨fun i ↦ if i.val = 0 ∨ i.val = 3 * n - 1 then 0
-    else if (n = 2 ∧ (i.val = 2 ∨ i.val = 3)) ∨
-      (n ≠ 2 ∧ (i.val = 3 ∨ i.val = 3 * n - 4)) then 4 else 1⟩
-
-namespace One
-
-def a : Hand 1 := ⟨![3, 1, 3]⟩
-
-def b : Hand 1 := ⟨![2, 3, 2]⟩
-
-def c : Hand 1 := ⟨![3, 3, 1]⟩
-
-def c' : Hand 1 := ⟨![1, 3, 3]⟩
-
-def d : Hand 1 := ⟨![3, 2, 2]⟩
-
-def d' : Hand 1 := ⟨![2, 2, 3]⟩
-
-end One
-
-end Standard
-
-/-- Equality to one of the eight standard families for orders at least two. -/
-abbrev IsEightFamily {n : ℕ} (c : Hand n) : Prop :=
-  c = Standard.A n ∨
-  c = Standard.B n ∨
-  c = Standard.B' n ∨
-  c = Standard.C n ∨
-  c = Standard.C' n ∨
-  c = Standard.D n ∨
-  c = Standard.D' n ∨
-  c = Standard.E n
-
-/-- Equality to one of the six standard order-one hands. -/
-abbrev IsOrderOneFamily (c : Hand 1) : Prop :=
-  c = Standard.One.a ∨
-  c = Standard.One.b ∨
-  c = Standard.One.c ∨
-  c = Standard.One.c' ∨
-  c = Standard.One.d ∨
-  c = Standard.One.d'
-
-end Mahjong.Hand
+end Mahjong.VirtualHand.Standard

@@ -1,94 +1,100 @@
 /-
-Copyright (c) 2026 Xingyu Zhong. All rights reserved.
+Copyright (c) 2026 Luna Luteus. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Xingyu Zhong
+Authors: Luna Luteus
 -/
 module
 
-public import Ninegates.Counterexample.Elimination
-public import Ninegates.Standard.Wait
+public import Ninegates.Standard.Necessity
+public import Ninegates.Standard.WaitOne
+public import Ninegates.Standard.WaitTwo
+public import Ninegates.Minimal.Basic
 
-/-!
-
-# Classification of full waits
-
-The main theorem of our project.
--/
+/-! Structural classification of full-sided `(n,n+1)` waits at order `n≥2`.
+No hand enumeration or computational decision procedure is used. -/
 
 @[expose] public section
 
-namespace Mahjong.Hand
+namespace Mahjong.VirtualHand
 
-open Counterexample
+variable {n : ℕ} {c : VirtualHand n}
 
-theorem fullWait_classification (n : Nat) (hn : 2 ≤ n) (c : Hand n)
-    (hc : IsFullWait c) : IsEightFamily c := by
-  classical
-  by_contra hfamily
-  let hex : ∃ m, 2 ≤ m ∧ ∃ d : Hand m, IsCE d :=
-    ⟨n, hn, c, ⟨hc, hfamily⟩⟩
-  let m := Nat.find hex
-  obtain ⟨hm, d, hd⟩ := Nat.find_spec hex
-  have hmin : ∀ k, 2 ≤ k → k < m → ¬ HasCE k := by
-    intro k hk hkm hcounterexample
-    have hspec := Nat.find_min' hex ⟨hk, hcounterexample⟩
-    omega
-  have hdmem := mem_candidates_of_minimal hm hd hmin
-  have hm' : m ≤ 7 := (mem_candidates_iff.mp hdmem).2.1
-  exact candidates_no_CE m hm hm' d hdmem hd
+lemma Standard.EightFamily.full (order : 2 ≤ n) (h : Standard.EightFamily c) :
+    IsFullWait (n + 1) c := by
+  rcases h with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · exact Standard.A_full order
+  · exact Standard.B_full order
+  · exact (Standard.B_full order).reverse
+  · exact Standard.C_full order
+  · exact (Standard.C_full order).reverse
+  · exact Standard.D_full order
+  · exact (Standard.D_full order).reverse
+  · exact Standard.E_full order
 
-theorem isFullWait_iff_eightFamily (n : Nat) (hn : 2 ≤ n) (c : Hand n) :
-    IsFullWait c ↔ IsEightFamily c := by
-  constructor
-  · exact fullWait_classification n hn c
-  · intro h
-    rcases h with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
-    · exact Standard.A.isFullWait n (by omega)
-    · exact Standard.B.isFullWait n hn
-    · exact Standard.B'.isFullWait n hn
-    · exact Standard.C.isFullWait n hn
-    · exact Standard.C'.isFullWait n hn
-    · exact Standard.D.isFullWait n hn
-    · exact Standard.D'.isFullWait n hn
-    · exact Standard.E.isFullWait n hn
+/-- The order-at-least-two part of the paper's main classification theorem. -/
+lemma isFullWait_iff_eightFamily (order : 2 ≤ n) :
+    IsFullWait (n + 1) c ↔ Standard.EightFamily c :=
+  ⟨fun h ↦ h.eightFamily order, fun h ↦ h.full order⟩
 
-theorem orderOne_fullWait_classification (c : Hand 1) (hc : IsFullWait c) :
-    IsOrderOneFamily c := by
-  have hmem : c ∈ Candidates 1 := by
-    apply mem_candidates_iff.mpr
-    refine ⟨by omega, by omega, ?_, ?_, ?_⟩
-    · intro i
-      exact interior_positive c hc ⟨i.val + 1, by omega⟩
-        ⟨by simp, by simp⟩
-    · exact IsFullWait.size (by omega) hc
-    · omega
-  exact orderOne_fullWait_classification_of_candidates c hmem hc
+lemma isMinimalFullWait_iff_eightFamily (order : 2 ≤ n) :
+    IsMinimalFullWait (n + 1) c ↔ Standard.EightFamily c := by
+  rw [isMinimalFullWait_succ_iff, isFullWait_iff_eightFamily order]
 
-theorem orderOne_isFullWait_iff_isOrderOneFamily (c : Hand 1) :
-    IsFullWait c ↔ IsOrderOneFamily c := by
-  constructor
-  · exact orderOne_fullWait_classification c
-  · intro h
-    rcases h with rfl | rfl | rfl | rfl | rfl | rfl
-    · exact Standard.One.a.isFullWait
-    · exact Standard.One.b.isFullWait
-    · exact Standard.One.c.isFullWait
-    · exact Standard.One.c'.isFullWait
-    · exact Standard.One.d.isFullWait
-    · exact Standard.One.d'.isFullWait
+lemma Standard.A_live (order : 2 ≤ n) : IsLiveFullWait 4 (n + 1) (Standard.A n) := by
+  apply isLiveFullWait_iff.mpr
+  refine ⟨Standard.A_full order, ?_⟩
+  intro i
+  rw [Standard.A_apply]
+  split_ifs <;> norm_num
 
-theorem liveFullWait_unique (n : ℕ) (hn : n ≥ 2)
-    (c : Hand n) (hc : c.IsLiveFullWait) : c = Standard.A n := by
-  have hfull := (isLiveFullWait_iff_le_three.mp hc).1
-  have hfamily := fullWait_classification n hn c hfull
-  rcases hfamily with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
-  · rfl
-  · exact False.elim ((Standard.B.not_isLiveFullWait n hn) hc)
-  · exact False.elim ((Standard.B'.not_isLiveFullWait n hn) hc)
-  · exact False.elim ((Standard.C.not_isLiveFullWait n hn) hc)
-  · exact False.elim ((Standard.C'.not_isLiveFullWait n hn) hc)
-  · exact False.elim ((Standard.D.not_isLiveFullWait n hn) hc)
-  · exact False.elim ((Standard.D'.not_isLiveFullWait n hn) hc)
-  · exact False.elim ((Standard.E.not_isLiveFullWait n hn) hc)
+private lemma not_live_of_four {m : ℕ} (i : Rank n) (four : c i = 4) :
+    ¬IsLiveFullWait 4 m c := by
+  intro live
+  have bound := (isLiveFullWait_iff.mp live).2 i
+  rw [four] at bound
+  omega
 
-end Mahjong.Hand
+lemma Standard.B_not_live (order : 2 ≤ n) : ¬IsLiveFullWait 4 (n + 1) (Standard.B n) := by
+  apply not_live_of_four (⟨3 * n - 4, by omega⟩ : Rank n)
+  rw [Standard.B_apply order]
+  dsimp only
+  split_ifs <;> omega
+
+lemma Standard.C_not_live (order : 2 ≤ n) : ¬IsLiveFullWait 4 (n + 1) (Standard.C n) := by
+  apply not_live_of_four (⟨2, by omega⟩ : Rank n)
+  rw [Standard.C_apply order]
+  norm_num
+
+lemma Standard.D_not_live (order : 2 ≤ n) : ¬IsLiveFullWait 4 (n + 1) (Standard.D n) := by
+  apply not_live_of_four (⟨2, by omega⟩ : Rank n)
+  rw [Standard.D_apply order]
+  dsimp only
+  split_ifs <;> norm_num at * <;> omega
+
+lemma Standard.E_not_live (order : 2 ≤ n) : ¬IsLiveFullWait 4 (n + 1) (Standard.E n) := by
+  apply not_live_of_four (⟨3, by omega⟩ : Rank n)
+  rw [Standard.E_apply order]
+  dsimp only
+  split_ifs <;> norm_num at * <;> omega
+
+/-- Among full-sided waits with live draws under the four-copy bound, only
+the generalized Nine Gates hand remains. -/
+lemma liveFullWait_unique (order : 2 ≤ n) (live : IsLiveFullWait 4 (n + 1) c) :
+    c = Standard.A n := by
+  rcases live.1.eightFamily order with equal | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · exact equal
+  · exact (Standard.B_not_live order live).elim
+  · exact (Standard.B_not_live order (isLiveFullWait_reverse_iff.mp live)).elim
+  · exact (Standard.C_not_live order live).elim
+  · exact (Standard.C_not_live order (isLiveFullWait_reverse_iff.mp live)).elim
+  · exact (Standard.D_not_live order live).elim
+  · exact (Standard.D_not_live order (isLiveFullWait_reverse_iff.mp live)).elim
+  · exact (Standard.E_not_live order live).elim
+
+lemma isLiveFullWait_iff_eq_A (order : 2 ≤ n) :
+    IsLiveFullWait 4 (n + 1) c ↔ c = Standard.A n := by
+  refine ⟨liveFullWait_unique order, ?_⟩
+  rintro rfl
+  exact Standard.A_live order
+
+end Mahjong.VirtualHand
